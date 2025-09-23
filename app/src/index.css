@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Colors */
+  --color-background: #FFFDF0;
+  --color-foreground: #0F0F0F;
+  --color-primary: #C6BCF0;
+  --color-secondary: #6100FF;
+  
+  /* Custom spacing */
+  --spacing-xs: 0.25rem;  /* 4px */
+  --spacing-sm: 0.5rem;   /* 8px */
+  --spacing-md: 1rem;     /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  --spacing-2xl: 3rem;    /* 48px */
+  --spacing-3xl: 4rem;    /* 64px */
+  
+  /* Container sizes */
+  --size-container-sm: 640px;
+  --size-container-md: 768px;
+  --size-container-lg: 1024px;
+  --size-container-xl: 1280px;
+  
+  /* Common sizes */
+  --size-header-height: 5rem;  /* 80px */
+  --size-button-height: 2.5rem; /* 40px */
+  --size-icon: 1.25rem;        /* 20px */
+  --size-icon-lg: 1.5rem;      /* 24px */
+  
+  /* Border radius */
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;   /* full circle */
+}
+
+.dark {
+  --color-background: #0F0F0F;
+  --color-foreground: #FFFDF0;
+  --color-primary: #C6BCF0;
+  --color-secondary: #8A4FFF;
+}
+
+body {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}

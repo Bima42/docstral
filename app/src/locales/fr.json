@@ -1,0 +1,18 @@
+{
+  "pages": {
+    "home": {
+      "title": "Accueil",
+      "darkModeTest": "Test Dark Mode",
+      "currentMode": "Mode actuel"
+    }
+  },
+  "theme": {
+    "light": "clair",
+    "dark": "sombre"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  }
+}
