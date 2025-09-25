@@ -1,11 +1,17 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
-import Header from '../components/Header';
+import { SidebarInset, SidebarProvider } from '../components/ui/sidebar';
+import { AppSidebar } from '../components/app-sidebar';
+
 
 export const Route = createRootRoute({
 	component: () => (
-		<>
-			<Header />
-			<Outlet />
-		</>
+		<SidebarProvider>
+			<AppSidebar />
+			<SidebarInset>
+				<main className="flex-1 overflow-auto">
+					<Outlet />
+				</main>
+			</SidebarInset>
+		</SidebarProvider>
 	),
 });
