@@ -3,13 +3,9 @@ import { useIsMobile } from '@/hooks/useMobile.ts';
 import { SidebarHeader } from '@/components/sidebar/SidebarHeader.tsx';
 import { SidebarContainer } from '@/components/sidebar/SidebarContainer.tsx';
 import { SidebarFooter } from '@/components/sidebar/SidebarFooter.tsx';
-import { SidebarBackdrop } from '@/components/sidebar/SidebarBackdrop.tsx';
 import { SidebarToggle } from '@/components/sidebar/SidebarToggle.tsx';
 import { SidebarContent } from '@/components/sidebar/SidebarContent.tsx';
 
-/**
- * Desktop sidebar - Always visible, even if collapsed
- */
 function SidebarDesktop({
 	isCollapsed,
 	onToggleCollapse
@@ -32,11 +28,8 @@ function SidebarDesktop({
 			].join(' ')}
 			data-collapsible={isCollapsed ? 'icon' : 'full'}
 		>
-			<div className="border-b border-sidebar-border">
-				<SidebarHeader collapsed={isCollapsed} onToggleCollapse={onToggleCollapse} />
-			</div>
+			<SidebarHeader collapsed={isCollapsed} onToggleCollapse={onToggleCollapse} />
 
-			{/* Enforce toggles stays at the bottom of the collapsed sidebar */}
 			<div className="flex flex-col flex-1 min-h-0">
 				<SidebarContent collapsed={isCollapsed} />
 				<div className="mt-auto border-t border-sidebar-border">
@@ -57,15 +50,15 @@ function SidebarMobilePanel({
 	return (
 		<div
 			className={`
-                fixed left-0 top-0 bottom-0 
-                w-[85%] min-w-[280px] max-w-[360px]
-                bg-sidebar text-sidebar-foreground
-                border-r border-sidebar-border shadow-lg
-                animate-in slide-in-from-left duration-300
-                ${!isOpen && 'animate-out slide-out-to-left duration-300'}
-                flex flex-col
-                overflow-hidden
-              `}
+        fixed left-0 top-0 bottom-0
+        w-[85%] min-w-[280px] max-w-[360px]
+        bg-sidebar text-sidebar-foreground
+        border-r border-sidebar-border shadow-lg
+        animate-in slide-in-from-left duration-300
+        ${!isOpen && 'animate-out slide-out-to-left duration-300'}
+        flex flex-col
+        overflow-hidden
+      `}
 			data-collapsible="full"
 		>
 			{children}
@@ -82,7 +75,6 @@ export function AppSidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 	const isMobile = useIsMobile();
 	const isOpen = !isCollapsed;
 
-	// Use for animation
 	const [isVisible, setIsVisible] = useState(false);
 
 	useEffect(() => {
@@ -90,17 +82,13 @@ export function AppSidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 		if (isOpen) {
 			setIsVisible(true);
 		} else {
-			const timeout = setTimeout(() => {
-				setIsVisible(false);
-			}, 300);
+			const timeout = setTimeout(() => setIsVisible(false), 300);
 			return () => clearTimeout(timeout);
 		}
 	}, [isOpen, isMobile]);
 
 	useEffect(() => {
-		if (!isMobile) {
-			setIsVisible(false);
-		}
+		if (!isMobile) setIsVisible(false);
 	}, [isMobile]);
 
 	if (!isMobile) {
@@ -115,17 +103,22 @@ export function AppSidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 	return (
 		<>
 			{!isOpen && (
-				<SidebarToggle collapsed={isCollapsed} onToggle={onToggleCollapse} />
+			// Bouton fixed en haut à gauche quand la sidebar est fermée sur mobile
+				<SidebarToggle
+					collapsed={isCollapsed}
+					onToggle={onToggleCollapse}
+					fixed
+				/>
 			)}
 
-			<SidebarContainer isOpen={isOpen} isVisible={isVisible}>
-				<SidebarBackdrop isOpen={isOpen} onClick={onToggleCollapse} />
+			<SidebarContainer
+				isOpen={isOpen}
+				isVisible={isVisible}
+				onClose={onToggleCollapse}
+				blur
+			>
 				<SidebarMobilePanel isOpen={isOpen}>
-					<div className="border-b border-sidebar-border">
-						<SidebarHeader collapsed={false} onToggleCollapse={onToggleCollapse} />
-					</div>
-
-					{/* Enforce toggles stays at the bottom of the collapsed sidebar */}
+					<SidebarHeader collapsed={false} onToggleCollapse={onToggleCollapse} />
 					<div className="flex flex-col flex-1 min-h-0">
 						<SidebarContent collapsed={false} />
 						<div className="mt-auto border-t border-sidebar-border">

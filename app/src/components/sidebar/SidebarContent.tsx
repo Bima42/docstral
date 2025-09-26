@@ -66,7 +66,7 @@ export function SidebarContent({ collapsed }: { collapsed: boolean }) {
 	return (
 		<div className="flex flex-col flex-1 overflow-hidden">
 			<div className="flex-1 overflow-y-auto">
-				<div className="flex flex-col p-3">
+				<div className="flex flex-col">
 					<div>
 						<SidebarSection>
 							<ConversationsList
