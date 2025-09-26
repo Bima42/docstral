@@ -59,6 +59,16 @@
     --radius-xl: 1rem; /* 16px */
     --radius-2xl: 1.5rem; /* 24px */
     --radius-full: 9999px; /* full circle */
+
+    /* Sidebar colors */
+    --color-sidebar: var(--color-surface-light);
+    --color-sidebar-foreground: var(--color-neutral-800);
+    --color-sidebar-primary: var(--color-primary);
+    --color-sidebar-primary-foreground: var(--color-surface-light);
+    --color-sidebar-accent: var(--color-neutral-100);
+    --color-sidebar-accent-foreground: var(--color-neutral-700);
+    --color-sidebar-border: var(--color-neutral-200);
+    --color-sidebar-ring: var(--color-primary);
 }
 
 .dark {
@@ -90,47 +100,3 @@ body {
 html {
     scroll-behavior: smooth;
 }
-
-/* Sidebar CSS Variables - Single source of truth */
-:root {
-    --sidebar-width: 30rem;
-    --sidebar: hsl(0 0% 98%);
-    --sidebar-foreground: hsl(240 5.3% 26.1%);
-    --sidebar-primary: hsl(240 5.9% 10%);
-    --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent: hsl(240 4.8% 95.9%);
-    --sidebar-accent-foreground: hsl(240 5.9% 10%);
-    --sidebar-border: hsl(220 13% 91%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-}
-
-@theme inline {
-    --color-sidebar: var(--color-surface-light);
-    --color-sidebar-foreground: var(--color-neutral-800);
-    --color-sidebar-primary: var(--color-primary);
-    --color-sidebar-primary-foreground: var(--color-surface-light);
-    --color-sidebar-accent: var(--color-neutral-100);
-    --color-sidebar-accent-foreground: var(--color-neutral-700);
-    --color-sidebar-border: var(--color-neutral-200);
-    --color-sidebar-ring: var(--color-primary);
-}
-
-.dark {
-    --color-sidebar: var(--color-surface-neutral);
-    --color-sidebar-foreground: var(--color-neutral-100);
-    --color-sidebar-primary: var(--color-primary);
-    --color-sidebar-primary-foreground: var(--color-surface-light);
-    --color-sidebar-accent: var(--color-neutral-800);
-    --color-sidebar-accent-foreground: var(--color-neutral-200);
-    --color-sidebar-border: var(--color-neutral-700);
-    --color-sidebar-ring: var(--color-primary);
-}
-
-/*@layer base {*/
-/*  * {*/
-/*    @apply border-border outline-ring/50;*/
-/*    }*/
-/*  body {*/
-/*    @apply bg-background text-foreground;*/
-/*    }*/
-/*}*/
