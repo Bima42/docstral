@@ -72,24 +72,22 @@
 }
 
 .dark {
-    --color-surface-light: #1e1e1e;
-    --color-surface-warm: #262626;
-    --color-surface-neutral: #171717;
+    --color-surface-light: hsl(240 10% 12%);
+    --color-surface-warm:  hsl(240 8% 10%);
+    --color-surface-neutral:hsl(240 12% 8%);
 
-    --color-warm-50: #404040;
-    --color-warm-100: #525252;
-    --color-warm-200: #737373;
+    --color-primary-400: hsl(24 100% 56%);
+    --color-primary-500: hsl(24 100% 52%);
+    --color-primary-600: hsl(24 94% 46%);
 
-    --color-primary-400: #fb923c;
-
-    --sidebar: hsl(240 5.9% 10%);
-    --sidebar-foreground: hsl(240 4.8% 95.9%);
-    --sidebar-primary: hsl(224.3 76.3% 48%);
-    --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(240 3.7% 15.9%);
-    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-    --sidebar-border: hsl(240 3.7% 15.9%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    --color-sidebar:                   hsl(240 10% 8%);
+    --color-sidebar-foreground:        hsl(0 0% 96%);
+    --color-sidebar-primary:           hsl(24 100% 52%);
+    --color-sidebar-primary-foreground:hsl(0 0% 100%);
+    --color-sidebar-accent:            hsl(240 9% 12%);
+    --color-sidebar-accent-foreground: hsl(0 0% 90%);
+    --color-sidebar-border:            hsl(240 7% 18%);
+    --color-sidebar-ring:              hsl(24 100% 60%);
 }
 
 body {

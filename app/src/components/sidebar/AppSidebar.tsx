@@ -40,7 +40,7 @@ function SidebarDesktop({
 			<div className="flex flex-col flex-1 min-h-0">
 				<SidebarContent collapsed={isCollapsed} />
 				<div className="mt-auto border-t border-sidebar-border">
-					<SidebarFooter />
+					<SidebarFooter collapsed={isCollapsed} />
 				</div>
 			</div>
 		</div>
@@ -129,7 +129,7 @@ export function AppSidebar({ isCollapsed, onToggleCollapse }: SidebarProps) {
 					<div className="flex flex-col flex-1 min-h-0">
 						<SidebarContent collapsed={false} />
 						<div className="mt-auto border-t border-sidebar-border">
-							<SidebarFooter />
+							<SidebarFooter collapsed={false} />
 						</div>
 					</div>
 				</SidebarMobilePanel>

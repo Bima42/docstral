@@ -3,37 +3,32 @@ import { useLanguage } from '@/hooks/useLanguage.ts';
 import { LanguageToggle } from '@/components/toggles/language-toggle.tsx';
 import { ThemeToggle } from '@/components/toggles/theme-toggle.tsx';
 
-export function SidebarFooter() {
+export function SidebarFooter({ collapsed = false }: { collapsed?: boolean }) {
 	const { isDark } = useTheme();
 	const { getLanguageDisplay } = useLanguage();
 
+	if (!collapsed) {
+		return (
+			<div className="space-y-3">
+				<div className="flex items-center justify-between px-2">
+					<span className="text-sm font-medium text-sidebar-foreground">Language</span>
+					<LanguageToggle />
+				</div>
+				<div className="flex items-center justify-between px-2">
+					<span className="text-sm font-medium text-sidebar-foreground">Theme</span>
+					<ThemeToggle />
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<div className="space-y-3">
-			<div className="flex items-center justify-between px-2 group-data-[collapsible=icon]:hidden">
-				<span className="text-sm font-medium text-sidebar-foreground">
-                    Language
-				</span>
-				<div className="flex items-center gap-2">
-					<LanguageToggle />
-				</div>
+		<div className="flex flex-col gap-2 items-center">
+			<div className="p-1" title={`Language: ${getLanguageDisplay()}`}>
+				<LanguageToggle />
 			</div>
-
-			<div className="flex items-center justify-between px-2 group-data-[collapsible=icon]:hidden">
-				<span className="text-sm font-medium text-sidebar-foreground">
-                    Theme
-				</span>
-				<div className="flex items-center gap-2">
-					<ThemeToggle />
-				</div>
-			</div>
-
-			<div className="hidden group-data-[collapsible=icon]:flex flex-col gap-2 items-center">
-				<div className="p-1" title={`Language: ${getLanguageDisplay()}`}>
-					<LanguageToggle />
-				</div>
-				<div className="p-1" title={`Theme: ${isDark ? 'Dark' : 'Light'}`}>
-					<ThemeToggle />
-				</div>
+			<div className="p-1" title={`Theme: ${isDark ? 'Dark' : 'Light'}`}>
+				<ThemeToggle />
 			</div>
 		</div>
 	);

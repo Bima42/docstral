@@ -21,7 +21,6 @@ export default tseslint.config([
         },
         rules: {
             ...reactHooks.configs.recommended.rules,
-            ...reactRefresh.configs.recommended.rules,
             'indent': ['error', 'tab', { 'SwitchCase': 1 }],
             'linebreak-style': ['error', 'unix'],
             'quotes': ['error', 'single'],
