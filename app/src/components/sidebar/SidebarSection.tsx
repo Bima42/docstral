@@ -5,15 +5,16 @@
  * @param children
  * @param className
  */
-export function SidebarSection({
-	label,
-	children,
-	className = ''
-}: {
+interface SidebarSectionProps {
     children: React.ReactNode;
     label?: string;
     className?: string;
-}) {
+}
+export const SidebarSection = ({
+	label,
+	children,
+	className = ''
+}: SidebarSectionProps) => {
 	return (
 		<div className={`flex flex-col h-full ${className}`}>
 			{label && (
@@ -24,4 +25,4 @@ export function SidebarSection({
 			<div className="flex-1 overflow-y-auto">{children}</div>
 		</div>
 	);
-}
+};

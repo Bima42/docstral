@@ -3,7 +3,10 @@ import { useLanguage } from '@/hooks/useLanguage.ts';
 import { LanguageToggle } from '@/components/toggles/language-toggle.tsx';
 import { ThemeToggle } from '@/components/toggles/theme-toggle.tsx';
 
-export function SidebarFooter({ collapsed = false }: { collapsed?: boolean }) {
+interface SidebarFooterProps {
+    collapsed?: boolean;
+}
+export const SidebarFooter = ({ collapsed = false }: SidebarFooterProps)=> {
 	const { isDark } = useTheme();
 	const { getLanguageDisplay } = useLanguage();
 
@@ -32,4 +35,4 @@ export function SidebarFooter({ collapsed = false }: { collapsed?: boolean }) {
 			</div>
 		</div>
 	);
-}
+};

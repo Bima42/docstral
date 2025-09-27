@@ -1,16 +1,17 @@
 import { PanelLeft } from 'lucide-react';
 
-export function SidebarToggle({
-	collapsed,
-	onToggle,
-	fixed = false,
-	className = ''
-}: {
+interface SidebarToggleProps {
     collapsed: boolean;
     onToggle: () => void;
     fixed?: boolean;
     className?: string;
-}) {
+}
+export const SidebarToggle = ({
+	collapsed,
+	onToggle,
+	fixed = false,
+	className = ''
+}: SidebarToggleProps) => {
 	return (
 		<button
 			type="button"
@@ -29,4 +30,4 @@ export function SidebarToggle({
 			<PanelLeft className="size-4" />
 		</button>
 	);
-}
+};

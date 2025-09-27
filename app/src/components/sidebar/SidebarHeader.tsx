@@ -5,8 +5,7 @@ interface SidebarHeaderProps {
     collapsed: boolean;
     onToggleCollapse: () => void;
 }
-
-export function SidebarHeader({ collapsed, onToggleCollapse }: SidebarHeaderProps) {
+export const SidebarHeader = ({ collapsed, onToggleCollapse }: SidebarHeaderProps)=> {
 	return (
 		<div className="flex items-center gap-2 px-2 py-2">
 			{!collapsed && (<>
@@ -24,4 +23,4 @@ export function SidebarHeader({ collapsed, onToggleCollapse }: SidebarHeaderProp
 			</div>
 		</div>
 	);
-}
+};

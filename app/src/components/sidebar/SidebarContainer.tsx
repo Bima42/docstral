@@ -7,19 +7,20 @@
  * @param onClose
  * @param blur - apply blur on background
  */
-export function SidebarContainer({
-	children,
-	isOpen,
-	isVisible,
-	onClose,
-	blur = false
-}: {
+interface SidebarContainerProps {
     children: React.ReactNode;
     isOpen: boolean;
     isVisible: boolean;
     onClose?: () => void;
     blur?: boolean;
-}) {
+}
+export const SidebarContainer = ({
+	children,
+	isOpen,
+	isVisible,
+	onClose,
+	blur = false
+}: SidebarContainerProps) => {
 	if (!isVisible) return null;
 
 	return (
@@ -43,4 +44,4 @@ export function SidebarContainer({
 			{children}
 		</div>
 	);
-}
+};

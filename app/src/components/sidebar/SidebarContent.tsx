@@ -6,7 +6,6 @@ type Conversation = {
     lastMessage: string;
 };
 
-
 const mockChats: Conversation[] = [
 	{ id: '1', title: 'React Development', lastMessage: 'How to use hooks?' },
 	{ id: '2', title: 'TypeScript Tips', lastMessage: 'Type assertions vs...' },
@@ -15,15 +14,16 @@ const mockChats: Conversation[] = [
 	{ id: '5', title: 'State Management', lastMessage: 'Zustand vs Redux' },
 ];
 
-function ConversationsList({
-	chats,
-	activeId,
-	onSelect
-}: {
+interface ConversationsListProps {
     chats: Conversation[];
     activeId?: string;
     onSelect?: (id: string) => void;
-}) {
+}
+const ConversationsList = ({
+	chats,
+	activeId,
+	onSelect
+}: ConversationsListProps) => {
 	return (
 		<ul className="flex flex-col gap-1 p-1">
 			{chats.map((chat) => {
@@ -57,10 +57,12 @@ function ConversationsList({
 			})}
 		</ul>
 	);
+};
+
+interface SidebarContentProps {
+    collapsed: boolean;
 }
-
-
-export function SidebarContent({ collapsed }: { collapsed: boolean }) {
+export const SidebarContent = ({ collapsed }: SidebarContentProps) => {
 	if (collapsed) return null;
 
 	return (
@@ -82,4 +84,4 @@ export function SidebarContent({ collapsed }: { collapsed: boolean }) {
 			</div>
 		</div>
 	);
-}
+};
