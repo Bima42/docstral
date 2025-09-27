@@ -103,7 +103,6 @@ export const MOCK_METRICS: ChatMetrics = {
 	totalTokensIn: 245,
 	totalTokensOut: 387,
 	averageLatency: 1045,
-	errorRate: 0,
 	estimatedCost: 0.0123,
 	lastUpdated: new Date()
 };

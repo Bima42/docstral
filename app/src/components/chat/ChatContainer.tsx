@@ -6,9 +6,9 @@ import { ChatInterface } from './ChatInterface.tsx';
  *
  * Provides the main layout structure with main chat interface area
  */
-export const ChatContainer: React.FC = () => {
+export const ChatContainer = () => {
 	return (
-		<div className="flex h-screen bg-surface-light dark:bg-surface-dark">
+		<div className="flex h-screen bg-surface-warm dark:bg-surface-warm">
 			<main className="flex-1 flex flex-col min-w-0">
 				<ChatInterface />
 			</main>
