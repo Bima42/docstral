@@ -1,0 +1,21 @@
+volumes:
+  react_node_modules:
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    volumes:
+      - ./app:/app
+      - react_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BASE_URL=http://localhost:5173
+      - VITE_VERSION=local
+    networks:
+      - docstral_network
+
+networks:
+    docstral_network:
