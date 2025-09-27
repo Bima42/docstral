@@ -2,11 +2,13 @@
   "name": "docstral-app",
   "version": "0.1",
   "type": "module",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:build": "vite build && electron-builder",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -21,6 +23,8 @@
     "@types/node": "^24.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "electron": "^38.1.2",
+    "electron-builder": "^26.0.12",
     "highlight.js": "^11.11.1",
     "i18next": "^25.3.2",
     "i18next-browser-languagedetector": "^8.2.0",
@@ -34,6 +38,7 @@
     "remark-breaks": "^4.0.0",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.3.1",
+    "vite-plugin-electron": "^0.29.0",
     "zod": "^4.0.9",
     "zustand": "^5.0.8"
   },

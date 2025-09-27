@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
+import electron from 'vite-plugin-electron/simple';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -12,7 +13,11 @@ export default defineConfig({
 			autoCodeSplitting: true,
 		}),
 		react(),
-		tailwindcss()
+		tailwindcss(),
+		electron({
+			main: { entry: 'electron/main.ts' },
+			preload: { input: { preload: 'electron/preload.ts' } },
+		}),
 	],
 	resolve: {
 		alias: {

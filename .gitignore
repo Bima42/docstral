@@ -3,3 +3,4 @@ contexts/
 
 # Front
 app/node_modules/
+app/dist-electron/
