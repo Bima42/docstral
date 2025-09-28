@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 from api.schemas import ChatDetail, ChatOut
 
 
+@runtime_checkable
 class ChatRepository(Protocol):
     def list_chats(self, *, limit: int = 50, offset: int = 0) -> list[ChatOut]: ...
     def get_chat(self, chat_id: UUID) -> ChatDetail | None: ...

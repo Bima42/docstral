@@ -3,6 +3,24 @@ volumes:
   postgres_data:
 
 services:
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "docstral"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - docstral_network
+    restart: unless-stopped
 
   api:
     container_name: api
@@ -11,8 +29,15 @@ services:
       dockerfile: docker/api/Dockerfile
     ports:
       - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./api:/app/api
     networks:
       - docstral_network
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -26,7 +51,6 @@ services:
     environment:
       - VITE_BASE_URL=http://localhost:5173
       - VITE_VERSION=local
-      - DOCKER=1
     networks:
       - docstral_network
 
