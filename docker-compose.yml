@@ -1,7 +1,19 @@
 volumes:
   react_node_modules:
+  postgres_data:
 
 services:
+
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - docstral_network
+
   frontend:
     build:
       context: .
@@ -14,6 +26,7 @@ services:
     environment:
       - VITE_BASE_URL=http://localhost:5173
       - VITE_VERSION=local
+      - DOCKER=1
     networks:
       - docstral_network
 
