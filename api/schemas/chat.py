@@ -1,8 +1,6 @@
 from datetime import datetime
-from typing import List
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
-
 from api.schemas import MessageOut
 
 
@@ -19,7 +17,7 @@ class ChatOut(BaseModel):
 
 
 class ChatDetail(ChatOut):
-    messages: List[MessageOut] = Field(default_factory=list)
+    messages: list[MessageOut] = []
 
 
 class ChatCreate(BaseModel):
