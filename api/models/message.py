@@ -12,9 +12,9 @@ if TYPE_CHECKING:
 
 
 class MessageRole(str, Enum):
-    USER = "user"
-    ASSISTANT = "assistant"
-    SYSTEM = "system"
+    USER = "USER"
+    ASSISTANT = "ASSISTANT"
+    SYSTEM = "SYSTEM"
 
 
 class Message(SQLModel, table=True):

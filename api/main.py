@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.routers import chats_router
-from api.routers import health_router
+from api.routers import chats_router, health_router, auth_router
 
 
 def create_app() -> FastAPI:
@@ -15,6 +14,7 @@ def create_app() -> FastAPI:
     # Routers
     app.include_router(health_router)
     app.include_router(chats_router)
+    app.include_router(auth_router)
 
     @app.get("/", include_in_schema=False)
     def root():
