@@ -13,8 +13,10 @@ class SQLMessageRepository(MessageRepository):
     def __init__(self, session: Session) -> None:
         self.session = session
 
-    def insert_message(self, *, chat_id: UUID, content: str) -> MessageOut:
-        message = Message(chat_id=chat_id, role=MessageRole.USER, content=content)
+    def insert_message(
+        self, *, chat_id: UUID, content: str, role: MessageRole = "user"
+    ) -> MessageOut:
+        message = Message(chat_id=chat_id, role=role, content=content)
         self.session.add(message)
         self.session.commit()
         self.session.refresh(message)

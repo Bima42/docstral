@@ -1,12 +1,15 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+
 from api.core.security import get_current_user
 from api.models import User
 from api.repositories import get_chat_repo, get_message_repo
 from api.repositories import ChatRepository
 from api.schemas import ChatDetail, ChatOut, MessageCreate, MessageOut
 from api.repositories import MessageRepository
+from api.models import MessageRole
+from api.services.chat import get_chat_stream_service, ChatStreamService
 
 router = APIRouter(tags=["chats"])
 
@@ -36,21 +39,35 @@ def get_chat(
 
 
 @router.post(
-    "/chat/{chat_id}/messages",
-    summary="Add a user message to a chat",
-    response_model=MessageOut,
-    status_code=status.HTTP_201_CREATED,
+    "/chat/{chat_id}/stream",
+    summary="Stream an assistant reply to a user message (SSE)",
 )
-def add_message(
+def stream_reply(
     chat_id: UUID,
     payload: MessageCreate,
     chat_repo: ChatRepository = Depends(get_chat_repo),
-    repo: MessageRepository = Depends(get_message_repo),
+    msg_repo: MessageRepository = Depends(get_message_repo),
+    chat_stream_service: ChatStreamService = Depends(get_chat_stream_service),
     current_user: User = Depends(get_current_user),
-) -> MessageOut:
+):
     chat = chat_repo.get_chat(user_id=current_user.id, chat_id=chat_id)
     if not chat or chat.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found"
         )
-    return repo.insert_message(chat_id=chat.id, content=payload.content)
+    if not payload or not getattr(payload, "content", "").strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="content is required",
+        )
+
+    # Persist user message
+    user_msg = msg_repo.insert_message(
+        chat_id=chat.id, content=payload.content, role=MessageRole.USER
+    )
+
+    chat.messages.append(user_msg)
+    openai_msgs = chat_stream_service.to_openai_messages(chat.messages)
+    return chat_stream_service.streaming_response(
+        openai_msgs=openai_msgs, chat_id=chat.id, msg_repo=msg_repo
+    )

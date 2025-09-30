@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.routers import chats_router, health_router, auth_router
 
@@ -9,6 +10,14 @@ def create_app() -> FastAPI:
         title="DocStral API",
         version="0.1.0",
         default_response_class=ORJSONResponse,
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     # Routers

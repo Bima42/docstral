@@ -3,6 +3,7 @@ from uuid import UUID
 
 from api.schemas import ChatDetail, ChatOut
 from api.schemas import MessageOut
+from api.models import MessageRole
 
 
 class ChatRepository(Protocol):
@@ -13,4 +14,6 @@ class ChatRepository(Protocol):
 
 
 class MessageRepository(Protocol):
-    def insert_message(self, *, chat_id: UUID, content: str) -> MessageOut: ...
+    def insert_message(
+        self, *, chat_id: UUID, content: str, role: MessageRole = "user"
+    ) -> MessageOut: ...
