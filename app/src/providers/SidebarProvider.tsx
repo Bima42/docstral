@@ -40,7 +40,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 
 	return (
 		<SidebarContext.Provider value={{ isCollapsed, collapse, expand, toggleCollapse }}>
-			<div style={contentStyle} className="min-h-screen flex flex-col bg-background">
+			<div style={contentStyle} className="min-h-screen flex flex-col bg-surface-warm">
 				{children}
 			</div>
 			<AppSidebar isCollapsed={isCollapsed} onToggleCollapse={toggleCollapse} />

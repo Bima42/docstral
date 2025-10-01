@@ -61,10 +61,7 @@
     --radius-full: 9999px; /* full circle */
 
     /* Sidebar colors */
-    --color-sidebar: var(--color-surface-warm);
     --color-sidebar-foreground: var(--color-neutral-800);
-    --color-sidebar-primary: var(--color-primary);
-    --color-sidebar-primary-foreground: var(--color-surface-warm);
     --color-sidebar-accent: var(--color-neutral-100);
     --color-sidebar-accent-foreground: var(--color-neutral-700);
     --color-sidebar-border: var(--color-neutral-200);
@@ -74,16 +71,13 @@
 .dark {
     --color-surface-light: hsl(240 10% 12%);
     --color-surface-warm:  hsl(240 8% 10%);
-    --color-surface-neutral:hsl(240 12% 8%);
+    --color-surface-neutral: hsl(240 12% 8%);
 
     --color-primary-400: hsl(24 100% 56%);
     --color-primary-500: hsl(24 100% 52%);
     --color-primary-600: hsl(24 94% 46%);
 
-    --color-sidebar:                   hsl(240 8% 10%);
     --color-sidebar-foreground:        hsl(0 0% 96%);
-    --color-sidebar-primary:           hsl(24 100% 52%);
-    --color-sidebar-primary-foreground:hsl(240 8% 10%);
     --color-sidebar-accent:            hsl(240 9% 12%);
     --color-sidebar-accent-foreground: hsl(0 0% 90%);
     --color-sidebar-border:            hsl(240 7% 18%);
@@ -92,7 +86,7 @@
 
 body {
     font-family: Inter, system-ui, sans-serif;
-    background-color: var(--color-surface-neutral);
+    background-color: var(--color-surface-warm);
 }
 
 html {

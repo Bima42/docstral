@@ -17,15 +17,16 @@ export const SidebarDesktop = ({
 		<div
 			className={[
 				'fixed left-0 top-0 bottom-0',
-				'bg-sidebar text-sidebar-foreground',
+				'bg-surface-warm text-sidebar-foreground',
 				'flex flex-col overflow-hidden',
 				'transition-all duration-300 ease-in-out',
+				isCollapsed ? '' : 'border-r-1 border-sidebar-border',
 				isCollapsed
 					? 'w-[64px] min-w-[64px] max-w-[64px]'
 					: 'w-[18%] min-w-[300px] max-w-[18%]',
+				isCollapsed ? 'hover:brightness-90' : '',
 				'group'
 			].join(' ')}
-			data-collapsible={isCollapsed ? 'icon' : 'full'}
 		>
 			<SidebarHeader collapsed={isCollapsed} onToggleCollapse={onToggleCollapse} />
 
@@ -52,14 +53,13 @@ const  SidebarMobilePanel = ({
 			className={`
                 fixed left-0 top-0 bottom-0
                 w-[85%] min-w-[280px] max-w-[360px]
-                bg-sidebar text-sidebar-foreground
-                border-r border-sidebar-border shadow-lg
+                bg-surface-warm text-sidebar-foreground
+                border-r border-sidebar-border
                 animate-in slide-in-from-left duration-300
                 ${!isOpen && 'animate-out slide-out-to-left duration-300'}
                 flex flex-col
                 overflow-hidden
           `}
-			data-collapsible="full"
 		>
 			{children}
 		</div>

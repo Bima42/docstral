@@ -26,10 +26,10 @@ export const SidebarContainer = ({
 	return (
 		<div
 			className={`
-        fixed inset-0 z-50
-        animate-in fade-in duration-300
-        ${!isOpen ? 'animate-out fade-out duration-300' : ''}
-      `}
+                fixed inset-0 z-50
+                animate-in fade-in duration-300
+                ${!isOpen ? 'animate-out fade-out duration-300' : ''}
+            `}
 		>
 			<div
 				onClick={onClose}

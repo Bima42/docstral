@@ -21,7 +21,7 @@ export const SidebarToggle = ({
 				fixed ? 'fixed top-3 left-3 z-40' : '',
 				'm-2 inline-flex items-center justify-center rounded-md p-2',
 				'text-sidebar-accent-foreground',
-				'hover:bg-sidebar-accent/80',
+				'hover:bg-sidebar-accent/80 hover:cursor-pointer',
 				'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/50',
 				'transition-colors',
 				className
