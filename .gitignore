@@ -2,7 +2,7 @@
 contexts/
 
 # Front
-clientnode_modules/
-clientdist-electron/
+client/node_modules/
+client/dist-electron/
 
 .env
