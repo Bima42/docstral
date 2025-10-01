@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChatInterface } from './ChatInterface.tsx';
 
 /**

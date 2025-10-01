@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { AppSidebar } from '@/components/sidebar/AppSidebar.tsx';
 import { useIsMobile } from '@/hooks/useMobile.ts';
+import { COLLAPSED_PX, EXPANDED_DESKTOP } from '@/config.ts';
 
 interface SidebarContextType {
     isCollapsed: boolean;
@@ -11,8 +12,7 @@ interface SidebarContextType {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
-const COLLAPSED_PX = 64;
-const EXPANDED_DESKTOP = 'max(300px, 18vw)';
+
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
 	const [isCollapsed, setIsCollapsed] = useState(true);
