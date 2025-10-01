@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 import './index.css';
 import './i18n';
+import { AuthProvider } from '@/providers/AuthProvider.tsx';
 import { UIBootstrap } from '@/utils/UIBootstrap.tsx';
 
 const router = createRouter({ routeTree });
@@ -19,8 +20,10 @@ if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
 		<StrictMode>
-			<UIBootstrap />
-			<RouterProvider router={router} />
+			<AuthProvider>
+				<UIBootstrap />
+				<RouterProvider router={router} />
+			</AuthProvider>
 		</StrictMode>,
 	);
 }
