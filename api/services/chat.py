@@ -63,7 +63,6 @@ class ChatStreamService:
         final_tokens: list[str] = []
         last_ping = time.monotonic()
 
-        # Start
         yield self.sse_pack(
             json.dumps({"type": "start"}), event="message", retry_ms=2000
         )

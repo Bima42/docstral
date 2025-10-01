@@ -5,6 +5,8 @@ import httpx
 from dataclasses import dataclass
 from typing import AsyncGenerator, Optional
 
+from api.schemas.llm import UsageInfo, ChatCompletionMessage
+
 
 @dataclass(frozen=True)
 class MistralConfig:
@@ -44,7 +46,7 @@ class MistralLLMClient:
         self, config: MistralConfig, http_client: Optional[httpx.AsyncClient] = None
     ):
         self.config = config
-        self._http_client = http_client  # optional externally-managed client
+        self._http_client = http_client
 
     def _headers(self) -> dict[str, str]:
         if not self.config.api_key:
@@ -88,19 +90,23 @@ class MistralLLMClient:
         ) as resp:
             resp.raise_for_status()
             async for line in resp.aiter_lines():
-                # Expect SSE-like "data: ..." lines. Ignore keepalives/empty lines.
                 if not line or not line.startswith("data:"):
                     continue
                 data = line[5:].strip()
+                print(f"DEBUG: Mistral chunk: {data}")
                 if data == "[DONE]":
                     break
                 try:
                     event = json.loads(data)
                 except json.JSONDecodeError:
-                    # Skip malformed chunks; they can appear with proxy noise.
+                    # Skip malformed chunks
+                    # They can appear with proxy noise.
                     continue
-                # Mistral's OpenAI-compatible schema: choices[0].delta.content
+
                 delta = event.get("choices", [{}])[0].get("delta", {})
-                token = delta.get("content")
-                if token:
-                    yield token
+                message = ChatCompletionMessage(**delta)
+                if message.content:
+                    yield message.content
+
+                usage = event.get("usage")
+                usage_info = UsageInfo(**usage) if usage else None

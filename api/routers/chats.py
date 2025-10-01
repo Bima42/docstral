@@ -61,7 +61,6 @@ def stream_reply(
             detail="content is required",
         )
 
-    # Persist user message
     user_msg = msg_repo.insert_message(
         chat_id=chat.id, content=payload.content, role=MessageRole.USER
     )
