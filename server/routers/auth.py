@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
-from api.core.security import get_current_user
-from api.models import User
-from api.schemas import UserOut
+from core.security import get_current_user
+from models import User
+from schemas import UserOut
 
 router = APIRouter(tags=["auth"])
 

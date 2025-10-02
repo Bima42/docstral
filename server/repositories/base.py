@@ -1,9 +1,9 @@
 from typing import Protocol
 from uuid import UUID
 
-from api.schemas import ChatDetail, ChatOut
-from api.schemas import MessageOut
-from api.models import MessageRole
+from schemas import ChatDetail, ChatOut
+from schemas import MessageOut
+from models import MessageRole
 
 
 class ChatRepository(Protocol):

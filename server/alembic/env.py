@@ -20,8 +20,8 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-from api.models import SQLModel  # noqa: F401
-from api.core.settings import settings as app_settings  # noqa: F401
+from models import SQLModel  # noqa: F401
+from core.settings import settings as app_settings  # noqa: F401
 
 config.set_main_option("sqlalchemy.url", app_settings.database_url)
 target_metadata = SQLModel.metadata

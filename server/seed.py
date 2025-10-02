@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from sqlmodel import Session, select
 
-from api.core.db import engine
-from api.core.security import hash_token
-from api.models import User, Chat, Message, MessageRole, UserToken
+from core.db import engine
+from core.security import hash_token
+from models import User, Chat, Message, MessageRole, UserToken
 
 
 def seed() -> None:

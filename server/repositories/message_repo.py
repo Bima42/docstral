@@ -3,10 +3,10 @@ from uuid import UUID
 from fastapi import Depends
 from sqlmodel import Session
 
-from api.models import Message, MessageRole
-from api.schemas import MessageOut
-from api.repositories import MessageRepository
-from api.core.db import get_session
+from models import Message, MessageRole
+from schemas import MessageOut
+from repositories import MessageRepository
+from core.db import get_session
 
 
 class SQLMessageRepository(MessageRepository):

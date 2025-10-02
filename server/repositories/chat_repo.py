@@ -4,10 +4,10 @@ from uuid import UUID
 from fastapi import Depends
 from sqlmodel import Session, select
 
-from api.models import Chat
-from api.schemas import ChatDetail, ChatOut
-from api.core.db import get_session
-from api.repositories.base import ChatRepository
+from models import Chat
+from schemas import ChatDetail, ChatOut
+from core.db import get_session
+from repositories.base import ChatRepository
 
 
 class SQLChatRepository(ChatRepository):

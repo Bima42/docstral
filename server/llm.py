@@ -5,7 +5,7 @@ import httpx
 from dataclasses import dataclass
 from typing import AsyncGenerator, Optional
 
-from api.schemas.llm import UsageInfo, ChatCompletionMessage
+from schemas.llm import UsageInfo, ChatCompletionMessage
 
 
 @dataclass(frozen=True)

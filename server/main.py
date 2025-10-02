@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routers import chats_router, health_router, auth_router
+from routers import chats_router, health_router, auth_router
 
 
 def create_app() -> FastAPI:

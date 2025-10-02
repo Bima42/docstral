@@ -2,14 +2,14 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from api.core.security import get_current_user
-from api.models import User
-from api.repositories import get_chat_repo, get_message_repo
-from api.repositories import ChatRepository
-from api.schemas import ChatDetail, ChatOut, MessageCreate, MessageOut
-from api.repositories import MessageRepository
-from api.models import MessageRole
-from api.services.chat import get_chat_stream_service, ChatStreamService
+from core.security import get_current_user
+from models import User
+from repositories import get_chat_repo, get_message_repo
+from repositories import ChatRepository
+from schemas import ChatDetail, ChatOut, MessageCreate, MessageOut
+from repositories import MessageRepository
+from models import MessageRole
+from services.chat import get_chat_stream_service, ChatStreamService
 
 router = APIRouter(tags=["chats"])
 

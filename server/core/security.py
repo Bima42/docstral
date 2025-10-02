@@ -4,9 +4,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel import Session, select
 
-from api.core.db import get_session
-from api.models import User
-from api.models.token import UserToken
+from core.db import get_session
+from models import User
+from models.token import UserToken
 
 bearer_scheme = HTTPBearer(auto_error=True)
 

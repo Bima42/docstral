@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import Field, BaseModel, ConfigDict
 
-from api.models import MessageRole
+from models import MessageRole
 
 
 class MessageOut(BaseModel):

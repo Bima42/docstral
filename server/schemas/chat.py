@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
-from api.schemas import MessageOut
+from schemas import MessageOut
 
 
 class ChatOut(BaseModel):

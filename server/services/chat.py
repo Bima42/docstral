@@ -7,10 +7,10 @@ from uuid import UUID
 from fastapi.responses import StreamingResponse
 from starlette.concurrency import run_in_threadpool
 
-from api.llm import MistralConfig, MistralLLMClient
-from api.models import MessageRole
-from api.schemas import MessageOut
-from api.repositories import MessageRepository
+from llm import MistralConfig, MistralLLMClient
+from models import MessageRole
+from schemas import MessageOut
+from repositories import MessageRepository
 
 
 class ChatStreamService:

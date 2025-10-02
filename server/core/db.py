@@ -1,5 +1,5 @@
 from sqlmodel import Session, create_engine
-from api.core.settings import settings
+from core.settings import settings
 
 engine = create_engine(
     settings.database_url,
