@@ -6,6 +6,7 @@ import './index.css';
 import './i18n';
 import { AuthProvider } from '@/providers/AuthProvider.tsx';
 import { UIBootstrap } from '@/utils/UIBootstrap.tsx';
+import { QueryProvider } from '@/providers/QueryProvider.tsx';
 
 const router = createRouter({ routeTree });
 
@@ -20,10 +21,12 @@ if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
 		<StrictMode>
-			<AuthProvider>
-				<UIBootstrap />
-				<RouterProvider router={router} />
-			</AuthProvider>
+			<QueryProvider>
+				<AuthProvider>
+					<UIBootstrap />
+					<RouterProvider router={router} />
+				</AuthProvider>
+			</QueryProvider>
 		</StrictMode>,
 	);
 }

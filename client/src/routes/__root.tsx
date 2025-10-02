@@ -4,10 +4,10 @@ import { SidebarProvider } from '@/providers/SidebarProvider.tsx';
 
 export const Route = createRootRoute({
 	component: () => (
-		<SidebarProvider>
-			<main className="overflow-hidden">
+		<main className="overflow-hidden">
+			<SidebarProvider>
 				<Outlet />
-			</main>
-		</SidebarProvider>
+			</SidebarProvider>
+		</main>
 	),
 });

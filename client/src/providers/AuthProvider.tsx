@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { verifyTokenRequest } from '@/lib/api';
 import { AuthDialog } from '@/components/auth/AuthDialog.tsx';
+import { verifyTokenRequest } from '@/api/auth/auth.ts';
+import { setTokenProvider } from '@/api/http.ts';
 
 type AuthState = {
     token: string | null;
@@ -14,10 +15,15 @@ type AuthState = {
 const AuthContext = createContext<AuthState | undefined>(undefined);
 const STORAGE_KEY = 'docstral_auth_token';
 
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(STORAGE_KEY));
 	const [status, setStatus] = useState<AuthState['status']>(token ? 'checking' : 'idle');
 	const [error, setError] = useState<string | undefined>(undefined);
+
+	useEffect(() => {
+		setTokenProvider(() => token);
+	}, [token]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -63,11 +69,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	};
 
 	const logout = () => {
+		setTokenProvider(() => null);
 		setToken(null);
 		sessionStorage.removeItem(STORAGE_KEY);
 		setStatus('idle');
 		setError(undefined);
 	};
+
 
 	const value = useMemo<AuthState>(() => ({
 		token,

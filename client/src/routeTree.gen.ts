@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PaletteRouteImport } from './routes/palette'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChatsChatIdRouteImport } from './routes/chats/$chatId'
 
 const PaletteRoute = PaletteRouteImport.update({
   id: '/palette',
@@ -22,31 +23,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatsChatIdRoute = ChatsChatIdRouteImport.update({
+  id: '/chats/$chatId',
+  path: '/chats/$chatId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/palette': typeof PaletteRoute
+  '/chats/$chatId': typeof ChatsChatIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/palette': typeof PaletteRoute
+  '/chats/$chatId': typeof ChatsChatIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/palette': typeof PaletteRoute
+  '/chats/$chatId': typeof ChatsChatIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/palette'
+  fullPaths: '/' | '/palette' | '/chats/$chatId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/palette'
-  id: '__root__' | '/' | '/palette'
+  to: '/' | '/palette' | '/chats/$chatId'
+  id: '__root__' | '/' | '/palette' | '/chats/$chatId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PaletteRoute: typeof PaletteRoute
+  ChatsChatIdRoute: typeof ChatsChatIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chats/$chatId': {
+      id: '/chats/$chatId'
+      path: '/chats/$chatId'
+      fullPath: '/chats/$chatId'
+      preLoaderRoute: typeof ChatsChatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PaletteRoute: PaletteRoute,
+  ChatsChatIdRoute: ChatsChatIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

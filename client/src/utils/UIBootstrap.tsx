@@ -4,6 +4,12 @@ import { MOBILE_BREAKPOINT } from '@/config.ts';
 
 export const UIBootstrap = () => {
 	const setIsMobile = useUIStore((s) => s.setIsMobile);
+	const isDark = useUIStore((s) => s.theme === 'dark');
+
+	useEffect(() => {
+		const root = document.documentElement;
+		root.classList.toggle('dark', isDark);
+	}, [isDark]);
 
 	useEffect(() => {
 		const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);

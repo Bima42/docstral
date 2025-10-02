@@ -1,18 +1,22 @@
-import React from 'react';
-import { type ChatMessage as ChatMessageType } from '../../types/chat';
+import type { MessageOut } from '@/api/types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
-interface ChatMessageProps { message: ChatMessageType }
+export const ChatMessage = ({ message }: { message: MessageOut }) => {
+	const isUser = message.role === 'USER';
+	const isAssistant = message.role === 'ASSISTANT';
 
-export const ChatMessage = ({ message }: ChatMessageProps) => {
-	const isUser = message.role === 'user';
-	const isAssistant = message.role === 'assistant';
-
-	const formatTime = (date: Date) =>
-		new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit' }).format(new Date(date));
+	const formatTime = (iso: string) =>
+		new Intl.DateTimeFormat('en-US', {
+			hour: '2-digit',
+			minute: '2-digit',
+		}).format(new Date(iso));
 
 	const copyToClipboard = async (text: string) => {
-		try { await navigator.clipboard.writeText(text); } catch (err) { console.error('Failed to copy:', err); }
+		try {
+			await navigator.clipboard.writeText(text);
+		} catch (err) {
+			console.error('Failed to copy:', err);
+		}
 	};
 
 	if (isUser) {
@@ -20,18 +24,19 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
 			<div className="flex items-start justify-end gap-3">
 				<div className="flex flex-col items-end max-w-2xl">
 					<div className="rounded-2xl rounded-tr-sm bg-primary-500 px-4 py-3 text-white shadow-sm">
-						<div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
+						<div className="text-sm leading-relaxed whitespace-pre-wrap">
+							{message.content}
+						</div>
 					</div>
 					<div className="mt-1 flex items-center gap-2 px-1">
-						<span className="text-xs text-neutral-500">{formatTime(message.timestamp)}</span>
-						{message.error && (
-							<span className="flex items-center gap-1 text-xs text-red-500">
-								<span className="h-1 w-1 rounded-full bg-red-500" /> Failed to send
-							</span>
-						)}
+						<span className="text-xs text-neutral-500">
+							{formatTime(message.createdAt)}
+						</span>
 					</div>
 				</div>
-				<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">U</div>
+				<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
+                    U
+				</div>
 			</div>
 		);
 	}
@@ -39,26 +44,16 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
 	if (isAssistant) {
 		return (
 			<div className="group/message flex items-start gap-3">
-				<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-500 text-sm font-bold text-white">DS</div>
+				<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-500 text-sm font-bold text-white">
+                    DS
+				</div>
 				<div className="min-w-0 flex-1">
-					<div className={`text-neutral-900 dark:text-neutral-100 ${message.isStreaming ? 'animate-pulse' : ''}`}>
+					<div className="text-neutral-900 dark:text-neutral-100">
 						<MarkdownRenderer content={message.content} />
 					</div>
 					<div className="mt-2 flex items-center justify-between px-1">
 						<div className="flex items-center gap-3 text-xs text-neutral-500">
-							<span>{formatTime(message.timestamp)}</span>
-							{message.metadata?.latency && (
-								<span className="flex items-center gap-1"><span className="h-1 w-1 rounded-full bg-amber-500" />{message.metadata.latency}ms</span>
-							)}
-							{message.metadata?.tokensUsed && (
-								<span className="flex items-center gap-1"><span className="h-1 w-1 rounded-full bg-warm-700" />{message.metadata.tokensUsed} tokens</span>
-							)}
-							{message.metadata?.model && (
-								<span className="flex items-center gap-1"><span className="h-1 w-1 rounded-full bg-neutral-400" />{message.metadata.model}</span>
-							)}
-							{message.isStreaming && (
-								<span className="flex items-center gap-1 text-primary-500"><span className="h-1 w-1 animate-pulse rounded-full bg-primary-500" />Streaming...</span>
-							)}
+							<span>{formatTime(message.createdAt)}</span>
 						</div>
 						<button
 							onClick={() => copyToClipboard(message.content)}

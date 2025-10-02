@@ -1,32 +1,33 @@
 import { ChatHeader } from './ChatHeader';
 import { MessageList } from './MessageList';
-import { ChatInput } from './ChatInput';
-import { useChatStore } from '@/stores/chat-store';
+import { useChat } from '@/api/chat/queries';
+import { Route as ChatRoute } from '@/routes/chats/$chatId';
 
 export const ChatInterface = () => {
-	const { error } = useChatStore();
+	const { chatId } = ChatRoute.useParams();
+	const { data, isLoading, isError, error } = useChat(chatId);
 
 	return (
 		<div className="flex h-screen flex-col bg-surface-warm dark:bg-surface-warm">
-			<ChatHeader />
-			<MessageList />
-			{error && (
-				<div className="border-t border-red-200 bg-red-50 p-4 dark:border-red-700/50 dark:bg-red-950/20">
-					<div className="mx-auto flex max-w-4xl items-center justify-between">
-						<div className="flex items-center space-x-2">
-							<div className="h-2 w-2 rounded-full bg-red-500" />
-							<span className="text-sm font-medium text-red-700 dark:text-red-300">{error}</span>
-						</div>
-						<button
-							onClick={() => useChatStore.getState().setError(null)}
-							className="text-sm text-red-600 hover:text-red-800 dark:text-red-300 dark:hover:text-red-200"
-						>
-                            Dismiss
-						</button>
+			<ChatHeader messageCount={data?.messages.length ?? 0} />
+			{isLoading ? (
+				<div className="flex-1 flex items-center justify-center px-4">
+					<div className="text-neutral-500 text-sm">Loading chat…</div>
+				</div>
+			) : isError ? (
+				<div className="flex-1 flex items-center justify-center px-4">
+					<div className="text-red-600 text-sm">
+						{error instanceof Error ? error.message : 'Failed to load chat'}
 					</div>
 				</div>
+			) : data && data.messages ? (
+				<MessageList messages={data.messages} />
+			) : (
+				<div className="flex-1 flex items-center justify-center px-4">
+					<div className="text-neutral-500 text-sm">No messages yet.</div>
+				</div>
 			)}
-			<ChatInput />
+			{/*<ChatInput />*/}
 		</div>
 	);
 };

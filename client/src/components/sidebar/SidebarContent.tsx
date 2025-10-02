@@ -1,29 +1,36 @@
-import { SidebarSection } from '@/components/sidebar/SidebarSection.tsx';
+import { SidebarSection } from '@/components/sidebar/SidebarSection';
+import { useChats } from '@/api/chat/queries';
+import type { ChatOut } from '@/api/types';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
+import { Route as ChatRoute } from '@/routes/chats/$chatId';
 
-type Conversation = {
-    id: string;
-    title: string;
-    lastMessage: string;
-};
+function formatRelative(iso: string) {
+	const d = new Date(iso);
+	const diff = Date.now() - d.getTime();
+	const mins = Math.floor(diff / 60000);
+	if (mins < 1) return 'Just now';
+	if (mins < 60) return `${mins}m ago`;
+	const hours = Math.floor(mins / 60);
+	if (hours < 24) return `${hours}h ago`;
+	const days = Math.floor(hours / 24);
+	return `${days}d ago`;
+}
 
-const mockChats: Conversation[] = [
-	{ id: '1', title: 'React Development', lastMessage: 'How to use hooks?' },
-	{ id: '2', title: 'TypeScript Tips', lastMessage: 'Type assertions vs...' },
-	{ id: '3', title: 'UI Components', lastMessage: 'Building a sidebar' },
-	{ id: '4', title: 'Performance Optimization', lastMessage: 'React.memo usage' },
-	{ id: '5', title: 'State Management', lastMessage: 'Zustand vs Redux' },
-];
+function toRow(chat: ChatOut) {
+	return {
+		id: chat.id,
+		title: `Chat ${chat.id.slice(0, 6)}`,
+		subtitle: `Created ${formatRelative(chat.createdAt)}`,
+	};
+}
 
 interface ConversationsListProps {
-    chats: Conversation[];
+    chats: ReturnType<typeof toRow>[];
     activeId?: string;
     onSelect?: (id: string) => void;
 }
-const ConversationsList = ({
-	chats,
-	activeId,
-	onSelect
-}: ConversationsListProps) => {
+
+const ConversationsList = ({ chats, activeId, onSelect }: ConversationsListProps) => {
 	return (
 		<ul className="flex flex-col gap-1 p-1">
 			{chats.map((chat) => {
@@ -40,15 +47,13 @@ const ConversationsList = ({
 								'text-sidebar-foreground hover:bg-sidebar-accent/80',
 								'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/50',
 								'transition-colors',
-								isActive ? 'bg-sidebar-accent' : ''
+								isActive ? 'bg-sidebar-accent' : '',
 							].join(' ')}
 						>
 							<div className="grid flex-1 min-w-0 text-left text-sm leading-tight px-1">
-								<span className="truncate font-medium">
-									{chat.title}
-								</span>
+								<span className="truncate font-medium">{chat.title}</span>
 								<span className="truncate text-xs text-sidebar-foreground/60">
-									{chat.lastMessage}
+									{chat.subtitle}
 								</span>
 							</div>
 						</button>
@@ -59,10 +64,15 @@ const ConversationsList = ({
 	);
 };
 
-interface SidebarContentProps {
-    collapsed: boolean;
-}
-export const SidebarContent = ({ collapsed }: SidebarContentProps) => {
+export const SidebarContent = ({ collapsed }: { collapsed: boolean }) => {
+
+	const { data } = useChats();
+	const rows = (data ?? []).map(toRow);
+
+	const navigate = useNavigate();
+	const pathname = useRouterState({ select: (s) => s.location.pathname });
+	const activeId = pathname.match(/^\/chats\/([^/]+)/)?.[1];
+    
 	if (collapsed) return null;
 
 	return (
@@ -72,11 +82,10 @@ export const SidebarContent = ({ collapsed }: SidebarContentProps) => {
 					<div>
 						<SidebarSection>
 							<ConversationsList
-								chats={mockChats}
-								activeId={mockChats[0]?.id}
-								onSelect={(id) => {
-									console.log('open conversation', id);
-								}}
+								chats={rows}
+								activeId={activeId}
+								onSelect={(id) =>
+									navigate({ to: ChatRoute.to, params: { chatId: id } })								}
 							/>
 						</SidebarSection>
 					</div>

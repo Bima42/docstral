@@ -46,7 +46,7 @@ services:
       context: .
       dockerfile: ./docker/client/Dockerfile
     volumes:
-      - ./client:/app
+      - ./client:/client
       - react_node_modules:/client/node_modules
     ports:
       - "5173:5173"

@@ -4,6 +4,7 @@ import { SidebarHeader } from '@/components/sidebar/SidebarHeader.tsx';
 import { SidebarContainer } from '@/components/sidebar/SidebarContainer.tsx';
 import { SidebarFooter } from '@/components/sidebar/SidebarFooter.tsx';
 import { SidebarContent } from '@/components/sidebar/SidebarContent.tsx';
+import { useAuth } from '@/providers/AuthProvider.tsx';
 
 interface SidebarDesktopProps {
     isCollapsed: boolean;
@@ -71,6 +72,7 @@ export interface SidebarProps {
     onToggleCollapse: () => void;
 }
 export const AppSidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps)=> {
+	const { isVerified } = useAuth();
 	const isMobile = useIsMobile();
 	const isOpen = !isCollapsed;
 
@@ -89,6 +91,8 @@ export const AppSidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps)=> {
 	useEffect(() => {
 		if (!isMobile) setIsVisible(false);
 	}, [isMobile]);
+
+	if (!isVerified) return null;
 
 	if (!isMobile) {
 		return (
