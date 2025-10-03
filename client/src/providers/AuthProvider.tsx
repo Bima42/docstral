@@ -72,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	}, [navigate]);
 
 	const logout = () => {
+		navigate({ to: '/' });
 		setTokenProvider(() => null);
 		setToken(null);
 		sessionStorage.removeItem(STORAGE_KEY);

@@ -1,4 +1,4 @@
-import { useLanguage } from '../../hooks/useLanguage.ts';
+import { useLanguage } from '@/hooks/useLanguage.ts';
 import { Toggle } from '@/components/ui/toggle';
 
 export function LanguageToggle() {
@@ -6,7 +6,7 @@ export function LanguageToggle() {
 
 	return (
 		<Toggle
-			pressed={currentLanguage === 'en'} // Adjust this based on your language logic
+			pressed={currentLanguage === 'en'}
 			onPressedChange={toggleLanguage}
 			className="h-10 w-10 p-0 border-0 bg-transparent hover:bg-sidebar-accent data-[state=on]:bg-transparent data-[state=off]:bg-transparent cursor-pointer"
 			title="Toggle language"
