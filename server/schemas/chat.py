@@ -6,6 +6,7 @@ from schemas import MessageOut
 
 class ChatOut(BaseModel):
     id: UUID
+    title: str
     user_id: UUID = Field(alias="userId")
     created_at: datetime = Field(alias="createdAt")
 
@@ -21,4 +22,4 @@ class ChatDetail(ChatOut):
 
 
 class ChatCreate(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    title: str | None = None

@@ -1,10 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useChatStore } from '@/stores/chat-store';
+import { useNavigate } from '@tanstack/react-router';
+import { useCreateChat } from '@/api/chat/queries';
+import { useStreamReply } from '@/api/chat/queries';
 
-export const ChatInput = () => {
+interface ChatInputProps {
+    chatId: string | undefined;
+}
+
+export const ChatInput = ({ chatId }: ChatInputProps) => {
 	const [input, setInput] = useState('');
-	const { addMessage, isLoading, setLoading } = useChatStore();
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const navigate = useNavigate();
+
+	const createChatMutation = useCreateChat();
+	const streamMutation = useStreamReply(chatId);
+
+	const isLoading = createChatMutation.isPending || streamMutation.isPending;
 
 	useEffect(() => {
 		if (textareaRef.current) {
@@ -13,23 +24,23 @@ export const ChatInput = () => {
 		}
 	}, [input]);
 
-	useEffect(() => { textareaRef.current?.focus(); }, []);
+	useEffect(() => {
+		textareaRef.current?.focus();
+	}, []);
 
 	const handleSubmit = async (e: React.FormEvent | React.KeyboardEvent) => {
 		e.preventDefault();
 		if (!input.trim() || isLoading) return;
+
 		const userMessage = input.trim();
 		setInput('');
-		addMessage({ role: 'user', content: userMessage });
-		setLoading(true);
-		setTimeout(() => {
-			addMessage({
-				role: 'assistant',
-				content: `This is a mock response to: "${userMessage}"\n\nIn a real implementation, this would be the actual Mistral API response with streaming support.`,
-				metadata: { tokensUsed: Math.floor(Math.random() * 100) + 50, latency: Math.floor(Math.random() * 1000) + 500, model: 'mistral-large-latest' }
-			});
-			setLoading(false);
-		}, 1500);
+
+		if (!chatId) {
+			const newChat = await createChatMutation.mutateAsync({ title: userMessage.slice(0, 50) });
+			navigate({ to: '/chats/$chatId', params: { chatId: newChat.id } });
+		} else {
+			streamMutation.mutate({ content: userMessage });
+		}
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {

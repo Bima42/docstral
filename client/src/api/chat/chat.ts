@@ -13,6 +13,13 @@ export async function getChat(chatId: string) {
 	return apiJson<ChatDetail>(`/chat/${chatId}`);
 }
 
+export async function createChat(payload: { title?: string }) {
+	return apiJson<ChatOut>('/chats', {
+		method: 'POST',
+		body: JSON.stringify(payload),
+	});
+}
+
 export async function streamReply(
 	chatId: string,
 	payload: { content: string },

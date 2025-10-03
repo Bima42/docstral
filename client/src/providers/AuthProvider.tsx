@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthDialog } from '@/components/auth/AuthDialog.tsx';
 import { verifyTokenRequest } from '@/api/auth/auth.ts';
 import { setTokenProvider } from '@/api/http.ts';
+import { useNavigate } from '@tanstack/react-router';
 
 type AuthState = {
     token: string | null;
@@ -17,6 +18,7 @@ const STORAGE_KEY = 'docstral_auth_token';
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+	const navigate = useNavigate();
 	const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(STORAGE_KEY));
 	const [status, setStatus] = useState<AuthState['status']>(token ? 'checking' : 'idle');
 	const [error, setError] = useState<string | undefined>(undefined);
@@ -60,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			setToken(tok);
 			sessionStorage.setItem(STORAGE_KEY, tok);
 			setStatus('verified');
+			navigate({ to: '/chats' });
 			return true;
 		} else {
 			setStatus('error');

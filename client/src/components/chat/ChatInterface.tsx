@@ -1,5 +1,6 @@
 import { ChatHeader } from './ChatHeader';
 import { MessageList } from './MessageList';
+import { ChatInput } from './ChatInput';
 import { useChat } from '@/api/chat/queries';
 import { Route as ChatRoute } from '@/routes/chats/$chatId';
 
@@ -27,7 +28,7 @@ export const ChatInterface = () => {
 					<div className="text-neutral-500 text-sm">No messages yet.</div>
 				</div>
 			)}
-			{/*<ChatInput />*/}
+			<ChatInput chatId={chatId} />
 		</div>
 	);
 };

@@ -30,8 +30,8 @@ def seed() -> None:
             select(Chat).where(Chat.user_id == user.id).order_by(Chat.created_at)
         ).all()
         missing = 3 - len(chats)
-        for _ in range(max(0, missing)):
-            session.add(Chat(user_id=user.id))
+        for i in range(max(0, missing)):
+            session.add(Chat(user_id=user.id, title=f"New Chat {i}"))
         if missing > 0:
             session.commit()
             chats = session.exec(

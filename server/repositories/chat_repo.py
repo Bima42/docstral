@@ -34,6 +34,13 @@ class SQLChatRepository(ChatRepository):
             return None
         return ChatDetail.model_validate(chat)
 
+    def create_chat(self, *, user_id: UUID, title: str | None = None) -> Chat:
+        chat = Chat(user_id=user_id, title=title or "New Chat")
+        self.session.add(chat)
+        self.session.commit()
+        self.session.refresh(chat)
+        return chat
+
 
 def get_chat_repo(session: Session = Depends(get_session)) -> ChatRepository:
     return SQLChatRepository(session)

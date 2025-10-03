@@ -13,6 +13,7 @@ class Chat(SQLModel, table=True):
     __tablename__ = "chats"
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    title: str | None = Field(default=None, nullable=True)
     user_id: uuid.UUID = Field(index=True, nullable=False)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),

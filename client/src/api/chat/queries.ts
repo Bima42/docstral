@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ChatDetail, MessageOut } from '@/api/types';
 import { queryClient } from '@/lib/queryClient';
-import { getChat, listChats, streamReply } from '@/api/chat/chat.ts';
+import { createChat, getChat, listChats, streamReply } from '@/api/chat/chat.ts';
+import { useNavigate } from '@tanstack/react-router';
 
 export function useChats(params?: { limit?: number; offset?: number }) {
 	return useQuery({
@@ -16,6 +17,17 @@ export function useChat(chatId: string | undefined) {
 		queryKey: ['chat', chatId],
 		queryFn: () => getChat(chatId!),
 		enabled: Boolean(chatId),
+	});
+}
+
+export function useCreateChat() {
+	const navigate = useNavigate();
+	return useMutation({
+		mutationFn: (payload: { title?: string }) => createChat(payload),
+		onSuccess: (newChat) => {
+			queryClient.invalidateQueries({ queryKey: ['chats'] });
+			navigate({ to: '/chats/$chatId', params: { chatId: newChat.id } });
+		},
 	});
 }
 

@@ -6,7 +6,7 @@ from core.security import get_current_user
 from models import User
 from repositories import get_chat_repo, get_message_repo
 from repositories import ChatRepository
-from schemas import ChatDetail, ChatOut, MessageCreate, MessageOut
+from schemas import ChatDetail, ChatOut, MessageCreate, MessageOut, ChatCreate
 from repositories import MessageRepository
 from models import MessageRole
 from services.chat import get_chat_stream_service, ChatStreamService
@@ -36,6 +36,21 @@ def get_chat(
             status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found"
         )
     return chat
+
+
+@router.post(
+    "/chats",
+    summary="Create a new chat",
+    response_model=ChatOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_chat(
+    payload: ChatCreate,
+    repo: ChatRepository = Depends(get_chat_repo),
+    current_user: User = Depends(get_current_user),
+) -> ChatOut:
+    chat = repo.create_chat(user_id=current_user.id, title=payload.title)
+    return ChatOut.model_validate(chat)
 
 
 @router.post(
