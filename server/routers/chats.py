@@ -67,20 +67,20 @@ def stream_reply(
 ):
     chat = chat_repo.get_chat(user_id=current_user.id, chat_id=chat_id)
     if not chat or chat.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found"
-        )
-    if not payload or not getattr(payload, "content", "").strip():
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+    last_msg = chat.messages[-1] if chat.messages else None
+    if last_msg and last_msg.role == MessageRole.USER:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="content is required",
+            detail="Cannot send multiple user messages in a row",
         )
 
     user_msg = msg_repo.insert_message(
         chat_id=chat.id, content=payload.content, role=MessageRole.USER
     )
-
     chat.messages.append(user_msg)
+
     openai_msgs = chat_stream_service.to_openai_messages(chat.messages)
     return chat_stream_service.streaming_response(
         openai_msgs=openai_msgs, chat_id=chat.id, msg_repo=msg_repo

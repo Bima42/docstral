@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useCreateChat } from '@/api/chat/queries';
 import { useStreamReply } from '@/api/chat/queries';
+import { createChat } from '@/api/chat/chat';
+import { queryClient } from '@/lib/queryClient';
+import type { ChatDetail } from '@/api/types';
 
 interface ChatInputProps {
     chatId: string | undefined;
@@ -12,10 +14,9 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const navigate = useNavigate();
 
-	const createChatMutation = useCreateChat();
-	const streamMutation = useStreamReply(chatId);
+	const streamMutation = useStreamReply();
 
-	const isLoading = createChatMutation.isPending || streamMutation.isPending;
+	const isLoading = streamMutation.isPending;
 
 	useEffect(() => {
 		if (textareaRef.current) {
@@ -36,10 +37,34 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 		setInput('');
 
 		if (!chatId) {
-			const newChat = await createChatMutation.mutateAsync({ title: userMessage.slice(0, 50) });
-			navigate({ to: '/chats/$chatId', params: { chatId: newChat.id } });
+			try {
+				const newChat = await createChat({ title: userMessage.slice(0, 50) });
+				const newChatId = newChat.id;
+
+				queryClient.setQueryData<ChatDetail>(['chat', newChatId], {
+					...newChat,
+					messages: [],
+				});
+
+				await streamMutation.mutateAsync({
+					chatId: newChatId,
+					payload: { content: userMessage },
+				});
+
+				navigate({
+					to: '/chats/$chatId',
+					params: { chatId: newChatId },
+					replace: true,
+				});
+			} catch (err) {
+				console.error('First message flow failed:', err);
+				setInput(userMessage);
+			}
 		} else {
-			streamMutation.mutate({ content: userMessage });
+			streamMutation.mutate({
+				chatId,
+				payload: { content: userMessage },
+			});
 		}
 	};
 
@@ -50,10 +75,11 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 		}
 	};
 
+	const MAX_CHAR_LIMIT = 2000;
 	const charCount = input.length;
 	const estimatedTokens = Math.ceil(input.split(/\s+/).filter(Boolean).length * 0.75);
-	const isNearLimit = charCount > 1500;
-	const isAtLimit = charCount > 2000;
+	const isNearLimit = charCount > MAX_CHAR_LIMIT * 0.9;
+	const isAtLimit = charCount > MAX_CHAR_LIMIT;
 
 	return (
 		<div className="sticky bottom-0 z-20 bg-surface-warm/80 backdrop-blur-md">
@@ -93,7 +119,7 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 									<span>~{estimatedTokens} tokens</span>
 									<span className="h-1 w-1 rounded-full bg-neutral-400" />
 									<span className={isAtLimit ? 'text-red-500' : isNearLimit ? 'text-amber-500' : ''}>
-										{charCount}/2000
+										{charCount}/{MAX_CHAR_LIMIT}
 									</span>
 								</span>
 							)}

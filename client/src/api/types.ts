@@ -15,6 +15,10 @@ export type MessageOut = {
     createdAt: string;
 };
 
+export type MessageCreate = {
+    content: string;
+}
+
 export type ChatOut = {
     id: UUID;
     userId: UUID;
@@ -25,6 +29,10 @@ export type ChatOut = {
 export type ChatDetail = ChatOut & {
     messages: MessageOut[];
 };
+
+export type ChatCreate = {
+    title?: string;
+}
 
 export type StreamEvent =
     | { type: 'start' }

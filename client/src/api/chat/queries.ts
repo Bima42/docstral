@@ -1,8 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ChatDetail, MessageOut } from '@/api/types';
 import { queryClient } from '@/lib/queryClient';
-import { createChat, getChat, listChats, streamReply } from '@/api/chat/chat.ts';
-import { useNavigate } from '@tanstack/react-router';
+import { getChat, listChats, streamReply } from '@/api/chat/chat.ts';
 
 export function useChats(params?: { limit?: number; offset?: number }) {
 	return useQuery({
@@ -12,32 +11,18 @@ export function useChats(params?: { limit?: number; offset?: number }) {
 	});
 }
 
-export function useChat(chatId: string | undefined) {
+export function useChat(chatId: string) {
 	return useQuery({
 		queryKey: ['chat', chatId],
-		queryFn: () => getChat(chatId!),
+		queryFn: () => getChat(chatId),
 		enabled: Boolean(chatId),
 	});
 }
 
-export function useCreateChat() {
-	const navigate = useNavigate();
-	return useMutation({
-		mutationFn: (payload: { title?: string }) => createChat(payload),
-		onSuccess: (newChat) => {
-			queryClient.invalidateQueries({ queryKey: ['chats'] });
-			navigate({ to: '/chats/$chatId', params: { chatId: newChat.id } });
-		},
-	});
-}
 
-export function useStreamReply(chatId: string | undefined) {
+export function useStreamReply() {
 	return useMutation({
-		mutationKey: ['chat', chatId, 'stream'],
-		mutationFn: async (payload: { content: string }) => {
-			if (!chatId) throw new Error('chatId required');
-
-			// Optimistic user message
+		mutationFn: async ({ chatId, payload }: { chatId: string; payload: { content: string } }) => {
 			const userMsg: MessageOut = {
 				id: `temp-user-${Date.now()}`,
 				chatId,
@@ -49,7 +34,6 @@ export function useStreamReply(chatId: string | undefined) {
 				prev ? { ...prev, messages: [...prev.messages, userMsg] } : prev,
 			);
 
-			// Placeholder assistant message
 			const assistantId = `temp-assistant-${Date.now()}`;
 			queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
 				prev
@@ -88,10 +72,9 @@ export function useStreamReply(chatId: string | undefined) {
 							);
 							break;
 						}
-						case 'error': {
-							// Optional: revert assistant msg or mark error
+						case 'error':
+							// TODO: mark error in UI
 							break;
-						}
 						case 'done':
 						case 'start':
 						default:
@@ -100,7 +83,6 @@ export function useStreamReply(chatId: string | undefined) {
 				},
 			});
 
-			// Refresh chat list after streaming completes (last message / timestamps)
 			queryClient.invalidateQueries({ queryKey: ['chats'] });
 			return { ok: true };
 		},
