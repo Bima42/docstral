@@ -1,12 +1,10 @@
+import { BASE_API_URL } from '@/config.ts';
+
 type TokenProvider = () => string | null;
 let tokenProvider: TokenProvider = () => null;
 
 export function setTokenProvider(fn: TokenProvider) {
 	tokenProvider = fn;
-}
-
-function getBaseUrl() {
-	return import.meta.env.VITE_API_BASE_URL ?? '/api';
 }
 
 export class ApiError extends Error {
@@ -17,28 +15,6 @@ export class ApiError extends Error {
 		this.status = status;
 		this.body = body;
 	}
-}
-
-export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
-	const url = `${getBaseUrl()}${path}`;
-	const token = tokenProvider();
-	const res = await fetch(url, {
-		...init,
-		headers: {
-			'Content-Type': 'application/json',
-			...(token ? { Authorization: `Bearer ${token}` } : {}),
-			// ...(token ? { Authorization: 'Bearer test' } : {}),
-			...(init?.headers ?? {}),
-		},
-	});
-	const ctype = res.headers.get('content-type') ?? '';
-	const body = ctype.includes('application/json')
-		? await res.json().catch(() => undefined)
-		: await res.text().catch(() => undefined);
-	if (!res.ok) {
-		throw new ApiError(`HTTP ${res.status}`, res.status, body);
-	}
-	return body as T;
 }
 
 export type SseMessage = {
@@ -53,7 +29,7 @@ export async function fetchSse(
         onMessage: (msg: SseMessage) => void;
     },
 ) {
-	const url = `${getBaseUrl()}${path}`;
+	const url = `${BASE_API_URL}${path}`;
 	const token = tokenProvider();
 	const res = await fetch(url, {
 		...init,

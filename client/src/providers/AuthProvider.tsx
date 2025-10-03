@@ -3,6 +3,7 @@ import { AuthDialog } from '@/components/auth/AuthDialog.tsx';
 import { verifyTokenRequest } from '@/api/auth/auth.ts';
 import { setTokenProvider } from '@/api/http.ts';
 import { useNavigate } from '@tanstack/react-router';
+import { TOKEN_STORAGE_KEY } from '@/config.ts';
 
 type AuthState = {
     token: string | null;
@@ -14,12 +15,11 @@ type AuthState = {
 };
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
-const STORAGE_KEY = 'docstral_auth_token';
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const navigate = useNavigate();
-	const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(STORAGE_KEY));
+	const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(TOKEN_STORAGE_KEY));
 	const [status, setStatus] = useState<AuthState['status']>(token ? 'checking' : 'idle');
 	const [error, setError] = useState<string | undefined>(undefined);
 
@@ -33,8 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			if (!token) return;
 			setStatus('checking');
 			setError(undefined);
-			const ok = await verifyTokenRequest(token).catch((e) => {
-				console.error('verify failed', e);
+			const ok = await verifyTokenRequest(token).catch(() => {
 				return false;
 			});
 			if (cancelled) return;
@@ -44,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				setStatus('error');
 				setError('Token invalid or expired');
 				setToken(null);
-				sessionStorage.removeItem(STORAGE_KEY);
+				sessionStorage.removeItem(TOKEN_STORAGE_KEY);
 			}
 		})();
 		return () => {
@@ -60,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		});
 		if (ok) {
 			setToken(tok);
-			sessionStorage.setItem(STORAGE_KEY, tok);
+			sessionStorage.setItem(TOKEN_STORAGE_KEY, tok);
 			setStatus('verified');
 			navigate({ to: '/chats' });
 			return true;
@@ -75,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		navigate({ to: '/' });
 		setTokenProvider(() => null);
 		setToken(null);
-		sessionStorage.removeItem(STORAGE_KEY);
+		sessionStorage.removeItem(TOKEN_STORAGE_KEY);
 		setStatus('idle');
 		setError(undefined);
 	};

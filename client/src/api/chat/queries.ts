@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import type { ChatDetail, MessageOut } from '@/api/types';
 import { queryClient } from '@/lib/queryClient';
 import { getChat, listChats, streamReply } from '@/api/chat/chat.ts';
+import type { ChatDetail, MessageOut } from '@/api/client';
 
 export function useChats(params?: { limit?: number; offset?: number }) {
 	return useQuery({
@@ -19,7 +19,6 @@ export function useChat(chatId: string) {
 	});
 }
 
-
 export function useStreamReply() {
 	return useMutation({
 		mutationFn: async ({ chatId, payload }: { chatId: string; payload: { content: string } }) => {
@@ -31,7 +30,7 @@ export function useStreamReply() {
 				createdAt: new Date().toISOString(),
 			};
 			queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
-				prev ? { ...prev, messages: [...prev.messages, userMsg] } : prev,
+				prev ? { ...prev, messages: [...prev.messages || [], userMsg] } : prev,
 			);
 
 			const assistantId = `temp-assistant-${Date.now()}`;
@@ -40,7 +39,7 @@ export function useStreamReply() {
 					? {
 						...prev,
 						messages: [
-							...prev.messages,
+							...prev.messages || [],
 							{
 								id: assistantId,
 								chatId,
@@ -64,7 +63,7 @@ export function useStreamReply() {
 								prev
 									? {
 										...prev,
-										messages: prev.messages.map((m) =>
+										messages: prev.messages?.map((m) =>
 											m.id === assistantId ? { ...m, content: aggregated } : m,
 										),
 									}

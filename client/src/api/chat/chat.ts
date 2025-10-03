@@ -1,24 +1,47 @@
-import { apiJson, fetchSse } from '@/api/http.ts';
-import type { ChatCreate, ChatDetail, ChatOut, MessageCreate, StreamEvent } from '@/api/types.ts';
+import { fetchSse } from '@/api/http.ts';
+import {
+	type ChatCreate,
+	createChatChatsPost,
+	getChatChatChatIdGet,
+	listChatsChatsGet,
+	type MessageCreate
+} from '@/api/client';
+import { TOKEN_STORAGE_KEY } from '@/config.ts';
+
+function getAuthHeaders() {
+	const token = sessionStorage.getItem(TOKEN_STORAGE_KEY);
+	return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export async function listChats(params?: { limit?: number; offset?: number }) {
-	const search = new URLSearchParams();
-	if (params?.limit != null) search.set('limit', String(params.limit));
-	if (params?.offset != null) search.set('offset', String(params.offset));
-	const qs = search.toString();
-	return apiJson<ChatOut[]>(`/chats${qs ? `?${qs}` : ''}`);
+	const { data } = await listChatsChatsGet({
+		query: params,
+		headers: getAuthHeaders(),
+	});
+	return data ?? [];
 }
 
 export async function getChat(chatId: string) {
-	return apiJson<ChatDetail>(`/chat/${chatId}`);
+	const { data } = await getChatChatChatIdGet({
+		path: { chat_id: chatId },
+		headers: getAuthHeaders(),
+	});
+	return data;
 }
 
 export async function createChat(payload: ChatCreate) {
-	return apiJson<ChatDetail>('/chats', {
-		method: 'POST',
-		body: JSON.stringify(payload),
+	const { data } = await createChatChatsPost({
+		body: payload,
+		headers: getAuthHeaders(),
 	});
+	return data;
 }
+
+export type StreamEvent =
+    | { type: 'start' }
+    | { type: 'token'; content: string }
+    | { type: 'done' }
+    | { type: 'error'; error: string };
 
 export async function streamReply(
 	chatId: string,
