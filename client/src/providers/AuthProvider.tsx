@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthDialog } from '@/components/auth/AuthDialog.tsx';
 import { verifyTokenRequest } from '@/api/auth/auth.ts';
 import { setTokenProvider } from '@/api/http.ts';
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, [token]);
 
-	const verify = async (tok: string) => {
+	const verify = useCallback(async (tok: string) => {
 		setStatus('checking');
 		setError(undefined);
 		const ok = await verifyTokenRequest(tok).catch(() => {
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			setError('Token invalid');
 			return false;
 		}
-	};
+	}, [navigate]);
 
 	const logout = () => {
 		setTokenProvider(() => null);
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		error,
 		verify,
 		logout,
-	}), [token, status, error]);
+	}), [token, status, error, verify]);
 
 	return <AuthContext.Provider value={value}>
 		{status !== 'verified' && <AuthDialog />}

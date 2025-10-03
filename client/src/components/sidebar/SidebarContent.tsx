@@ -19,8 +19,8 @@ function formatRelative(iso: string) {
 function toRow(chat: ChatOut) {
 	return {
 		id: chat.id,
-		title: `Chat ${chat.id.slice(0, 6)}`,
-		subtitle: `Created ${formatRelative(chat.createdAt)}`,
+		title: chat.title,
+		subtitle: formatRelative(chat.createdAt),
 	};
 }
 

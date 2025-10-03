@@ -18,6 +18,7 @@ export type MessageOut = {
 export type ChatOut = {
     id: UUID;
     userId: UUID;
+    title: string;
     createdAt: string;
 };
 
