@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useStreamReply } from '@/api/chat/queries';
 import { createChat } from '@/api/chat/chat';
 import { queryClient } from '@/lib/queryClient';
-import type { ChatDetail } from '@/api/types';
+import type { ChatDetail } from '@/api/client';
 
 interface ChatInputProps {
     chatId: string | undefined;
@@ -39,6 +39,8 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 		if (!chatId) {
 			try {
 				const newChat = await createChat({ title: userMessage.slice(0, 50) });
+				if (!newChat) return;
+
 				const newChatId = newChat.id;
 
 				queryClient.setQueryData<ChatDetail>(['chat', newChatId], {
@@ -111,9 +113,8 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 							)}
 						</button>
 					</div>
-					<div className="mt-2 flex items-center justify-between px-1">
+					<div className="mt-2 mb-1 flex items-center justify-between px-1">
 						<div className="flex items-center gap-4 text-xs text-neutral-500">
-							<span>Enter to send, Shift+Enter for newline</span>
 							{input.trim() && (
 								<span className="flex items-center gap-2">
 									<span>~{estimatedTokens} tokens</span>
