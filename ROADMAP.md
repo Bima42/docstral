@@ -9,6 +9,8 @@ The first release is a minimal viable product—a "Le Chat"‑like chat applicat
 - Basic authentication and data schemas
 - Clean, working foundation
 
+![mvp_architecture.png](docs/mvp_architecture.png)
+
 ## What's Next
 
 ### Phase 1: Private Deployment
