@@ -84,7 +84,7 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 	const isAtLimit = charCount > MAX_CHAR_LIMIT;
 
 	return (
-		<div className="sticky bottom-0 z-20 bg-surface-warm/80 backdrop-blur-md">
+		<div className="sticky bottom-0 z-20 bg-surface-warm backdrop-blur-md">
 			<div className="mx-auto max-w-4xl px-4 py-3 pb-[env(safe-area-inset-bottom)] sm:px-6">
 				<form onSubmit={handleSubmit} className="relative">
 					<div className="relative rounded-2xl border border-sidebar-border bg-surface-light transition-all focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500 dark:bg-neutral-900">
