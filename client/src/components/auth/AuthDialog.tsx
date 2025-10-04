@@ -3,8 +3,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/providers/AuthProvider';
+import { useLanguage } from '@/hooks/useLanguage.ts';
 
 export function AuthDialog() {
+	const { t } = useLanguage();
 	const { isVerified, status, error, verify } = useAuth();
 	const [tokenInput, setTokenInput] = useState('');
 	const [submitErr, setSubmitErr] = useState<string | undefined>(undefined);
@@ -19,7 +21,7 @@ export function AuthDialog() {
 		e.preventDefault();
 		setSubmitErr(undefined);
 		const ok = await verify(tokenInput.trim());
-		if (!ok) setSubmitErr('Invalid token');
+		if (!ok) setSubmitErr(t('auth.dialog.invalidToken'));
 	};
 
 	return (
@@ -40,10 +42,10 @@ export function AuthDialog() {
 			>
 				<DialogHeader className="space-y-1">
 					<DialogTitle className="text-lg font-semibold">
-                        Access required
+						{t('auth.dialog.title')}
 					</DialogTitle>
 					<DialogDescription className="text--neutral-600 dark:text-neutral-400">
-                        Enter your access token to continue.
+						{t('auth.dialog.message')}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -52,7 +54,7 @@ export function AuthDialog() {
 						htmlFor="token"
 						className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
 					>
-                        Access token
+						{t('auth.dialog.inputLabel')}
 					</label>
 
 					<Input
@@ -90,7 +92,7 @@ export function AuthDialog() {
 							'disabled:opacity-60 disabled:cursor-not-allowed',
 						].join(' ')}
 					>
-						{status === 'checking' ? 'Verifying…' : 'Verify'}
+						{status === 'checking' ? t('common.verifying') : t('common.verify')}
 					</Button>
 				</form>
 			</DialogContent>

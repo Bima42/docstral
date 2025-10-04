@@ -1,5 +1,14 @@
 {
-
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "language": "Language",
+    "logout": "Logout",
+    "verify": "Verify",
+    "verifying": "Verifying...",
+    "processing": "Processing..."
+  },
   "pages": {
     "home": {
       "title": "Home",
@@ -7,13 +16,23 @@
       "currentMode": "Current mode"
     }
   },
+  "auth": {
+      "dialog": {
+        "title": "Access Required",
+        "message": "Please enter the access code to continue.",
+        "inputLabel": "Access Token",
+        "submitButton": "Submit",
+        "invalidToken": "Invalid access code. Please try again."
+      }
+  },
   "theme": {
+    "title": "Theme",
     "light": "light",
     "dark": "dark"
   },
-  "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success"
+  "chat": {
+    "jumpToLatest": "Jump to latest",
+    "inputPlaceholder": "Ask me about Mistral AI models, SDKs, or implementation...",
+    "startConversationPrompt": "Ask me about Mistral models, SDKs, or implementation details."
   }
 }

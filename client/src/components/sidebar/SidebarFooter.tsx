@@ -10,6 +10,7 @@ interface SidebarFooterProps {
     collapsed?: boolean;
 }
 export const SidebarFooter = ({ collapsed = false }: SidebarFooterProps)=> {
+	const { t } = useLanguage();
 	const { logout } = useAuth();
 	const { isDark } = useTheme();
 	const { getLanguageDisplay } = useLanguage();
@@ -18,15 +19,15 @@ export const SidebarFooter = ({ collapsed = false }: SidebarFooterProps)=> {
 		return (
 			<div className="space-y-3">
 				<div className="flex items-center justify-between px-2">
-					<span className="text-sm font-medium text-sidebar-foreground">Language</span>
+					<span className="text-sm font-medium text-sidebar-foreground">{t('common.language')}</span>
 					<LanguageToggle />
 				</div>
 				<div className="flex items-center justify-between px-2">
-					<span className="text-sm font-medium text-sidebar-foreground">Theme</span>
+					<span className="text-sm font-medium text-sidebar-foreground">{t('theme.title')}</span>
 					<ThemeToggle />
 				</div>
 				<div className="flex items-center justify-between px-2">
-					<span className="text-sm font-medium text-sidebar-foreground">Logout</span>
+					<span className="text-sm font-medium text-sidebar-foreground">{t('common.logout')}</span>
 					<Toggle
 						className="h-10 w-10 p-0 border-0 bg-transparent hover:bg-sidebar-accent data-[state=on]:bg-transparent data-[state=off]:bg-transparent cursor-pointer hover:[&>svg]:text-primary"
 						onPressedChange={(pressed) => {

@@ -1,8 +1,8 @@
 import { SidebarSection } from '@/components/sidebar/SidebarSection';
 import { useChats } from '@/api/chat/queries';
-import type { ChatOut } from '@/api/types';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Route as ChatRoute } from '@/routes/chats/$chatId';
+import type { ChatOut } from '@/api/client';
 
 function formatRelative(iso: string) {
 	const d = new Date(iso);

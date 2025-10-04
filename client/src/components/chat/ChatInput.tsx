@@ -4,12 +4,14 @@ import { useStreamReply } from '@/api/chat/queries';
 import { createChat } from '@/api/chat/chat';
 import { queryClient } from '@/lib/queryClient';
 import type { ChatDetail } from '@/api/client';
+import { useLanguage } from '@/hooks/useLanguage.ts';
 
 interface ChatInputProps {
     chatId: string | undefined;
 }
 
 export const ChatInput = ({ chatId }: ChatInputProps) => {
+	const { t } = useLanguage();
 	const [input, setInput] = useState('');
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const navigate = useNavigate();
@@ -93,7 +95,7 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 							value={input}
 							onChange={(e) => setInput(e.target.value)}
 							onKeyDown={handleKeyDown}
-							placeholder="Ask me about Mistral AI models, SDKs, or implementation..."
+							placeholder={t('chat.inputPlaceholder')}
 							disabled={isLoading}
 							className="max-h-40 min-h-[56px] w-full resize-none bg-transparent px-4 py-4 pr-14 text-neutral-900 placeholder-neutral-500 outline-none dark:text-neutral-100 dark:placeholder-neutral-400"
 							style={{ scrollbarWidth: 'thin' }}
@@ -128,7 +130,7 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 						{isLoading && (
 							<div className="flex items-center gap-2 text-xs text-primary-600">
 								<span className="h-1 w-1 animate-pulse rounded-full bg-primary-500" />
-								<span>Processing...</span>
+								<span>{t('common.processing')}</span>
 							</div>
 						)}
 					</div>

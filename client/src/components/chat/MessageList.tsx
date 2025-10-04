@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { ChatMessage } from './ChatMessage';
-import type { MessageOut } from '@/api/types';
+import type { MessageOut } from '@/api/client';
+import { useLanguage } from '@/hooks/useLanguage.ts';
 
 export const MessageList = ({ messages }: { messages: MessageOut[] }) => {
+	const { t } = useLanguage();
 	const { ref, isPinned, scrollToBottom } = useAutoScroll<HTMLDivElement>();
 
 	useEffect(() => {
@@ -16,7 +18,7 @@ export const MessageList = ({ messages }: { messages: MessageOut[] }) => {
 				<div className="text-center text-neutral-500">
 					<div className="mx-auto mb-3 h-10 w-10 rounded-xl bg-neutral-100 dark:bg-neutral-800" />
 					<p className="text-sm">
-                        Ask me about Mistral models, SDKs, or implementation details.
+						{t('chat.startConversationPrompt')}
 					</p>
 				</div>
 			</div>
@@ -36,7 +38,7 @@ export const MessageList = ({ messages }: { messages: MessageOut[] }) => {
 						onClick={scrollToBottom}
 						className="rounded-full bg-neutral-900/80 text-white px-3 py-1.5 text-xs shadow hover:bg-neutral-900 dark:bg-neutral-100/80 dark:text-neutral-900"
 					>
-                        Jump to latest
+						{t('chat.jumpToLatest')}
 					</button>
 				</div>
 			)}

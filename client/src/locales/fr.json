@@ -1,4 +1,13 @@
 {
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "language": "Langue",
+    "logout": "Déconnexion",
+    "verify": "Vérifier",
+    "verifying": "Vérification..."
+  },
   "pages": {
     "home": {
       "title": "Accueil",
@@ -6,13 +15,22 @@
       "currentMode": "Mode actuel"
     }
   },
+  "auth": {
+    "dialog": {
+      "title": "Accès requis",
+      "message": "Veuillez entrer le code d'accès pour continuer.",
+      "inputLabel": "Code d'accès",
+      "invalidToken": "Code d'accès invalide. Veuillez réessayer."
+    }
+  },
   "theme": {
+    "title": "Thème",
     "light": "clair",
     "dark": "sombre"
   },
-  "common": {
-    "loading": "Chargement...",
-    "error": "Erreur",
-    "success": "Succès"
+  "chat": {
+    "jumpToLatest": "Aller au plus récent",
+    "inputPlaceholder": "Demandez-moi des informations sur les modèles Mistral AI, les SDK ou la mise en place...",
+    "startConversationPrompt": "Demandez-moi des informations sur les modèles Mistral, les SDK ou des détails de mise en place."
   }
 }
