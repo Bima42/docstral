@@ -21,6 +21,7 @@ Deploy the application (likely via [Dockploy](https://dockploy.com)) and keep it
 ### Phase 2: Self‑Hosted Model
 
 Replace Mistral API calls with a self‑hosted Mistral model using [vLLM](https://github.com/vllm-project/vllm).
+Add more metrics and monitoring to the chat interface.
 
 ### Phase 3: RAG System
 
