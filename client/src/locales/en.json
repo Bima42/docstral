@@ -7,7 +7,8 @@
     "logout": "Logout",
     "verify": "Verify",
     "verifying": "Verifying...",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "new": "New"
   },
   "pages": {
     "home": {

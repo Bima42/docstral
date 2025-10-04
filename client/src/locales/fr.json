@@ -6,7 +6,8 @@
     "language": "Langue",
     "logout": "Déconnexion",
     "verify": "Vérifier",
-    "verifying": "Vérification..."
+    "verifying": "Vérification...",
+    "new": "Nouveau"
   },
   "pages": {
     "home": {
