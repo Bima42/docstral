@@ -1,22 +1,28 @@
-import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
+import { common } from 'lowlight';
+import bash from 'highlight.js/lib/languages/bash';
+import yaml from 'highlight.js/lib/languages/yaml';
+import dockerfile from 'highlight.js/lib/languages/dockerfile';
 
-type Props = { content: string; className?: string };
+type MarkdownRendererProps = { content: string; className?: string };
 
-function toText(children: React.ReactNode): string {
-	const parts = React.Children.toArray(children);
-	return parts.map((c) => (typeof c === 'string' ? c : '')).join('');
-}
-
-export function MarkdownRenderer({ content, className = '' }: Props) {
+export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
 	return (
 		<div className={`max-w-none text-sm leading-6 ${className}`}>
 			<ReactMarkdown
 				remarkPlugins={[remarkGfm, remarkBreaks]}
-				rehypePlugins={[rehypeHighlight]}
+				rehypePlugins={[
+					[
+						rehypeHighlight,
+						{
+							languages: { ...common, bash, yaml, dockerfile },
+							aliases: { shell: 'bash', sh: 'bash', yml: 'yaml' }
+						}
+					]
+				]}
 				components={{
 					h1: ({ children }) => <h1 className="mt-5 text-lg font-bold text-neutral-900 dark:text-neutral-100">{children}</h1>,
 					h2: ({ children }) => <h2 className="mt-4 text-base font-semibold text-neutral-900 dark:text-neutral-100">{children}</h2>,
@@ -30,33 +36,6 @@ export function MarkdownRenderer({ content, className = '' }: Props) {
 							{children}
 						</a>
 					),
-					code: ({ inline, className: codeClass, children }) => {
-						const codeText = toText(children);
-						if (inline) {
-							return (
-								<code className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.85em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
-									{codeText}
-								</code>
-							);
-						}
-						const lang = codeClass?.replace('language-', '') || 'text';
-						const handleCopy = async () => {
-							try { await navigator.clipboard.writeText(codeText); } catch (e) { console.error('copy failed', e); }
-						};
-						return (
-							<div className="my-4 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700">
-								<div className="flex items-center justify-between bg-neutral-100 px-3 py-2 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
-									<span className="uppercase tracking-wide">{lang}</span>
-									<button onClick={handleCopy} className="rounded px-2 py-1 hover:bg-neutral-200 dark:hover:bg-neutral-700">
-                                        Copy
-									</button>
-								</div>
-								<pre className="overflow-x-auto bg-transparent p-3 text-sm">
-									<code className={`hljs ${codeClass || ''}`}>{codeText}</code>
-								</pre>
-							</div>
-						);
-					},
 					strong: ({ children }) => <strong className="font-semibold text-neutral-900 dark:text-neutral-100">{children}</strong>,
 					em:     ({ children }) => <em className="italic">{children}</em>,
 					blockquote: ({ children }) => (
@@ -64,7 +43,24 @@ export function MarkdownRenderer({ content, className = '' }: Props) {
 							{children}
 						</blockquote>
 					),
-					hr: () => <hr className="my-6 border-neutral-200 dark:border-neutral-700" />
+					hr: () => <hr className="my-6 border-neutral-200 dark:border-neutral-700" />,
+					code: ({ className, children, ...props }) => {
+						const match = /language-(\w+)/.exec(className || '');
+						return match ? (
+							<code className={className} {...props}>
+								{children}
+							</code>
+						) : (
+							<code className="rounded bg-neutral-100 px-1 text-sm font-mono text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100" {...props}>
+								{children}
+							</code>
+						);
+					},
+					pre: ({ children }) => (
+						<pre className="my-4 overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+							{children}
+						</pre>
+					)
 				}}
 			>
 				{content}

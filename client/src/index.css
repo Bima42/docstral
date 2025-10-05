@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "highlight.js/styles/atom-one-light.css" layer(hljs);
 
 @custom-variant dark (&:is(.dark *));
 
@@ -82,6 +83,69 @@
     --color-sidebar-accent-foreground: hsl(0 0% 90%);
     --color-sidebar-border:            hsl(240 7% 18%);
     --color-sidebar-ring:              hsl(24 100% 60%);
+}
+
+.dark {
+    & .hljs {
+        background: var(--color-neutral-800) !important;
+        color: hsl(220 14% 71%);
+        padding: 0.5em;
+    }
+    & .hljs-comment,
+    & .hljs-quote {
+        color: hsl(220 10% 40%);
+    }
+    & .hljs-keyword,
+    & .hljs-selector-tag,
+    & .hljs-subst {
+        color: hsl(286 60% 67%);
+    }
+    & .hljs-number,
+    & .hljs-literal,
+    & .hljs-variable,
+    & .hljs-template-variable,
+    & .hljs-tag .hljs-attr {
+        color: hsl(29 54% 61%);
+    }
+    & .hljs-string,
+    & .hljs-doctag {
+        color: hsl(95 38% 62%);
+    }
+    & .hljs-title,
+    & .hljs-section,
+    & .hljs-selector-id {
+        color: hsl(207 82% 66%);
+    }
+    & .hljs-type,
+    & .hljs-class .hljs-title {
+        color: hsl(39 67% 69%);
+    }
+    & .hljs-tag,
+    & .hljs-name,
+    & .hljs-attribute {
+        color: hsl(355 65% 65%);
+    }
+    & .hljs-regexp,
+    & .hljs-link {
+        color: hsl(187 47% 55%);
+    }
+    & .hljs-symbol,
+    & .hljs-bullet {
+        color: hsl(41 53% 67%);
+    }
+    & .hljs-built_in,
+    & .hljs-builtin-name {
+        color: hsl(207 82% 66%);
+    }
+    & .hljs-meta {
+        color: hsl(220 14% 71%);
+    }
+    & .hljs-deletion {
+        background: hsl(355 65% 65% / 0.15);
+    }
+    & .hljs-addition {
+        background: hsl(95 38% 62% / 0.15);
+    }
 }
 
 body {
