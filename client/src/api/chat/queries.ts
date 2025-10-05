@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { getChat, listChats, streamReply } from '@/api/chat/chat.ts';
+import { getChat, listChats, streamReply } from '@/api/chat/chat';
 import type { ChatDetail, MessageOut } from '@/api/client';
 
 export function useChats(params?: { limit?: number; offset?: number }) {

@@ -1,6 +1,6 @@
 import { useUIStore } from '@/stores/ui';
 import { useEffect } from 'react';
-import { MOBILE_BREAKPOINT } from '@/config.ts';
+import { MOBILE_BREAKPOINT } from '@/config';
 
 export const UIBootstrap = () => {
 	const setIsMobile = useUIStore((s) => s.setIsMobile);

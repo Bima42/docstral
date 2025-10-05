@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { AppSidebar } from '@/components/sidebar/AppSidebar.tsx';
-import { useIsMobile } from '@/hooks/useMobile.ts';
-import { COLLAPSED_PX, EXPANDED_DESKTOP } from '@/config.ts';
+import { useIsMobile } from '@/hooks/useMobile';
+import { COLLAPSED_PX, EXPANDED_DESKTOP } from '@/config';
 
 interface SidebarContextType {
     isCollapsed: boolean;

@@ -1,5 +1,5 @@
-import { useTheme } from '@/hooks/useTheme.ts';
-import { useLanguage } from '@/hooks/useLanguage.ts';
+import { useTheme } from '@/hooks/useTheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import { LanguageToggle } from '@/components/toggles/language-toggle.tsx';
 import { ThemeToggle } from '@/components/toggles/theme-toggle.tsx';
 import { LogOut } from 'lucide-react';

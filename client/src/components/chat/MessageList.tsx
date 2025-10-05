@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { ChatMessage } from './ChatMessage';
 import type { MessageOut } from '@/api/client';
-import { useLanguage } from '@/hooks/useLanguage.ts';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const MessageList = ({ messages }: { messages: MessageOut[] }) => {
 	const { t } = useLanguage();

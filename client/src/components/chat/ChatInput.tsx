@@ -4,7 +4,7 @@ import { useStreamReply } from '@/api/chat/queries';
 import { createChat } from '@/api/chat/chat';
 import { queryClient } from '@/lib/queryClient';
 import type { ChatDetail } from '@/api/client';
-import { useLanguage } from '@/hooks/useLanguage.ts';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ChatInputProps {
     chatId: string | undefined;

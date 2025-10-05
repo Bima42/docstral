@@ -1,4 +1,4 @@
-import { useLanguage } from '@/hooks/useLanguage.ts';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Toggle } from '@/components/ui/toggle';
 
 export function LanguageToggle() {

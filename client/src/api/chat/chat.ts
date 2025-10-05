@@ -1,4 +1,4 @@
-import { fetchSse } from '@/api/http.ts';
+import { fetchSse } from '@/api/http';
 import {
 	type ChatCreate,
 	createChatChatsPost,
@@ -6,12 +6,7 @@ import {
 	listChatsChatsGet,
 	type MessageCreate
 } from '@/api/client';
-import { TOKEN_STORAGE_KEY } from '@/config.ts';
-
-function getAuthHeaders() {
-	const token = sessionStorage.getItem(TOKEN_STORAGE_KEY);
-	return token ? { Authorization: `Bearer ${token}` } : {};
-}
+import { getAuthHeaders } from '@/api/auth/auth';
 
 export async function listChats(params?: { limit?: number; offset?: number }) {
 	const { data } = await listChatsChatsGet({

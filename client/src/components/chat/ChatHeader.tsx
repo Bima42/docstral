@@ -1,7 +1,7 @@
 import { useSidebar } from '@/providers/SidebarProvider';
 import { SidebarToggle } from '@/components/sidebar/SidebarToggle';
 import { useIsMobile } from '@/hooks/useMobile';
-import { useLanguage } from '@/hooks/useLanguage.ts';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button.tsx';
 

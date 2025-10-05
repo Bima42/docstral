@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useIsMobile } from '@/hooks/useMobile.ts';
+import { useIsMobile } from '@/hooks/useMobile';
 import { SidebarHeader } from '@/components/sidebar/SidebarHeader.tsx';
 import { SidebarContainer } from '@/components/sidebar/SidebarContainer.tsx';
 import { SidebarFooter } from '@/components/sidebar/SidebarFooter.tsx';

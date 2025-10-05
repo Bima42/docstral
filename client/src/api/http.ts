@@ -1,4 +1,4 @@
-import { BASE_API_URL } from '@/config.ts';
+import { BASE_API_URL } from '@/config';
 
 type TokenProvider = () => string | null;
 let tokenProvider: TokenProvider = () => null;

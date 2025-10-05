@@ -1,4 +1,4 @@
-import { useTheme } from '@/hooks/useTheme.ts';
+import { useTheme } from '@/hooks/useTheme';
 import { Toggle } from '@/components/ui/toggle';
 import { Sun, Moon } from 'lucide-react';
 

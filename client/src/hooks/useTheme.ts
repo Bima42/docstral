@@ -1,4 +1,4 @@
-import { useUIStore } from '@/stores/ui.ts';
+import { useUIStore } from '@/stores/ui';
 
 export function useTheme() {
 	const theme = useUIStore((s) => s.theme);
