@@ -66,7 +66,7 @@ export const ChatInput = ({ onSubmit, disabled = false }: ChatInputProps) => {
 							onChange={(e) => setInput(e.target.value)}
 							onKeyDown={handleKeyDown}
 							placeholder={t('chat.inputPlaceholder')}
-							disabled={isLoading}
+							disabled={isSubmitting}
 							className="max-h-40 min-h-[56px] w-full resize-none bg-transparent px-4 py-4 pr-14 text-neutral-900 placeholder-neutral-500 outline-none dark:text-neutral-100 dark:placeholder-neutral-400"
 							style={{ scrollbarWidth: 'thin' }}
 						/>

@@ -1,45 +1,15 @@
-import { useEffect, useRef } from 'react';
 import { ChatHeader } from './ChatHeader';
 import { MessageList } from './MessageList';
 import { ChatInput } from './ChatInput';
 import { useChat, useStreamReply } from '@/api/chat/queries';
 import { Route as ChatRoute } from '@/routes/chats/$chatId';
-import { useLocation, useNavigate } from '@tanstack/react-router';
+import { useLanguage } from '@/hooks/useLanguage.ts';
 
 export const ChatInterface = () => {
+	const { t } = useLanguage();
 	const { chatId } = ChatRoute.useParams();
-	const location = useLocation();
-	const navigate = useNavigate();
 	const { data, isLoading, isError, error } = useChat(chatId);
 	const streamMutation = useStreamReply();
-
-	const isProcessingInitial = useRef(false);
-
-	useEffect(() => {
-		const initialMessage = location.state?.initialMessage;
-
-		if (!initialMessage || isProcessingInitial.current || streamMutation.isPending) {
-			return;
-		}
-
-		isProcessingInitial.current = true;
-
-		navigate({
-			to: '/chats/$chatId',
-			params: { chatId },
-			state: {},
-			replace: true,
-		});
-
-		streamMutation.mutate(
-			{ chatId, payload: { content: initialMessage } },
-			{
-				onSettled: () => {
-					isProcessingInitial.current = false;
-				}
-			}
-		);
-	}, [chatId, location.state, streamMutation, navigate]);
 
 	const handleSubmit = async (content: string) => {
 		await streamMutation.mutateAsync({ chatId, payload: { content } });
@@ -62,10 +32,10 @@ export const ChatInterface = () => {
 				<MessageList messages={data.messages} />
 			) : (
 				<div className="flex-1 flex items-center justify-center px-4">
-					<div className="text-neutral-500 text-sm">No messages yet.</div>
+					<div className="text-neutral-500 text-sm">{t('chat.noMessages')}</div>
 				</div>
 			)}
-			<ChatInput onSubmit={handleSubmit} disabled={streamMutation.isPending} />
+			<ChatInput onSubmit={handleSubmit} />
 		</div>
 	);
 };

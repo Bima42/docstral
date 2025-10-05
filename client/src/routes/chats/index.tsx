@@ -1,34 +1,30 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { createChat } from '@/api/chat/chat';
-import { queryClient } from '@/lib/queryClient';
-import type { ChatDetail } from '@/api/client';
 import { toast } from 'sonner';
 import { Logo } from '@/components/Logo.tsx';
+import { useStreamReply } from '@/api/chat/queries.ts';
 
 const ChatsLanding = () => {
 	const navigate = useNavigate();
+	const streamMutation = useStreamReply();
 
 	const handleSubmit = async (content: string) => {
 		try {
 			const newChat = await createChat({ title: content.slice(0, 50) });
 			if (!newChat) return;
 
-			queryClient.setQueryData<ChatDetail>(['chat', newChat.id], {
-				...newChat,
-				messages: [],
+			await streamMutation.mutateAsync({
+				chatId: newChat.id,
+				payload: { content }
 			});
 
-			// ChatInterface will handle the stream
 			await navigate({
 				to: '/chats/$chatId',
 				params: { chatId: newChat.id },
-				state: { initialMessage: content },
 			});
-            
-		} catch (err) {
+		} catch {
 			toast.error('Failed to create chat');
-			throw err;
 		}
 	};
 
@@ -38,7 +34,10 @@ const ChatsLanding = () => {
 				<div className="flex flex-col items-center m-0">
 					<Logo />
 				</div>
-				<ChatInput onSubmit={handleSubmit} />
+				<ChatInput
+					onSubmit={handleSubmit}
+					disabled={streamMutation.isPending}
+				/>
 			</div>
 		</div>
 	);
