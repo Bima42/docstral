@@ -27,6 +27,7 @@ export function AuthDialog() {
 	return (
 		<Dialog open={open}>
 			<DialogContent
+				hideClose
 				onPointerDownOutside={(e) => e.preventDefault()}
 				onInteractOutside={(e) => e.preventDefault()}
 				onEscapeKeyDown={(e) => e.preventDefault()}
