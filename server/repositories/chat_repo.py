@@ -20,7 +20,7 @@ class SQLChatRepository(ChatRepository):
         statement = (
             select(Chat)
             .where(Chat.user_id == user_id)
-            .order_by(Chat.created_at)
+            .order_by(Chat.created_at.desc())
             .offset(offset)
             .limit(limit)
         )

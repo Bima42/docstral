@@ -32,7 +32,10 @@ interface ConversationsListProps {
 
 const ConversationsList = ({ chats, activeId, onSelect }: ConversationsListProps) => {
 	return (
-		<ul className="flex flex-col gap-1 p-1">
+		<ul className="flex flex-col gap-1 py-2 px-1">
+			<h2 className="px-2 py-1 text-sm font-semibold text-sidebar-foreground/80">
+                Conversations
+			</h2>
 			{chats.map((chat) => {
 				const isActive = chat.id === activeId;
 				return (
