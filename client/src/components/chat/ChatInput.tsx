@@ -1,24 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { useStreamReply } from '@/api/chat/queries';
-import { createChat } from '@/api/chat/chat';
-import { queryClient } from '@/lib/queryClient';
-import type { ChatDetail } from '@/api/client';
 import { useLanguage } from '@/hooks/useLanguage';
 
 interface ChatInputProps {
-    chatId: string | undefined;
+    onSubmit: (content: string) => void | Promise<void>;
+    disabled?: boolean;
 }
 
-export const ChatInput = ({ chatId }: ChatInputProps) => {
+export const ChatInput = ({ onSubmit, disabled = false }: ChatInputProps) => {
 	const { t } = useLanguage();
 	const [input, setInput] = useState('');
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
-	const navigate = useNavigate();
-
-	const streamMutation = useStreamReply();
-
-	const isLoading = streamMutation.isPending;
 
 	useEffect(() => {
 		if (textareaRef.current) {
@@ -33,42 +25,19 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 
 	const handleSubmit = async (e: React.FormEvent | React.KeyboardEvent) => {
 		e.preventDefault();
-		if (!input.trim() || isLoading) return;
+		if (!input.trim() || isSubmitting || disabled) return;
 
 		const userMessage = input.trim();
 		setInput('');
+		setIsSubmitting(true);
 
-		if (!chatId) {
-			try {
-				const newChat = await createChat({ title: userMessage.slice(0, 50) });
-				if (!newChat) return;
-
-				const newChatId = newChat.id;
-
-				queryClient.setQueryData<ChatDetail>(['chat', newChatId], {
-					...newChat,
-					messages: [],
-				});
-
-				await streamMutation.mutateAsync({
-					chatId: newChatId,
-					payload: { content: userMessage },
-				});
-
-				navigate({
-					to: '/chats/$chatId',
-					params: { chatId: newChatId },
-					replace: true,
-				});
-			} catch (err) {
-				console.error('First message flow failed:', err);
-				setInput(userMessage);
-			}
-		} else {
-			streamMutation.mutate({
-				chatId,
-				payload: { content: userMessage },
-			});
+		try {
+			await onSubmit(userMessage);
+		} catch (err) {
+			console.error('Submit failed:', err);
+			setInput(userMessage);
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
@@ -84,6 +53,7 @@ export const ChatInput = ({ chatId }: ChatInputProps) => {
 	const estimatedTokens = Math.ceil(input.split(/\s+/).filter(Boolean).length * 0.75);
 	const isNearLimit = charCount > MAX_CHAR_LIMIT * 0.9;
 	const isAtLimit = charCount > MAX_CHAR_LIMIT;
+	const isLoading = isSubmitting || disabled;
 
 	return (
 		<div className="sticky bottom-0 z-20 bg-surface-warm backdrop-blur-md">

@@ -3,7 +3,7 @@ import { SidebarToggle } from '@/components/sidebar/SidebarToggle';
 import { useIsMobile } from '@/hooks/useMobile';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button.tsx';
+import { Button } from '@/components/ui/button';
 
 export const ChatHeader = ({ messageCount = 0 }: { messageCount?: number }) => {
 	const { t } = useLanguage();
