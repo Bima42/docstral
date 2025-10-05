@@ -32,7 +32,7 @@ export const ChatHeader = ({ messageCount = 0 }: { messageCount?: number }) => {
 								variant="outline"
 								onClick={handleNewChat}
 								size={'sm'}
-								className="rounded-lg text-neutral-50 border-neutral-300 hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800 cursor-pointer"
+								className="rounded-lg text-neutral-800 border-neutral-300 hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800 cursor-pointer"
 							>
                                 + {t('common.new')}
 							</Button>

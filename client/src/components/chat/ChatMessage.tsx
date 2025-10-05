@@ -1,5 +1,6 @@
-import type { MessageOut } from '@/api/types';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { Logo } from '@/components/Logo.tsx';
+import type { MessageOut } from '@/api/client';
 
 export const ChatMessage = ({ message }: { message: MessageOut }) => {
 	const isUser = message.role === 'USER';
@@ -44,8 +45,8 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 	if (isAssistant) {
 		return (
 			<div className="group/message flex items-start gap-3">
-				<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-500 text-sm font-bold text-white">
-                    DS
+				<div className="flex flex-col items-center m-0">
+					<Logo width={30} height={15} />
 				</div>
 				<div className="min-w-0 flex-1">
 					<div className="text-neutral-900 dark:text-neutral-100">
