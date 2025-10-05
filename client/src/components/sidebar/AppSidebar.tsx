@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/useMobile';
-import { SidebarHeader } from '@/components/sidebar/SidebarHeader.tsx';
-import { SidebarContainer } from '@/components/sidebar/SidebarContainer.tsx';
-import { SidebarFooter } from '@/components/sidebar/SidebarFooter.tsx';
-import { SidebarContent } from '@/components/sidebar/SidebarContent.tsx';
-import { useAuth } from '@/providers/AuthProvider.tsx';
+import { SidebarHeader } from '@/components/sidebar/SidebarHeader';
+import { SidebarContainer } from '@/components/sidebar/SidebarContainer';
+import { SidebarFooter } from '@/components/sidebar/SidebarFooter';
+import { SidebarContent } from '@/components/sidebar/SidebarContent';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface SidebarDesktopProps {
     isCollapsed: boolean;

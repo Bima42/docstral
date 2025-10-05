@@ -1,4 +1,4 @@
-import { ChatInterface } from './ChatInterface.tsx';
+import { ChatInterface } from './ChatInterface';
 
 /**
  * Main Chat Container Component

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { AuthDialog } from '@/components/auth/AuthDialog.tsx';
+import { AuthDialog } from '@/components/auth/AuthDialog';
 import { verifyTokenRequest } from '@/api/auth/auth';
 import { setTokenProvider } from '@/api/http';
 import { useNavigate } from '@tanstack/react-router';

@@ -1,10 +1,10 @@
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { LanguageToggle } from '@/components/toggles/language-toggle.tsx';
-import { ThemeToggle } from '@/components/toggles/theme-toggle.tsx';
+import { LanguageToggle } from '@/components/toggles/language-toggle';
+import { ThemeToggle } from '@/components/toggles/theme-toggle';
 import { LogOut } from 'lucide-react';
-import { Toggle } from '@/components/ui/toggle.tsx';
-import { useAuth } from '@/providers/AuthProvider.tsx';
+import { Toggle } from '@/components/ui/toggle';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface SidebarFooterProps {
     collapsed?: boolean;

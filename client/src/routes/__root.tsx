@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
-import { SidebarProvider } from '@/providers/SidebarProvider.tsx';
-import { AuthProvider } from '@/providers/AuthProvider.tsx';
-import { Toaster } from '../components/ui/sonner.tsx';
+import { SidebarProvider } from '@/providers/SidebarProvider';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { Toaster } from '../components/ui/sonner';
 
 
 export const Route = createRootRoute({

@@ -1,5 +1,5 @@
 import { User } from 'lucide-react';
-import { SidebarToggle } from '@/components/sidebar/SidebarToggle.tsx';
+import { SidebarToggle } from '@/components/sidebar/SidebarToggle';
 
 interface SidebarHeaderProps {
     collapsed: boolean;

@@ -4,8 +4,8 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 import './index.css';
 import './i18n';
-import { UIBootstrap } from '@/utils/UIBootstrap.tsx';
-import { QueryProvider } from '@/providers/QueryProvider.tsx';
+import { UIBootstrap } from '@/utils/UIBootstrap';
+import { QueryProvider } from '@/providers/QueryProvider';
 
 const router = createRouter({ routeTree });
 
