@@ -21,4 +21,4 @@ class Chat(SQLModel, table=True):
     )
 
     # Relationships
-    messages: List["Message"] = Relationship(back_populates="chat")
+    messages: List["Message"] = Relationship(back_populates="chat", cascade_delete=True)

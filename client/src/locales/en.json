@@ -8,7 +8,10 @@
     "verify": "Verify",
     "verifying": "Verifying...",
     "processing": "Processing...",
-    "new": "New"
+    "new": "New",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "rename": "Rename"
   },
   "pages": {
     "home": {
@@ -35,6 +38,11 @@
     "jumpToLatest": "Jump to latest",
     "inputPlaceholder": "Ask me about Mistral AI models, SDKs, or implementation...",
     "startConversationPrompt": "Ask me about Mistral models, SDKs, or implementation details.",
-    "noMessages": "No messages yet."
+    "noMessages": "No messages yet.",
+
+    "deleteDialog": {
+      "title": "Delete chat?",
+      "description": "This will permanently delete this conversation. This action cannot be undone."
+    }
   }
 }

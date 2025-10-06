@@ -161,7 +161,7 @@ export type HealthHealthGetResponses = {
 
 export type HealthHealthGetResponse = HealthHealthGetResponses[keyof HealthHealthGetResponses];
 
-export type ListChatsChatsGetData = {
+export type ListChatsData = {
     body?: never;
     path?: never;
     query?: {
@@ -177,24 +177,24 @@ export type ListChatsChatsGetData = {
     url: '/chats';
 };
 
-export type ListChatsChatsGetErrors = {
+export type ListChatsErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type ListChatsChatsGetError = ListChatsChatsGetErrors[keyof ListChatsChatsGetErrors];
+export type ListChatsError = ListChatsErrors[keyof ListChatsErrors];
 
-export type ListChatsChatsGetResponses = {
+export type ListChatsResponses = {
     /**
-     * Response List Chats Chats Get
+     * Response List Chats
      * Successful Response
      */
     200: Array<ChatOut>;
 };
 
-export type ListChatsChatsGetResponse = ListChatsChatsGetResponses[keyof ListChatsChatsGetResponses];
+export type ListChatsResponse = ListChatsResponses[keyof ListChatsResponses];
 
 export type CreateChatChatsPostData = {
     body: ChatCreate;
@@ -221,7 +221,7 @@ export type CreateChatChatsPostResponses = {
 
 export type CreateChatChatsPostResponse = CreateChatChatsPostResponses[keyof CreateChatChatsPostResponses];
 
-export type GetChatChatChatIdGetData = {
+export type DeleteChatData = {
     body?: never;
     path: {
         /**
@@ -233,23 +233,83 @@ export type GetChatChatChatIdGetData = {
     url: '/chat/{chat_id}';
 };
 
-export type GetChatChatChatIdGetErrors = {
+export type DeleteChatErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetChatChatChatIdGetError = GetChatChatChatIdGetErrors[keyof GetChatChatChatIdGetErrors];
+export type DeleteChatError = DeleteChatErrors[keyof DeleteChatErrors];
 
-export type GetChatChatChatIdGetResponses = {
+export type DeleteChatResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteChatResponse = DeleteChatResponses[keyof DeleteChatResponses];
+
+export type GetChatByIdData = {
+    body?: never;
+    path: {
+        /**
+         * Chat Id
+         */
+        chat_id: string;
+    };
+    query?: never;
+    url: '/chat/{chat_id}';
+};
+
+export type GetChatByIdErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetChatByIdError = GetChatByIdErrors[keyof GetChatByIdErrors];
+
+export type GetChatByIdResponses = {
     /**
      * Successful Response
      */
     200: ChatDetail;
 };
 
-export type GetChatChatChatIdGetResponse = GetChatChatChatIdGetResponses[keyof GetChatChatChatIdGetResponses];
+export type GetChatByIdResponse = GetChatByIdResponses[keyof GetChatByIdResponses];
+
+export type UpdateChatData = {
+    body: ChatCreate;
+    path: {
+        /**
+         * Chat Id
+         */
+        chat_id: string;
+    };
+    query?: never;
+    url: '/chat/{chat_id}';
+};
+
+export type UpdateChatErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateChatError = UpdateChatErrors[keyof UpdateChatErrors];
+
+export type UpdateChatResponses = {
+    /**
+     * Successful Response
+     */
+    200: ChatOut;
+};
+
+export type UpdateChatResponse = UpdateChatResponses[keyof UpdateChatResponses];
 
 export type StreamReplyChatChatIdStreamPostData = {
     body: MessageCreate;

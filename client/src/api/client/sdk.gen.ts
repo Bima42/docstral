@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateChatChatsPostData, CreateChatChatsPostErrors, CreateChatChatsPostResponses, GetChatChatChatIdGetData, GetChatChatChatIdGetErrors, GetChatChatChatIdGetResponses, HealthHealthGetData, HealthHealthGetResponses, ListChatsChatsGetData, ListChatsChatsGetErrors, ListChatsChatsGetResponses, StreamReplyChatChatIdStreamPostData, StreamReplyChatChatIdStreamPostErrors, StreamReplyChatChatIdStreamPostResponses, VerifyTokenAuthVerifyPostData, VerifyTokenAuthVerifyPostResponses } from './types.gen';
+import type { CreateChatChatsPostData, CreateChatChatsPostErrors, CreateChatChatsPostResponses, DeleteChatData, DeleteChatErrors, DeleteChatResponses, GetChatByIdData, GetChatByIdErrors, GetChatByIdResponses, HealthHealthGetData, HealthHealthGetResponses, ListChatsData, ListChatsErrors, ListChatsResponses, StreamReplyChatChatIdStreamPostData, StreamReplyChatChatIdStreamPostErrors, StreamReplyChatChatIdStreamPostResponses, UpdateChatData, UpdateChatErrors, UpdateChatResponses, VerifyTokenAuthVerifyPostData, VerifyTokenAuthVerifyPostResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -31,8 +31,8 @@ export const healthHealthGet = <ThrowOnError extends boolean = false>(options?: 
 /**
  * List chats
  */
-export const listChatsChatsGet = <ThrowOnError extends boolean = false>(options?: Options<ListChatsChatsGetData, ThrowOnError>) => {
-	return (options?.client ?? client).get<ListChatsChatsGetResponses, ListChatsChatsGetErrors, ThrowOnError>({
+export const listChats = <ThrowOnError extends boolean = false>(options?: Options<ListChatsData, ThrowOnError>) => {
+	return (options?.client ?? client).get<ListChatsResponses, ListChatsErrors, ThrowOnError>({
 		security: [
 			{
 				scheme: 'bearer',
@@ -65,10 +65,10 @@ export const createChatChatsPost = <ThrowOnError extends boolean = false>(option
 };
 
 /**
- * Get a chat by ID
+ * Delete a chat
  */
-export const getChatChatChatIdGet = <ThrowOnError extends boolean = false>(options: Options<GetChatChatChatIdGetData, ThrowOnError>) => {
-	return (options.client ?? client).get<GetChatChatChatIdGetResponses, GetChatChatChatIdGetErrors, ThrowOnError>({
+export const deleteChat = <ThrowOnError extends boolean = false>(options: Options<DeleteChatData, ThrowOnError>) => {
+	return (options.client ?? client).delete<DeleteChatResponses, DeleteChatErrors, ThrowOnError>({
 		security: [
 			{
 				scheme: 'bearer',
@@ -77,6 +77,42 @@ export const getChatChatChatIdGet = <ThrowOnError extends boolean = false>(optio
 		],
 		url: '/chat/{chat_id}',
 		...options
+	});
+};
+
+/**
+ * Get a chat by ID
+ */
+export const getChatById = <ThrowOnError extends boolean = false>(options: Options<GetChatByIdData, ThrowOnError>) => {
+	return (options.client ?? client).get<GetChatByIdResponses, GetChatByIdErrors, ThrowOnError>({
+		security: [
+			{
+				scheme: 'bearer',
+				type: 'http'
+			}
+		],
+		url: '/chat/{chat_id}',
+		...options
+	});
+};
+
+/**
+ * Update a chat's title
+ */
+export const updateChat = <ThrowOnError extends boolean = false>(options: Options<UpdateChatData, ThrowOnError>) => {
+	return (options.client ?? client).put<UpdateChatResponses, UpdateChatErrors, ThrowOnError>({
+		security: [
+			{
+				scheme: 'bearer',
+				type: 'http'
+			}
+		],
+		url: '/chat/{chat_id}',
+		...options,
+		headers: {
+			'Content-Type': 'application/json',
+			...options.headers
+		}
 	});
 };
 

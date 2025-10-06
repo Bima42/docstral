@@ -67,6 +67,12 @@
     --color-sidebar-accent-foreground: var(--color-neutral-700);
     --color-sidebar-border: var(--color-neutral-200);
     --color-sidebar-ring: var(--color-primary);
+
+    --color-popover: var(--color-surface-light);
+    --color-popover-foreground: var(--color-sidebar-foreground);
+    --color-background: var(--color-surface-light);
+    --color-muted-foreground: var(--color-neutral-500);
+    --color-border: var(--color-sidebar-border);
 }
 
 .dark {
@@ -83,9 +89,7 @@
     --color-sidebar-accent-foreground: hsl(0 0% 90%);
     --color-sidebar-border:            hsl(240 7% 18%);
     --color-sidebar-ring:              hsl(24 100% 60%);
-}
 
-.dark {
     & .hljs {
         background: var(--color-neutral-800) !important;
         color: hsl(220 14% 71%);

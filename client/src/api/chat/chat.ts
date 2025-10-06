@@ -1,15 +1,14 @@
 import { fetchSse } from '@/api/http';
 import {
 	type ChatCreate,
-	createChatChatsPost,
-	getChatChatChatIdGet,
-	listChatsChatsGet,
-	type MessageCreate
+	createChatChatsPost, deleteChat, getChatById,
+	listChats,
+	type MessageCreate, updateChat
 } from '@/api/client';
 import { getAuthHeaders } from '@/api/auth/auth';
 
-export async function listChats(params?: { limit?: number; offset?: number }) {
-	const { data } = await listChatsChatsGet({
+export async function getChats(params?: { limit?: number; offset?: number }) {
+	const { data } = await listChats({
 		query: params,
 		headers: getAuthHeaders(),
 	});
@@ -17,7 +16,7 @@ export async function listChats(params?: { limit?: number; offset?: number }) {
 }
 
 export async function getChat(chatId: string) {
-	const { data } = await getChatChatChatIdGet({
+	const { data } = await getChatById({
 		path: { chat_id: chatId },
 		headers: getAuthHeaders(),
 	});
@@ -30,6 +29,23 @@ export async function createChat(payload: ChatCreate) {
 		headers: getAuthHeaders(),
 	});
 	return data;
+}
+
+export async function updateChatTitle(chatId: string, title: string) {
+	const { data } = await updateChat({
+		path: { chat_id: chatId },
+		body: { title },
+		headers: getAuthHeaders(),
+	});
+	return data;
+}
+
+export async function deleteChatById(chatId: string) {
+	const { response } = await deleteChat({
+		path: { chat_id: chatId },
+		headers: getAuthHeaders(),
+	});
+	return response.status === 204;
 }
 
 export type StreamEvent =

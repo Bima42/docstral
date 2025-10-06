@@ -1,12 +1,12 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { getChat, listChats, streamReply } from '@/api/chat/chat';
-import type { ChatDetail, MessageOut } from '@/api/client';
+import { deleteChatById, getChat, getChats, streamReply, updateChatTitle } from '@/api/chat/chat';
+import { type ChatDetail, type MessageOut } from '@/api/client';
 
 export function useChats(params?: { limit?: number; offset?: number }) {
 	return useQuery({
 		queryKey: ['chats', params ?? {}],
-		queryFn: () => listChats(params),
+		queryFn: () => getChats(params),
 		staleTime: 15_000,
 	});
 }
@@ -84,6 +84,37 @@ export function useStreamReply() {
 
 			queryClient.invalidateQueries({ queryKey: ['chats'] });
 			return { ok: true };
+		},
+	});
+}
+
+export function useUpdateChat() {
+	return useMutation({
+		mutationFn: async ({ chatId, title }: { chatId: string; title: string }) => {
+			return updateChatTitle(chatId, title);
+		},
+		onSuccess: (data, { chatId }) => {
+			queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
+				prev ? { ...prev, title: data?.title ?? prev.title } : prev,
+			);
+			queryClient.invalidateQueries({ queryKey: ['chats'] });
+		},
+	});
+}
+
+export function useDeleteChat() {
+	return useMutation({
+		mutationFn: async (chatId: string) => {
+			return deleteChatById(chatId);
+		},
+		onMutate: (chatId) => {
+			queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], undefined);
+			queryClient.setQueryData<ChatDetail[]>(['chats'], (prev) =>
+				prev ? prev.filter((c) => c.id !== chatId) : prev,
+			);
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ['chats'] });
 		},
 	});
 }
