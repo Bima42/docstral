@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PaletteRouteImport } from './routes/palette'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChatsIndexRouteImport } from './routes/chats/index'
 import { Route as ChatsChatIdRouteImport } from './routes/chats/$chatId'
 
@@ -22,6 +23,11 @@ const PaletteRoute = PaletteRouteImport.update({
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatsIndexRoute = ChatsIndexRouteImport.update({
@@ -36,12 +42,14 @@ const ChatsChatIdRoute = ChatsChatIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/palette': typeof PaletteRoute
   '/chats/$chatId': typeof ChatsChatIdRoute
   '/chats': typeof ChatsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/palette': typeof PaletteRoute
   '/chats/$chatId': typeof ChatsChatIdRoute
@@ -49,6 +57,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/palette': typeof PaletteRoute
   '/chats/$chatId': typeof ChatsChatIdRoute
@@ -56,13 +65,14 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/$' | '/palette' | '/chats/$chatId' | '/chats'
+  fullPaths: '/' | '/$' | '/palette' | '/chats/$chatId' | '/chats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/$' | '/palette' | '/chats/$chatId' | '/chats'
-  id: '__root__' | '/$' | '/palette' | '/chats/$chatId' | '/chats/'
+  to: '/' | '/$' | '/palette' | '/chats/$chatId' | '/chats'
+  id: '__root__' | '/' | '/$' | '/palette' | '/chats/$chatId' | '/chats/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   PaletteRoute: typeof PaletteRoute
   ChatsChatIdRoute: typeof ChatsChatIdRoute
@@ -85,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chats/': {
       id: '/chats/'
       path: '/chats'
@@ -103,6 +120,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   PaletteRoute: PaletteRoute,
   ChatsChatIdRoute: ChatsChatIdRoute,

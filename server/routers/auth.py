@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from core.security import get_current_user
+from core.auth import get_current_user
 from models import User
 from schemas import UserOut
 

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ChatLanding } from '@/pages/ChatLanding';
+import { ChatPage } from '@/pages/ChatPage.tsx';
 
 
 export const Route = createFileRoute('/chats/')({
-	component: ChatLanding,
+	component: ChatPage,
 });
