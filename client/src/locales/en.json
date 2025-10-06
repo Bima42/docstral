@@ -35,6 +35,7 @@
     "dark": "dark"
   },
   "chat": {
+    "title": "Chats",
     "jumpToLatest": "Jump to latest",
     "inputPlaceholder": "Ask me about Mistral AI models, SDKs, or implementation...",
     "startConversationPrompt": "Ask me about Mistral models, SDKs, or implementation details.",

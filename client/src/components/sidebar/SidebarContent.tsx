@@ -3,14 +3,23 @@ import { useChats } from '@/api/chat/queries';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Route as ChatRoute } from '@/routes/chats/$chatId';
 import { ChatsList, toRow } from '@/components/sidebar/SidebarChatsList.tsx';
+import { useIsMobile } from '@/hooks/useMobile.ts';
+import { useSidebar } from '@/providers/SidebarProvider.tsx';
 
 export const SidebarContent = ({ collapsed }: { collapsed: boolean }) => {
 	const { data } = useChats();
+	const { toggleCollapse } = useSidebar();
+	const isMobile = useIsMobile();
 	const rows = (data ?? []).map(toRow);
 
 	const navigate = useNavigate();
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
 	const activeId = pathname.match(/^\/chats\/([^/]+)/)?.[1];
+
+	const onChatSelect = (id: string) => {
+		navigate({ to: ChatRoute.to, params: { chatId: id } });
+		if (isMobile) toggleCollapse();
+	};
 
 	if (collapsed) return null;
 
@@ -23,9 +32,7 @@ export const SidebarContent = ({ collapsed }: { collapsed: boolean }) => {
 							<ChatsList
 								chats={rows}
 								activeId={activeId}
-								onSelect={(id) =>
-									navigate({ to: ChatRoute.to, params: { chatId: id } })
-								}
+								onSelect={onChatSelect}
 							/>
 						</SidebarSection>
 					</div>

@@ -4,10 +4,17 @@ import { createChat } from '@/api/chat/chat';
 import { toast } from 'sonner';
 import { Logo } from '@/components/Logo.tsx';
 import { useStreamReply } from '@/api/chat/queries.ts';
+import { SidebarToggle } from '@/components/sidebar/SidebarToggle.tsx';
+import { useIsMobile } from '@/hooks/useMobile.ts';
+import { useSidebar } from '@/providers/SidebarProvider.tsx';
 
-export const ChatsLanding = () => {
+export const ChatLanding = () => {
 	const navigate = useNavigate();
 	const streamMutation = useStreamReply();
+	const { isCollapsed, toggleCollapse } = useSidebar();
+
+	const isMobile = useIsMobile();
+	const isSidebarOpen = !isCollapsed;
 
 	const handleSubmit = async (content: string) => {
 		try {
@@ -30,6 +37,9 @@ export const ChatsLanding = () => {
 
 	return (
 		<div className="flex h-screen flex-col items-center justify-center bg-surface-warm dark:bg-surface-warm px-4">
+			{!isSidebarOpen && isMobile && (
+				<SidebarToggle collapsed={isCollapsed} onToggle={toggleCollapse} fixed />
+			)}
 			<div className="w-full max-w-3xl space-y-6">
 				<div className="flex flex-col items-center m-0">
 					<Logo />

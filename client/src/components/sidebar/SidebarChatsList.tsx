@@ -234,7 +234,7 @@ export const ChatsList = ({ chats, activeId, onSelect }: ChatsListProps) => {
 		<>
 			<ul className="flex flex-col gap-1 py-2 px-1">
 				<h2 className="px-2 py-1 text-sm font-semibold text-sidebar-foreground/80">
-                    Conversations
+					{t('chat.title')}
 				</h2>
 				{chats.map((chat) => (
 					<ChatItem
