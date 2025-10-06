@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 4ee98ffadea6
+Revision ID: 327ae2afad43
 Revises:
-Create Date: 2025-10-03 07:25:49.391325+00:00
+Create Date: 2025-10-06 21:09:34.620964+00:00
 
 """
 
@@ -12,8 +12,9 @@ from alembic import op
 import sqlalchemy as sa
 import sqlmodel
 
+
 # revision identifiers, used by Alembic.
-revision: str = "4ee98ffadea6"
+revision: str = "327ae2afad43"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -34,10 +35,12 @@ def upgrade() -> None:
     op.create_table(
         "users",
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column("first_name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column("last_name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_users_name"), "users", ["name"], unique=False)
+    op.create_index(op.f("ix_users_first_name"), "users", ["first_name"], unique=False)
+    op.create_index(op.f("ix_users_last_name"), "users", ["last_name"], unique=False)
     op.create_table(
         "messages",
         sa.Column("id", sa.Uuid(), nullable=False),
@@ -85,7 +88,8 @@ def downgrade() -> None:
     op.drop_table("user_tokens")
     op.drop_index(op.f("ix_messages_chat_id"), table_name="messages")
     op.drop_table("messages")
-    op.drop_index(op.f("ix_users_name"), table_name="users")
+    op.drop_index(op.f("ix_users_last_name"), table_name="users")
+    op.drop_index(op.f("ix_users_first_name"), table_name="users")
     op.drop_table("users")
     op.drop_index(op.f("ix_chats_user_id"), table_name="chats")
     op.drop_table("chats")

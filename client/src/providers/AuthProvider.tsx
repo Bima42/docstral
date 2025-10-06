@@ -4,8 +4,10 @@ import { verifyTokenRequest } from '@/api/auth/auth';
 import { setTokenProvider } from '@/api/http';
 import { useNavigate } from '@tanstack/react-router';
 import { TOKEN_STORAGE_KEY } from '@/config';
+import type { UserOut } from '@/api/client';
 
 type AuthState = {
+    user: UserOut | undefined;
     token: string | null;
     isVerified: boolean;
     status: 'idle' | 'checking' | 'verified' | 'error';
@@ -19,6 +21,7 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const navigate = useNavigate();
+	const [user, setUser] = useState<UserOut | undefined>(undefined);
 	const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(TOKEN_STORAGE_KEY));
 	const [status, setStatus] = useState<AuthState['status']>(token ? 'checking' : 'idle');
 	const [error, setError] = useState<string | undefined>(undefined);
@@ -33,7 +36,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			if (!token) return;
 			setStatus('checking');
 			setError(undefined);
-			const ok = await verifyTokenRequest(token).catch(() => {
+			const ok = await verifyTokenRequest(token).then((user) => {
+				setUser(user);
+				return !!user;
+			}).catch(() => {
 				return false;
 			});
 			if (cancelled) return;
@@ -54,7 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const verify = useCallback(async (tok: string) => {
 		setStatus('checking');
 		setError(undefined);
-		const ok = await verifyTokenRequest(tok).catch(() => {
+		const ok = await verifyTokenRequest(tok).then((user) => {
+			setUser(user);
+			return !!user;
+		}).catch(() => {
 			return false;
 		});
 		if (ok) {
@@ -81,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
 	const value = useMemo<AuthState>(() => ({
+		user,
 		token,
 		isVerified: status === 'verified',
 		status,

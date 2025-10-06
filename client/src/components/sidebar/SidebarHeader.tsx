@@ -1,11 +1,13 @@
 import { User } from 'lucide-react';
 import { SidebarToggle } from '@/components/sidebar/SidebarToggle';
+import { useAuth } from '@/providers/AuthProvider.tsx';
 
 interface SidebarHeaderProps {
     collapsed: boolean;
     onToggleCollapse: () => void;
 }
 export const SidebarHeader = ({ collapsed, onToggleCollapse }: SidebarHeaderProps)=> {
+	const { user } = useAuth();
 	return (
 		<div className="flex items-center gap-2 px-2 py-2">
 			{!collapsed && (<>
@@ -14,8 +16,7 @@ export const SidebarHeader = ({ collapsed, onToggleCollapse }: SidebarHeaderProp
 				</div>
 
 				<div className="grid flex-1 min-w-0 text-left text-sm leading-tight">
-					<span className="truncate font-medium">Tanguy Pauvret</span>
-					<span className="truncate text-xs text-sidebar-accent-foreground/70">Developer</span>
+					{user && <span className="truncate font-medium">{user.firstName} {user.lastName}</span>}
 				</div>
 			</>)}
 			<div className="flex items-center justify-between">

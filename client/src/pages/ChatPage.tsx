@@ -8,7 +8,7 @@ import { SidebarToggle } from '@/components/sidebar/SidebarToggle';
 import { useIsMobile } from '@/hooks/useMobile';
 import { useSidebar } from '@/providers/SidebarProvider';
 
-export const ChatLanding = () => {
+export const ChatPage = () => {
 	const navigate = useNavigate();
 	const streamMutation = useStreamReply();
 	const { isCollapsed, toggleCollapse } = useSidebar();

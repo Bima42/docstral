@@ -119,9 +119,13 @@ export type UserOut = {
      */
     id: string;
     /**
-     * Name
+     * Firstname
      */
-    name: string;
+    firstName: string;
+    /**
+     * Lastname
+     */
+    lastName: string;
 };
 
 /**

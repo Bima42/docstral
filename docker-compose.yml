@@ -1,6 +1,7 @@
 volumes:
   react_node_modules:
   postgres_data:
+  redis_data:
 
 services:
   db:
@@ -23,6 +24,22 @@ services:
       - docstral_network
     restart: unless-stopped
 
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - docstral_network
+    restart: unless-stopped
+
   server:
     container_name: server
     build:
@@ -38,6 +55,8 @@ services:
       - docstral_network
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   client:

@@ -3,15 +3,17 @@ from __future__ import annotations
 from sqlmodel import Session, select
 
 from core.db import engine
-from core.security import hash_token
+from core.auth import hash_token
 from models import User, Chat, Message, MessageRole, UserToken
 
 
 def seed() -> None:
     with Session(engine) as session:
-        user = session.exec(select(User).where(User.name == "Demo User")).first()
+        user = session.exec(
+            select(User).where(User.first_name == "Demo" and User.last_name == "User")
+        ).first()
         if not user:
-            user = User(name="Demo User")
+            user = User(first_name="Demo", last_name="User")
             session.add(user)
             session.commit()
             session.refresh(user)
@@ -65,7 +67,7 @@ def seed() -> None:
         # Summary
         chats_count = session.exec(select(Chat).where(Chat.user_id == user.id)).all()
         print("Seed complete.")
-        print(f"User: {user.name} ({user.id})")
+        print(f"User: {user.first_name} {user.last_name} ({user.id})")
         print(f"Token (use as Bearer): {plain_token}")
         print(f"Number of chats: {len(chats_count)}")
 

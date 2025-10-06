@@ -9,6 +9,7 @@ email-validator==2.3.0
 fastapi==0.117.1
 fastapi-cli==0.0.13
 fastapi-cloud-cli==0.2.1
+fastapi-limiter==0.1.6
 h11==0.16.0
 httpcore==1.0.9
 httptools==0.6.4
@@ -35,6 +36,7 @@ python-dotenv==1.1.1
 python-multipart==0.0.20
 pytokens==0.1.10
 PyYAML==6.0.3
+redis==6.4.0
 rich==14.1.0
 rich-toolkit==0.15.1
 rignore==0.6.4

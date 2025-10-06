@@ -1,10 +1,11 @@
 from uuid import UUID
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserOut(BaseModel):
     id: UUID
-    name: str
+    first_name: str = Field(alias="firstName")
+    last_name: str = Field(alias="lastName")
 
     model_config = ConfigDict(
         populate_by_name=True,
