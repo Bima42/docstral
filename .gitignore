@@ -1,5 +1,8 @@
 .idea/
-docs/
+contexts/
 
 # Front
-/node_modules/
+client/node_modules/
+client/dist-electron/
+
+.env

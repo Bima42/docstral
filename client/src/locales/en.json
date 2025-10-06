@@ -1,0 +1,51 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "language": "Language",
+    "logout": "Logout",
+    "verify": "Verify",
+    "verifying": "Verifying...",
+    "processing": "Processing...",
+    "new": "New",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "rename": "Rename",
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "pages": {
+    "home": {
+      "title": "Home",
+      "darkModeTest": "Dark Mode Test",
+      "currentMode": "Current mode"
+    }
+  },
+  "auth": {
+      "dialog": {
+        "title": "Access Required",
+        "message": "Please enter the access code to continue.",
+        "inputLabel": "Access Token",
+        "submitButton": "Submit",
+        "invalidToken": "Invalid access code. Please try again."
+      }
+  },
+  "theme": {
+    "title": "Theme",
+    "light": "light",
+    "dark": "dark"
+  },
+  "chat": {
+    "title": "Chats",
+    "jumpToLatest": "Jump to latest",
+    "inputPlaceholder": "Ask me about Mistral AI models, SDKs, or implementation...",
+    "startConversationPrompt": "Ask me about Mistral models, SDKs, or implementation details.",
+    "noMessages": "No messages yet.",
+
+    "deleteDialog": {
+      "title": "Delete chat?",
+      "description": "This will permanently delete this conversation. This action cannot be undone."
+    }
+  }
+}

@@ -1,0 +1,61 @@
+volumes:
+  react_node_modules:
+  postgres_data:
+
+services:
+  db:
+    container_name: db
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "docstral"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - docstral_network
+    restart: unless-stopped
+
+  server:
+    container_name: server
+    build:
+      context: .
+      dockerfile: docker/server/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./server:/app/server
+    networks:
+      - docstral_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  client:
+    container_name: client
+    build:
+      context: .
+      dockerfile: ./docker/client/Dockerfile
+    volumes:
+      - ./client:/client
+      - react_node_modules:/client/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BASE_URL=http://localhost:5173
+      - VITE_API_BASE_URL=http://localhost:8000
+      - VITE_VERSION=local
+    networks:
+      - docstral_network
+
+networks:
+    docstral_network:
