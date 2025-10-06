@@ -2,11 +2,11 @@ import { useNavigate } from '@tanstack/react-router';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { createChat } from '@/api/chat/chat';
 import { toast } from 'sonner';
-import { Logo } from '@/components/Logo.tsx';
-import { useStreamReply } from '@/api/chat/queries.ts';
-import { SidebarToggle } from '@/components/sidebar/SidebarToggle.tsx';
-import { useIsMobile } from '@/hooks/useMobile.ts';
-import { useSidebar } from '@/providers/SidebarProvider.tsx';
+import { Logo } from '@/components/Logo';
+import { useStreamReply } from '@/api/chat/queries';
+import { SidebarToggle } from '@/components/sidebar/SidebarToggle';
+import { useIsMobile } from '@/hooks/useMobile';
+import { useSidebar } from '@/providers/SidebarProvider';
 
 export const ChatLanding = () => {
 	const navigate = useNavigate();

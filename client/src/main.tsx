@@ -6,7 +6,7 @@ import './index.css';
 import './i18n';
 import { UIBootstrap } from '@/utils/UIBootstrap';
 import { QueryProvider } from '@/providers/QueryProvider';
-import { queryClient } from '@/lib/queryClient.ts';
+import { queryClient } from '@/lib/queryClient';
 
 export const router = createRouter({
 	routeTree,

@@ -11,7 +11,9 @@
     "new": "New",
     "cancel": "Cancel",
     "delete": "Delete",
-    "rename": "Rename"
+    "rename": "Rename",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "pages": {
     "home": {

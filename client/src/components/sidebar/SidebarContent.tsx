@@ -2,9 +2,9 @@ import { SidebarSection } from '@/components/sidebar/SidebarSection';
 import { useChats } from '@/api/chat/queries';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Route as ChatRoute } from '@/routes/chats/$chatId';
-import { ChatsList, toRow } from '@/components/sidebar/SidebarChatsList.tsx';
-import { useIsMobile } from '@/hooks/useMobile.ts';
-import { useSidebar } from '@/providers/SidebarProvider.tsx';
+import { ChatsList, toRow } from '@/components/sidebar/SidebarChatsList';
+import { useIsMobile } from '@/hooks/useMobile';
+import { useSidebar } from '@/providers/SidebarProvider';
 
 export const SidebarContent = ({ collapsed }: { collapsed: boolean }) => {
 	const { data } = useChats();

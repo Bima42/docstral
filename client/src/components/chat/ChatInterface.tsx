@@ -2,7 +2,7 @@ import { ChatHeader } from './ChatHeader';
 import { MessageList } from './MessageList';
 import { ChatInput } from './ChatInput';
 import { useStreamReply } from '@/api/chat/queries';
-import { useLanguage } from '@/hooks/useLanguage.ts';
+import { useLanguage } from '@/hooks/useLanguage';
 import { getRouteApi } from '@tanstack/react-router';
 
 const routeApi = getRouteApi('/chats/$chatId');

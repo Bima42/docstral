@@ -1,10 +1,15 @@
 import { MarkdownRenderer } from './MarkdownRenderer';
-import { Logo } from '@/components/Logo.tsx';
+import { Logo } from '@/components/Logo';
 import type { MessageOut } from '@/api/client';
+import { useState } from 'react';
+import { Check, Copy } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const ChatMessage = ({ message }: { message: MessageOut }) => {
+	const { t } = useLanguage();
 	const isUser = message.role === 'USER';
 	const isAssistant = message.role === 'ASSISTANT';
+	const [copied, setCopied] = useState(false);
 
 	const formatTime = (iso: string) =>
 		new Intl.DateTimeFormat('en-US', {
@@ -15,6 +20,8 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 	const copyToClipboard = async (text: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
 			console.error('Failed to copy:', err);
 		}
@@ -58,9 +65,17 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 						</div>
 						<button
 							onClick={() => copyToClipboard(message.content)}
-							className="text-xs text-neutral-400 transition-colors hover:text-neutral-600 dark:hover:text-neutral-300"
+							className="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-neutral-400 transition-all hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800 dark:hover:text-neutral-300 cursor-pointer"
+							aria-label={copied ? t('common.copied') : t('common.copy')}
 						>
-                            Copy
+							{copied ? (
+								<Check className="h-3.5 w-3.5 animate-in zoom-in-75 duration-200" />
+							) : (
+								<Copy className="h-3.5 w-3.5" />
+							)}
+							<span className="transition-opacity">
+								{copied ? t('common.copied') : t('common.copy')}
+							</span>
 						</button>
 					</div>
 				</div>

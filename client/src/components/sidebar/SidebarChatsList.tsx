@@ -1,5 +1,5 @@
-import { useLanguage } from '@/hooks/useLanguage.ts';
-import { useDeleteChat, useUpdateChat } from '@/api/chat/queries.ts';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useDeleteChat, useUpdateChat } from '@/api/chat/queries';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -9,8 +9,8 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle
-} from '@/components/ui/alert-dialog.tsx';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
+} from '@/components/ui/alert-dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { ChatOut } from '@/api/client';
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';

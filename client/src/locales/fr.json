@@ -10,7 +10,9 @@
     "new": "Nouveau",
     "cancel": "Annuler",
     "delete": "Supprimer",
-    "rename": "Renommer"
+    "rename": "Renommer",
+    "copy": "Copier",
+    "copied": "Copié"
   },
   "pages": {
     "home": {
