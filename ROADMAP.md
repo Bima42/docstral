@@ -15,7 +15,6 @@ The first release is a minimal viable product—a "Le Chat"‑like chat applicat
 
 ### Phase 1: Enhancement and Private Deployment
 
-I will add some chat interaction improvements, like renaming/deleting conversations. 
 Deploy the application (likely via [Dockploy](https://dockploy.com)) and keep it private for a limited time. If you'd like early access, reach out directly via [LinkedIn](https://www.linkedin.com/in/tanguy-pauvret) or [GitHub](https://github.com/Bima42).
 
 ### Phase 2: Self‑Hosted Model

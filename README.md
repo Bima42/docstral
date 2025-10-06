@@ -16,7 +16,7 @@ This is not a SaaS or commercial product. It's a portfolio project and learning 
 
 ## Tech Stack
 
-I use the following tools to build efficient, maintainable applications:
+I use the following tools to build the application:
 
 ### Backend
 
@@ -46,7 +46,7 @@ I use the following tools to build efficient, maintainable applications:
 docker compose up
 ```
 
-3. Access the application at the port specified in your `.env` file
+3. Access the application at `http://localhost:5173`
 
 ## Project Status
 
