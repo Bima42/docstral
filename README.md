@@ -16,9 +16,7 @@ This is not a SaaS or commercial product. It's a portfolio project and learning 
 
 ## Demo
 
-<video width="600" controls>
-  <source src="docs/docstral-tiny-demo.mp4" type="video/mp4">
-</video>
+![docstral-tiny-demo.gif](docs/docstral-tiny-demo.gif)
 
 ## Tech Stack
 
