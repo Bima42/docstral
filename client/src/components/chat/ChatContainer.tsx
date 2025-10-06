@@ -1,10 +1,5 @@
 import { ChatInterface } from './ChatInterface';
 
-/**
- * Main Chat Container Component
- *
- * Provides the main layout structure with main chat interface area
- */
 export const ChatContainer = () => {
 	return (
 		<div className="flex h-screen bg-surface-warm dark:bg-surface-warm">

@@ -44,10 +44,6 @@ export const ChatHeader = ({ messageCount = 0 }: { messageCount?: number }) => {
 									{messageCount} messages
 								</span>
 							</div>
-							<div className="flex items-center gap-2">
-								<div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-								<span className="font-medium text-green-600">Connected</span>
-							</div>
 						</div>
 					</div>
 				</div>
