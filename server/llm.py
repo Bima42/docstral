@@ -108,5 +108,6 @@ class MistralLLMClient:
                 if message.content:
                     yield message.content
 
+                # TODO: implement usage tracking and metrics after
                 usage = event.get("usage")
                 usage_info = UsageInfo(**usage) if usage else None
