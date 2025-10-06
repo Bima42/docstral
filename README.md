@@ -14,6 +14,10 @@ This project serves two main purposes:
 
 This is not a SaaS or commercial product. It's a portfolio project and learning playground to showcase for collaborators, friends or even recruiters.
 
+## Demo
+
+![docstral-tiny-demo.gif](docs/docstral-tiny-demo.gif)
+
 ## Tech Stack
 
 I use the following tools to build the application:
