@@ -14,6 +14,12 @@ This project serves two main purposes:
 
 This is not a SaaS or commercial product. It's a portfolio project and learning playground to showcase for collaborators, friends or even recruiters.
 
+## Demo
+
+<video width="600" controls>
+  <source src="docs/docstral-tiny-demo.mp4" type="video/mp4">
+</video>
+
 ## Tech Stack
 
 I use the following tools to build the application:
