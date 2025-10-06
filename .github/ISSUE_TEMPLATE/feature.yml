@@ -1,0 +1,45 @@
+name: Feature request
+description: Propose a new capability or improvement
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! Keep it sharp, we'll refine together.
+
+  - type: textarea
+    id: what-why
+    attributes:
+      label: What & Why
+      description: One-line goal and the problem it solves.
+      placeholder: "e.g. Add token usage to /metrics so we can track API costs per session."
+    validations:
+      required: true
+
+  - type: textarea
+    id: approach
+    attributes:
+      label: Proposed approach
+      description: Sketch the simplest path forward (optional).
+      placeholder: "Increment a counter in the streaming handler, expose via Prometheus format."
+    validations:
+      required: false
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: Open questions
+      description: Anything blocking or worth deciding upfront?
+      placeholder: "Should we store per-user or aggregate? Does this need persistence?"
+    validations:
+      required: false
+
+  - type: textarea
+    id: success
+    attributes:
+      label: Success looks like
+      description: How do we know it's done?
+      placeholder: "GET /metrics returns `docstral_tokens_total` and the dashboard chart updates."
+    validations:
+      required: true

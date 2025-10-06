@@ -1,0 +1,58 @@
+name: Bug report
+description: Something broken or behaving unexpectedly
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! The more detail, the faster we can ship a fix.
+
+  - type: textarea
+    id: whats-broken
+    attributes:
+      label: What's broken
+      description: Observed behaviour vs. expected.
+      placeholder: "Streaming stops mid-response; browser shows `INTERNAL SERVER ERROR`."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Numbered list.
+      placeholder: |
+        1. docker-compose up
+        2. Send a message longer than 500 tokens
+        3. Stream cuts off after ~10 chunks
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser/OS, Docker version, commit hash, deployment, whatever's relevant.
+      placeholder: "Chrome 131 / macOS 14.2 / commit abc1234 / local Docker"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste errors, stack traces, or drag-and-drop a screenshot.
+      placeholder: "Paste here or attach below."
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Possible cause / fix
+      description: Optional—your hypothesis or quick win.
+      placeholder: "Might be uvicorn timeout; try --timeout-keep-alive=120."
+    validations:
+      required: false
