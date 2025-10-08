@@ -5,17 +5,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_limiter import FastAPILimiter
 import redis.asyncio as redis
 
+from core.logging import setup_logging
 from routers import chats_router, health_router, auth_router
+# from llm.factory import LLMClientFactory
+# from services.chat import set_llm_client
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    setup_logging()
+
     redis_client = redis.from_url(
         "redis://redis:6379",
         encoding="utf-8",
         decode_responses=True,
     )
     await FastAPILimiter.init(redis=redis_client)
+
+    # llm_client = await LLMClientFactory.create()
+    # set_llm_client(llm_client)
+
     yield
     await FastAPILimiter.close()
 
