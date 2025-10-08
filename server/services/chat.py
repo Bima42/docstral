@@ -7,7 +7,7 @@ from uuid import UUID
 from fastapi.responses import StreamingResponse
 from starlette.concurrency import run_in_threadpool
 
-from llm import MistralConfig, MistralLLMClient
+from llm import LLMClient
 from models import MessageRole
 from schemas import MessageOut
 from repositories import MessageRepository
@@ -15,14 +15,14 @@ from repositories import MessageRepository
 
 class ChatStreamService:
     """
-    Streams assistant replies over SSE using a MistralLLMClient.
+    Streams assistant replies over SSE using any LLMClient implementation.
     - Converts DB messages to OpenAI/Mistral format.
     - Emits tokens as SSE events, with heartbeats.
     - Persists partial/final assistant messages without breaking the stream.
     """
 
-    def __init__(self, llm_client: MistralLLMClient | None = None):
-        self.llm = llm_client or MistralLLMClient(MistralConfig.from_env())
+    def __init__(self, llm_client: LLMClient):
+        self.llm = llm_client
 
     @staticmethod
     def sse_pack(
@@ -36,7 +36,6 @@ class ChatStreamService:
             lines.append(f"id: {id}")
         if event is not None:
             lines.append(f"event: {event}")
-        # SSE allows multi-line data by repeating "data:" per line
         for ln in data.splitlines() or [""]:
             lines.append(f"data: {ln}")
         if retry_ms is not None:
@@ -75,12 +74,10 @@ class ChatStreamService:
                 )
                 now = time.monotonic()
                 if now - last_ping > 15:
-                    # Heartbeat comment for proxies
                     yield b": ping\n\n"
                     last_ping = now
 
         except asyncio.CancelledError:
-            # Persist partial on client disconnect; don't break the stream.
             text = "".join(final_tokens).strip()
             if text:
                 await run_in_threadpool(
@@ -92,7 +89,6 @@ class ChatStreamService:
             return
 
         except Exception:
-            # Best effort: notify client, then end the stream gracefully.
             yield self.sse_pack(
                 json.dumps({"type": "error", "message": "stream_error"}),
                 event="message",
@@ -100,7 +96,6 @@ class ChatStreamService:
             return
 
         else:
-            # Persist final message; never let failures break SSE completion.
             text = "".join(final_tokens).strip()
             if text:
                 try:
@@ -111,7 +106,6 @@ class ChatStreamService:
                         role=MessageRole.ASSISTANT,
                     )
                 except Exception:
-                    # Optional: log/metrics here
                     pass
             yield self.sse_pack(json.dumps({"type": "done"}), event="message")
 
@@ -136,5 +130,17 @@ class ChatStreamService:
         )
 
 
+_llm_client_instance: LLMClient | None = None
+
+
+def set_llm_client(client: LLMClient):
+    global _llm_client_instance
+    _llm_client_instance = client
+
+
 def get_chat_stream_service() -> ChatStreamService:
-    return ChatStreamService()
+    if _llm_client_instance is None:
+        raise RuntimeError(
+            "LLM client not initialized. Call set_llm_client() at startup."
+        )
+    return ChatStreamService(_llm_client_instance)

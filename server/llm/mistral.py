@@ -2,51 +2,44 @@ import json
 import os
 import httpx
 
-from dataclasses import dataclass
 from typing import AsyncGenerator, Optional
 
-from schemas.llm import UsageInfo, ChatCompletionMessage
+from llm import LLMClient, LLMConfig
+from schemas.llm import ChatCompletionMessage
 
 
-@dataclass(frozen=True)
-class MistralConfig:
+class MistralConfig(LLMConfig):
     api_key: str
-    model: str = "mistral-small-latest"
-    temperature: float = 0.2
     api_url: str = "https://api.mistral.ai/v1/chat/completions"
-    timeout: float = 60.0  # seconds
-    read_timeout: float = 90.0
-    connect_timeout: float = 10.0
+    model: str = "mistral-small-latest"
 
     @staticmethod
     def from_env() -> "MistralConfig":
         api_key = os.getenv("DOCSTRAL_MISTRAL_API_KEY", "").strip()
         model = os.getenv("DOCSTRAL_MISTRAL_MODEL", "mistral-small-latest").strip()
-        temperature_raw = os.getenv("LLM_TEMPERATURE", "0.2").strip()
         api_url = os.getenv(
             "DOCSTRAL_MISTRAL_API_URL", "https://api.mistral.ai/v1/chat/completions"
         ).strip()
 
-        try:
-            temperature = float(temperature_raw)
-        except ValueError:
-            temperature = 0.2
-
         return MistralConfig(
             api_key=api_key,
             model=model,
-            temperature=temperature,
             api_url=api_url,
         )
 
 
-class MistralLLMClient:
-
+class MistralLLMClient(LLMClient):
     def __init__(
         self, config: MistralConfig, http_client: Optional[httpx.AsyncClient] = None
     ):
         self.config = config
-        self._http_client = http_client
+        timeout = httpx.Timeout(
+            config.timeout,
+            read=config.read_timeout,
+            connect=config.connect_timeout,
+        )
+        self._http_client = http_client or httpx.AsyncClient(timeout=timeout)
+        self._owns_client = http_client is None
 
     def _headers(self) -> dict[str, str]:
         if not self.config.api_key:
@@ -64,28 +57,15 @@ class MistralLLMClient:
             "stream": True,
         }
 
+    async def health_check(self) -> bool:
+        """We assume it's always reachable if API key is set."""
+        return bool(self.config.api_key)
+
     async def stream_chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
-        timeout = httpx.Timeout(
-            self.config.timeout,
-            read=self.config.read_timeout,
-            connect=self.config.connect_timeout,
-        )
-
-        if self._http_client is None:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                async for token in self._stream_with_client(client, messages):
-                    yield token
-        else:
-            async for token in self._stream_with_client(self._http_client, messages):
-                yield token
-
-    async def _stream_with_client(
-        self, client: httpx.AsyncClient, messages: list[dict]
-    ) -> AsyncGenerator[str, None]:
         headers = self._headers()
         payload = self._payload(messages)
 
-        async with client.stream(
+        async with self._http_client.stream(
             "POST", self.config.api_url, headers=headers, json=payload
         ) as resp:
             resp.raise_for_status()
@@ -93,14 +73,11 @@ class MistralLLMClient:
                 if not line or not line.startswith("data:"):
                     continue
                 data = line[5:].strip()
-                print(f"DEBUG: Mistral chunk: {data}")
                 if data == "[DONE]":
                     break
                 try:
                     event = json.loads(data)
                 except json.JSONDecodeError:
-                    # Skip malformed chunks
-                    # They can appear with proxy noise.
                     continue
 
                 delta = event.get("choices", [{}])[0].get("delta", {})
@@ -108,6 +85,7 @@ class MistralLLMClient:
                 if message.content:
                     yield message.content
 
-                # TODO: implement usage tracking and metrics after
-                usage = event.get("usage")
-                usage_info = UsageInfo(**usage) if usage else None
+    async def close(self) -> None:
+        """Close the HTTP client if we own it."""
+        if self._owns_client:
+            await self._http_client.aclose()
