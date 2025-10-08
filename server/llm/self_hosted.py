@@ -2,59 +2,47 @@ import json
 import os
 import httpx
 
-from dataclasses import dataclass
 from typing import AsyncGenerator, Optional
 
-from schemas.llm import UsageInfo, ChatCompletionMessage
+from starlette.status import HTTP_200_OK
+
+from llm import LLMClient, LLMConfig
+from schemas.llm import ChatCompletionMessage
 
 
-@dataclass(frozen=True)
-class MistralConfig:
-    api_key: str
-    model: str = "mistral-small-latest"
-    temperature: float = 0.2
-    api_url: str = "https://api.mistral.ai/v1/chat/completions"
-    timeout: float = 60.0  # seconds
-    read_timeout: float = 90.0
-    connect_timeout: float = 10.0
+class SelfHostedConfig(LLMConfig):
+    base_url: str
+    model: str = "default"
+    api_key: Optional[str] = None
 
     @staticmethod
-    def from_env() -> "MistralConfig":
-        api_key = os.getenv("DOCSTRAL_MISTRAL_API_KEY", "").strip()
-        model = os.getenv("DOCSTRAL_MISTRAL_MODEL", "mistral-small-latest").strip()
-        temperature_raw = os.getenv("LLM_TEMPERATURE", "0.2").strip()
-        api_url = os.getenv(
-            "DOCSTRAL_MISTRAL_API_URL", "https://api.mistral.ai/v1/chat/completions"
-        ).strip()
+    def from_env() -> Optional["SelfHostedConfig"]:
+        base_url = os.getenv("SELF_HOSTED_LLM_URL", "").strip()
+        if not base_url:
+            return None
 
-        try:
-            temperature = float(temperature_raw)
-        except ValueError:
-            temperature = 0.2
+        model = os.getenv("SELF_HOSTED_MODEL", "default").strip()
+        api_key = os.getenv("SELF_HOSTED_API_KEY", "").strip() or None
 
-        return MistralConfig(
-            api_key=api_key,
+        return SelfHostedConfig(
+            base_url=base_url,
             model=model,
-            temperature=temperature,
-            api_url=api_url,
+            api_key=api_key,
         )
 
 
-class MistralLLMClient:
-
+class SelfHostedLLMClient(LLMClient):
     def __init__(
-        self, config: MistralConfig, http_client: Optional[httpx.AsyncClient] = None
+        self, config: SelfHostedConfig, http_client: Optional[httpx.AsyncClient] = None
     ):
         self.config = config
         self._http_client = http_client
 
     def _headers(self) -> dict[str, str]:
-        if not self.config.api_key:
-            raise RuntimeError("DOCSTRAL_MISTRAL_API_KEY missing")
-        return {
-            "Authorization": f"Bearer {self.config.api_key}",
-            "Content-Type": "application/json",
-        }
+        headers = {"Content-Type": "application/json"}
+        if self.config.api_key:
+            headers["Authorization"] = f"Bearer {self.config.api_key}"
+        return headers
 
     def _payload(self, messages: list[dict]) -> dict:
         return {
@@ -64,7 +52,23 @@ class MistralLLMClient:
             "stream": True,
         }
 
+    async def health_check(self) -> bool:
+        """Ping /health on the self-hosted vLLM instance."""
+        health_url = f"{self.config.base_url.rstrip('/')}/health"
+        timeout = httpx.Timeout(connect=5.0, read=5.0)
+
+        try:
+            if self._http_client:
+                resp = await self._http_client.get(health_url, timeout=timeout)
+            else:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    resp = await client.get(health_url)
+            return resp.status_code == HTTP_200_OK
+        except Exception:
+            return False
+
     async def stream_chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
+        completions_url = f"{self.config.base_url.rstrip('/')}/v1/chat/completions"
         timeout = httpx.Timeout(
             self.config.timeout,
             read=self.config.read_timeout,
@@ -82,32 +86,26 @@ class MistralLLMClient:
     async def _stream_with_client(
         self, client: httpx.AsyncClient, messages: list[dict]
     ) -> AsyncGenerator[str, None]:
+        completions_url = f"{self.config.base_url.rstrip('/')}/v1/chat/completions"
         headers = self._headers()
         payload = self._payload(messages)
 
         async with client.stream(
-            "POST", self.config.api_url, headers=headers, json=payload
+            "POST", completions_url, headers=headers, json=payload
         ) as resp:
             resp.raise_for_status()
             async for line in resp.aiter_lines():
                 if not line or not line.startswith("data:"):
                     continue
                 data = line[5:].strip()
-                print(f"DEBUG: Mistral chunk: {data}")
                 if data == "[DONE]":
                     break
                 try:
                     event = json.loads(data)
                 except json.JSONDecodeError:
-                    # Skip malformed chunks
-                    # They can appear with proxy noise.
                     continue
 
                 delta = event.get("choices", [{}])[0].get("delta", {})
                 message = ChatCompletionMessage(**delta)
                 if message.content:
                     yield message.content
-
-                # TODO: implement usage tracking and metrics after
-                usage = event.get("usage")
-                usage_info = UsageInfo(**usage) if usage else None

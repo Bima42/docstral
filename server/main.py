@@ -7,8 +7,9 @@ import redis.asyncio as redis
 
 from core.logging import setup_logging
 from routers import chats_router, health_router, auth_router
-# from llm.factory import LLMClientFactory
-# from services.chat import set_llm_client
+
+from llm import LLMClientFactory
+from services.chat import set_llm_client
 
 
 @asynccontextmanager
@@ -22,8 +23,8 @@ async def lifespan(_: FastAPI):
     )
     await FastAPILimiter.init(redis=redis_client)
 
-    # llm_client = await LLMClientFactory.create()
-    # set_llm_client(llm_client)
+    llm_client = await LLMClientFactory.create()
+    set_llm_client(llm_client)
 
     yield
     await FastAPILimiter.close()
