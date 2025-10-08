@@ -28,3 +28,8 @@ class LLMClient(ABC):
     async def health_check(self) -> bool:
         """Return True if the service is reachable and healthy."""
         ...
+
+    @abstractmethod
+    async def close(self) -> None:
+        """Clean up resources (e.g., HTTP client)."""
+        ...

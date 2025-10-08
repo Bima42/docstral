@@ -23,9 +23,7 @@ class LLMClientFactory:
 
         if self_hosted_config:
             client = SelfHostedLLMClient(self_hosted_config)
-            logger.info(
-                f"Probing self-hosted LLM at {self_hosted_config.base_url}/health..."
-            )
+            logger.info(f"Probing self-hosted LLM at {self_hosted_config.base_url}...")
             if await client.health_check():
                 logger.info(
                     "✅ Self-hosted LLM is healthy. Using self-hosted provider."

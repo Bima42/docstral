@@ -13,7 +13,7 @@ from schemas.llm import ChatCompletionMessage
 class SelfHostedConfig(LLMConfig):
     base_url: str
     model: str = "default"
-    api_key: Optional[str] = None
+    api_key: str
 
     @staticmethod
     def from_env() -> Optional["SelfHostedConfig"]:
@@ -21,8 +21,12 @@ class SelfHostedConfig(LLMConfig):
         if not base_url:
             return None
 
-        model = os.getenv("SELF_HOSTED_MODEL", "default").strip()
-        api_key = os.getenv("SELF_HOSTED_API_KEY", "").strip() or None
+        model = os.getenv(
+            "SELF_HOSTED_MODEL", "mistralai/Mistral-7B-Instruct-v0.3"
+        ).strip()
+        api_key = os.getenv("SELF_HOSTED_API_KEY", "").strip()
+        if not api_key:
+            return None
 
         return SelfHostedConfig(
             base_url=base_url,
@@ -36,7 +40,13 @@ class SelfHostedLLMClient(LLMClient):
         self, config: SelfHostedConfig, http_client: Optional[httpx.AsyncClient] = None
     ):
         self.config = config
-        self._http_client = http_client
+        timeout = httpx.Timeout(
+            config.timeout,
+            read=config.read_timeout,
+            connect=config.connect_timeout,
+        )
+        self._http_client = http_client or httpx.AsyncClient(timeout=timeout)
+        self._owns_client = http_client is None
 
     def _headers(self) -> dict[str, str]:
         headers = {"Content-Type": "application/json"}
@@ -53,44 +63,26 @@ class SelfHostedLLMClient(LLMClient):
         }
 
     async def health_check(self) -> bool:
-        """Ping /health on the self-hosted vLLM instance."""
-        health_url = f"{self.config.base_url.rstrip('/')}/health"
-        timeout = httpx.Timeout(connect=5.0, read=5.0)
+        """Ping endpoint on the self-hosted vLLM instance."""
+        health_url = f"{self.config.base_url.rstrip('/')}/v1/models"
+
+        timeout = httpx.Timeout(connect=5.0, read=30.0, write=5.0, pool=5.0)
+        headers = self._headers()
 
         try:
-            if self._http_client:
-                resp = await self._http_client.get(health_url, timeout=timeout)
-            else:
-                async with httpx.AsyncClient(timeout=timeout) as client:
-                    resp = await client.get(health_url)
+            resp = await self._http_client.get(
+                health_url, timeout=timeout, headers=headers
+            )
             return resp.status_code == HTTP_200_OK
         except Exception:
             return False
 
     async def stream_chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
         completions_url = f"{self.config.base_url.rstrip('/')}/v1/chat/completions"
-        timeout = httpx.Timeout(
-            self.config.timeout,
-            read=self.config.read_timeout,
-            connect=self.config.connect_timeout,
-        )
-
-        if self._http_client is None:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                async for token in self._stream_with_client(client, messages):
-                    yield token
-        else:
-            async for token in self._stream_with_client(self._http_client, messages):
-                yield token
-
-    async def _stream_with_client(
-        self, client: httpx.AsyncClient, messages: list[dict]
-    ) -> AsyncGenerator[str, None]:
-        completions_url = f"{self.config.base_url.rstrip('/')}/v1/chat/completions"
         headers = self._headers()
         payload = self._payload(messages)
 
-        async with client.stream(
+        async with self._http_client.stream(
             "POST", completions_url, headers=headers, json=payload
         ) as resp:
             resp.raise_for_status()
@@ -109,3 +101,8 @@ class SelfHostedLLMClient(LLMClient):
                 message = ChatCompletionMessage(**delta)
                 if message.content:
                     yield message.content
+
+    async def close(self) -> None:
+        """Close the HTTP client if we own it."""
+        if self._owns_client:
+            await self._http_client.aclose()

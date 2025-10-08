@@ -33,7 +33,13 @@ class MistralLLMClient(LLMClient):
         self, config: MistralConfig, http_client: Optional[httpx.AsyncClient] = None
     ):
         self.config = config
-        self._http_client = http_client
+        timeout = httpx.Timeout(
+            config.timeout,
+            read=config.read_timeout,
+            connect=config.connect_timeout,
+        )
+        self._http_client = http_client or httpx.AsyncClient(timeout=timeout)
+        self._owns_client = http_client is None
 
     def _headers(self) -> dict[str, str]:
         if not self.config.api_key:
@@ -56,27 +62,10 @@ class MistralLLMClient(LLMClient):
         return bool(self.config.api_key)
 
     async def stream_chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
-        timeout = httpx.Timeout(
-            self.config.timeout,
-            read=self.config.read_timeout,
-            connect=self.config.connect_timeout,
-        )
-
-        if self._http_client is None:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                async for token in self._stream_with_client(client, messages):
-                    yield token
-        else:
-            async for token in self._stream_with_client(self._http_client, messages):
-                yield token
-
-    async def _stream_with_client(
-        self, client: httpx.AsyncClient, messages: list[dict]
-    ) -> AsyncGenerator[str, None]:
         headers = self._headers()
         payload = self._payload(messages)
 
-        async with client.stream(
+        async with self._http_client.stream(
             "POST", self.config.api_url, headers=headers, json=payload
         ) as resp:
             resp.raise_for_status()
@@ -95,3 +84,8 @@ class MistralLLMClient(LLMClient):
                 message = ChatCompletionMessage(**delta)
                 if message.content:
                     yield message.content
+
+    async def close(self) -> None:
+        """Close the HTTP client if we own it."""
+        if self._owns_client:
+            await self._http_client.aclose()

@@ -28,6 +28,7 @@ async def lifespan(_: FastAPI):
 
     yield
     await FastAPILimiter.close()
+    await llm_client.close()
 
 
 def create_app() -> FastAPI:
