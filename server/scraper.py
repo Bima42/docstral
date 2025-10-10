@@ -1,9 +1,12 @@
 import requests
+import logging
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 from typing import List, Dict
 import time
 import json
+
+logger = logging.getLogger(__name__)
 
 
 class MistralDocsScraper:
@@ -19,7 +22,7 @@ class MistralDocsScraper:
 
         url_elements = root.findall(".//ns:url/ns:loc", ns)
         urls = [url.text for url in url_elements]
-        print(f"Found {len(urls)} URLs in the sitemap")
+        logger.info(f"Found {len(urls)} URLs in the sitemap")
 
         return urls
 
@@ -28,14 +31,14 @@ class MistralDocsScraper:
         urls = []
 
         try:
-            print(f"🔍 Trying to get sitemap : {sitemap_url}")
+            logger.info(f"Attempting to fetch sitemap: {sitemap_url}")
             response = requests.get(sitemap_url, timeout=10)
 
             if response.status_code == 200:
-                print(f"✅ Sitemap trouvé : {sitemap_url}")
+                logger.info(f"Sitemap found: {sitemap_url}")
                 urls = self._parse_sitemap(response.content)
         except Exception as e:
-            print(f"Cannot parse sitemap: {e}")
+            logger.error(f"Cannot parse sitemap: {e}")
 
         if not urls:
             raise Exception("No urls found in sitemap. Try another URL.")
@@ -94,7 +97,9 @@ class MistralDocsScraper:
                 text = "\n".join(lines)
 
                 if len(text) < 50:
-                    print(f"⚠️Ignoring small chunk from the following url: {url}")
+                    logger.warning(
+                        f"Ignoring small chunk from the following url: {url}"
+                    )
                     return None
 
                 return {
@@ -107,7 +112,7 @@ class MistralDocsScraper:
             return None
 
         except Exception as e:
-            print(f"❌ Fail to scrap {url}: {e}")
+            logger.error(f"Failed to scrape {url}: {e}")
             return None
 
     def save_docs(self, filename="mistral_docs.json"):
@@ -115,17 +120,19 @@ class MistralDocsScraper:
             json.dump(self.docs_content, f, ensure_ascii=False, indent=2)
 
         total_chars = sum(doc["length"] for doc in self.docs_content)
-        print(f"💾 Saved in {filename}")
-        print(f"📊 Stats : {len(self.docs_content)} pages, ~{total_chars:,} chars")
+        logger.info(f"Saved to {filename}")
+        logger.info(
+            f"Stats: {len(self.docs_content)} pages, ~{total_chars:,} characters"
+        )
 
     def scrape_all(self):
-        print("🚀 Start scraping...")
+        logger.info("Starting scraping process...")
         sitemap_url = f"{self.base_url}/sitemap.xml"
 
         urls = self.get_urls_from_sitemap(sitemap_url)
 
         for i, url in enumerate(urls, 1):
-            print(f"⏳ [{i}/{len(urls)}] {url}")
+            logger.info(f"Processing [{i}/{len(urls)}] {url}")
 
             page_data = self.scrape_page(url)
             if page_data and page_data["content"]:
@@ -133,10 +140,14 @@ class MistralDocsScraper:
 
             time.sleep(0.2)
 
-        print(f"✅ Scraping over : {len(self.docs_content)} extracted pages.")
+        logger.info(f"Scraping completed: {len(self.docs_content)} pages extracted")
         self.save_docs()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
     scraper = MistralDocsScraper()
     scraper.scrape_all()
