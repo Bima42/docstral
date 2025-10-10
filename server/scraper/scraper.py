@@ -115,7 +115,7 @@ class MistralDocsScraper:
             logger.error(f"Failed to scrape {url}: {e}")
             return None
 
-    def save_docs(self, filename="mistral_docs.json"):
+    def save_docs(self, filename="./data/mistral_docs.json"):
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(self.docs_content, f, ensure_ascii=False, indent=2)
 

@@ -1,8 +1,11 @@
 .idea/
 contexts/
 
-# Front
+# Client
 client/node_modules/
 client/dist-electron/
+
+# Server
+server/scraper/data
 
 .env
