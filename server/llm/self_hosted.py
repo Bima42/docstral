@@ -9,7 +9,7 @@ from llm.base import LLMConfig, LLMClient
 
 class SelfHostedConfig(LLMConfig):
     base_url: str
-    model: str = "default"
+    model: str = "mistralai/Mistral-7B-Instruct-v0.3"
     api_key: str
 
     @staticmethod
