@@ -4,7 +4,7 @@ from typing import Optional
 
 from starlette.status import HTTP_200_OK
 
-from llm.base import LLMConfig, LLMClient
+from llm.client.base import LLMConfig, LLMClient
 
 
 class SelfHostedConfig(LLMConfig):

@@ -2,7 +2,7 @@ import os
 import httpx
 from typing import Optional
 
-from llm.base import LLMConfig, LLMClient
+from llm.client.base import LLMConfig, LLMClient
 
 
 class MistralConfig(LLMConfig):

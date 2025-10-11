@@ -8,7 +8,7 @@ from uuid import UUID
 from fastapi.responses import StreamingResponse
 from starlette.concurrency import run_in_threadpool
 
-from llm import LLMClient
+from llm import LLMClient, SYSTEM_PROMPT, get_mistral_tools
 from models import MessageRole
 from repositories import MessageRepository
 from .sse_events import (
@@ -21,9 +21,7 @@ from .sse_events import (
 )
 from services import (
     RetrievalService,
-    SYSTEM_PROMPT,
     get_retrieval_service,
-    get_mistral_tools,
 )
 
 logger = logging.getLogger(__name__)
