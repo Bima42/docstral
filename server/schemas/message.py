@@ -22,5 +22,6 @@ class MessageOut(BaseModel):
 
 class MessageCreate(BaseModel):
     content: str
+    use_rag: bool = True
 
     model_config = ConfigDict(extra="forbid")

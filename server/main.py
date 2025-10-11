@@ -9,7 +9,8 @@ from core.logging import setup_logging
 from routers import chats_router, health_router, auth_router
 
 from llm import LLMClientFactory
-from services.chat import set_llm_client
+from services.chat import set_llm_client, set_rag_service
+from services.rag import RAGService
 
 
 @asynccontextmanager
@@ -25,6 +26,15 @@ async def lifespan(_: FastAPI):
 
     llm_client = await LLMClientFactory.create()
     set_llm_client(llm_client)
+
+    try:
+        rag_service = RAGService(llm_client=llm_client)
+        set_rag_service(rag_service)
+    except FileNotFoundError as e:
+        import logging
+
+        logging.warning(f"RAG disabled: {e}")
+        set_rag_service(None)
 
     yield
     await FastAPILimiter.close()

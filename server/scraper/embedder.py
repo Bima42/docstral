@@ -24,7 +24,6 @@ class DocumentEmbedder:
         self.small_chunk_size = small_chunk_size
         self.chunk_size = chunk_size
 
-        # Split on H1/H2 for better structure
         self.md_splitter = MarkdownHeaderTextSplitter(
             headers_to_split_on=[
                 ("#", "h1"),

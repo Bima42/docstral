@@ -132,5 +132,8 @@ def stream_reply(
 
     openai_msgs = chat_stream_service.to_openai_messages(chat.messages)
     return chat_stream_service.streaming_response(
-        openai_msgs=openai_msgs, chat_id=chat.id, msg_repo=msg_repo
+        openai_msgs=openai_msgs,
+        chat_id=chat.id,
+        msg_repo=msg_repo,
+        use_rag=payload.use_rag,
     )
