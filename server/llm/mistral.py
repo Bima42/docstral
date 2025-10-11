@@ -63,7 +63,7 @@ class MistralLLMClient(LLMClient):
         }
         if tools:
             payload["tools"] = tools
-            payload["tool_choice"] = "auto"
+            payload["tool_choice"] = "any"
         return payload
 
     async def health_check(self) -> bool:

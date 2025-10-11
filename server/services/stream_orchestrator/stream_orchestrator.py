@@ -111,7 +111,7 @@ class StreamOrchestrator:
     ) -> AsyncGenerator[bytes, None]:
         """
         Stream tokens as SSE events with automatic tool calling when needed.
-        Persists final message and handles tool execution loop.
+        Persists final message and handles tool execution.
         """
         final_tokens: list[str] = []
         last_ping = time.monotonic()
@@ -122,7 +122,7 @@ class StreamOrchestrator:
         )
 
         try:
-            # Inject system prompt at position 0
+            # Prepare messages with system prompt
             messages = openai_msgs.copy()
             if not messages or messages[0].get("role") != "system":
                 messages.insert(0, {"role": "system", "content": SYSTEM_PROMPT})
@@ -130,66 +130,76 @@ class StreamOrchestrator:
             logger.info(f"Sending {len(messages)} messages to LLM")
 
             tools = get_mistral_tools() if self.retrieval else None
+            tool_calls_made = False
 
-            max_iterations = 3
-            iteration = 0
+            async for chunk in self.llm.stream_chat(messages, tools=tools):
+                # Handle tool calls
+                if isinstance(chunk, dict) and "tool_calls" in chunk:
+                    tool_calls = chunk["tool_calls"]
+                    logger.info(
+                        f"Tool calls requested: {[tc['function']['name'] for tc in tool_calls]}"
+                    )
 
-            while iteration < max_iterations:
-                iteration += 1
-                tool_calls_made = False
+                    tool_calls_made = True
 
-                async for chunk in self.llm.stream_chat(messages, tools=tools):
-                    # Handle tool calls
-                    if isinstance(chunk, dict) and "tool_calls" in chunk:
-                        logger.debug(f"Tool call requested: {chunk['tool_calls']}")
+                    # Add assistant message with tool calls
+                    messages.append(
+                        {
+                            "role": "assistant",
+                            "content": None,
+                            "tool_calls": tool_calls,
+                        }
+                    )
 
-                        tool_calls_made = True
-                        tool_calls = chunk["tool_calls"]
+                    # Execute tools and collect sources
+                    for tc in tool_calls:
+                        function_name = tc["function"]["name"]
+                        logger.info(f"Executing tool: {function_name}")
 
-                        # Add assistant message with tool calls to history
+                        result = await self.execute_tool_call(tc)
+
                         messages.append(
                             {
-                                "role": "assistant",
-                                "content": None,
-                                "tool_calls": tool_calls,
+                                "role": "tool",
+                                "tool_call_id": tc["id"],
+                                "name": function_name,
+                                "content": result,
                             }
                         )
 
-                        for tc in tool_calls:
-                            function_name = tc["function"]["name"]
-                            logger.info(f"Executing tool: {function_name}")
+                        # Extract sources for frontend
+                        if function_name == "search_documentation" and "URL:" in result:
+                            title = None
+                            for line in result.split("\n"):
+                                if line.startswith("[") and "]" in line:
+                                    title = line.split("]")[1].strip()
+                                elif line.startswith("URL:"):
+                                    url = line.replace("URL:", "").strip()
+                                    if title and url:
+                                        sources.append(
+                                            SourceReference(title=title, url=url)
+                                        )
+                                        title = None
 
-                            result = await self.execute_tool_call(tc)
+                    break  # Exit first stream to make second call
 
-                            # Add tool result to messages
-                            messages.append(
-                                {
-                                    "role": "tool",
-                                    "tool_call_id": tc["id"],
-                                    "name": function_name,
-                                    "content": result,
-                                }
-                            )
+                # Handle content tokens
+                elif isinstance(chunk, str):
+                    final_tokens.append(chunk)
+                    event = SSETokenEvent(content=chunk)
+                    yield self.sse_pack(event.model_dump_json(), event="message")
 
-                            if (
-                                function_name == "search_documentation"
-                                and "URL:" in result
-                            ):
-                                for line in result.split("\n"):
-                                    if line.startswith("[") and "]" in line:
-                                        title = line.split("]")[1].strip()
-                                    elif line.startswith("URL:"):
-                                        url = line.replace("URL:", "").strip()
-                                        if title and url:
-                                            sources.append(
-                                                SourceReference(title=title, url=url)
-                                            )
+                    now = time.monotonic()
+                    if now - last_ping > 15:
+                        yield b": ping\n\n"
+                        last_ping = now
 
-                        # Break to re-call LLM with tool results
-                        break
+            # Second call -> generate final answer using tool results (no tools offered)
+            if tool_calls_made:
+                logger.info("Generating final answer with tool results")
 
-                    # Handle regular content tokens
-                    elif isinstance(chunk, str):
+                async for chunk in self.llm.stream_chat(messages, tools=None):
+                    if isinstance(chunk, str):
                         final_tokens.append(chunk)
                         event = SSETokenEvent(content=chunk)
                         yield self.sse_pack(event.model_dump_json(), event="message")
@@ -198,9 +208,6 @@ class StreamOrchestrator:
                         if now - last_ping > 15:
                             yield b": ping\n\n"
                             last_ping = now
-
-                if not tool_calls_made:
-                    break
 
         except asyncio.CancelledError:
             text = "".join(final_tokens).strip()
@@ -221,6 +228,7 @@ class StreamOrchestrator:
             return
 
         else:
+            # Send sources
             if sources:
                 unique_sources = []
                 seen_urls = set()
@@ -232,6 +240,7 @@ class StreamOrchestrator:
                 sources_event = SSESourcesEvent(data=unique_sources)
                 yield self.sse_pack(sources_event.model_dump_json(), event="message")
 
+            # Persist final message
             text = "".join(final_tokens).strip()
             if text:
                 try:
@@ -241,8 +250,11 @@ class StreamOrchestrator:
                         content=text,
                         role=MessageRole.ASSISTANT,
                     )
+                    logger.info(f"Persisted assistant message ({len(text)} chars)")
                 except Exception as e:
                     logger.error(f"Failed to persist message: {e}")
+            else:
+                logger.warning("No content generated")
 
             done_event = SSEDoneEvent()
             yield self.sse_pack(done_event.model_dump_json(), event="message")
