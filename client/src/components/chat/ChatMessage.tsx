@@ -7,8 +7,8 @@ import { useLanguage } from '@/hooks/useLanguage';
 
 export const ChatMessage = ({ message }: { message: MessageOut }) => {
 	const { t } = useLanguage();
-	const isUser = message.role === 'USER';
-	const isAssistant = message.role === 'ASSISTANT';
+	const isUser = message.role === 'user';
+	const isAssistant = message.role === 'assistant';
 	const [copied, setCopied] = useState(false);
 
 	const formatTime = (iso: string) =>
