@@ -136,10 +136,6 @@ class StreamOrchestrator:
                 # Handle tool calls
                 if isinstance(chunk, dict) and "tool_calls" in chunk:
                     tool_calls = chunk["tool_calls"]
-                    logger.info(
-                        f"Tool calls requested: {[tc['function']['name'] for tc in tool_calls]}"
-                    )
-
                     tool_calls_made = True
 
                     # Add assistant message with tool calls
