@@ -27,9 +27,9 @@ PY
 }
 
 has_pending_migrations() {
-  head="$(alembic -c server/alembic.ini heads 2>/dev/null | awk 'NR==1{print $1}')"
-  curr="$(alembic -c server/alembic.ini current 2>/dev/null | awk '/Current revision/ {print $3}')"
-  [ -n "$curr" ] || curr="$(alembic -c server/alembic.ini current 2>/dev/null | grep -Eo '[0-9a-f]+' | head -n1)"
+  head="$(alembic -c alembic.ini heads 2>/dev/null | awk 'NR==1{print $1}')"
+  curr="$(alembic -c alembic.ini current 2>/dev/null | awk '/Current revision/ {print $3}')"
+  [ -n "$curr" ] || curr="$(alembic -c alembic.ini current 2>/dev/null | grep -Eo '[0-9a-f]+' | head -n1)"
   if [ -z "$curr" ] || [ "$curr" != "$head" ]; then
     return 0
   fi
@@ -38,7 +38,7 @@ has_pending_migrations() {
 
 apply_migrations() {
   log "Applying migrations..."
-  alembic -c server/alembic.ini upgrade head
+  alembic -c alembic.ini upgrade head
 }
 
 seed_data() {

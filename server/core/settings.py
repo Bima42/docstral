@@ -1,10 +1,13 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import SecretStr
+from pydantic import SecretStr, DirectoryPath
 
 
 class Settings(BaseSettings):
     app_env: str = "dev"
     debug: bool = True
+    DATA_DIR: DirectoryPath = Path(__file__).parent.parent / "scraper" / "data"
 
     db_enabled: bool = True
     db_driver: str = "postgresql+psycopg"

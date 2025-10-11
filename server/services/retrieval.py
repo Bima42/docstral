@@ -6,6 +6,7 @@ import faiss
 from sentence_transformers import SentenceTransformer
 from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel
+from core.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,8 @@ class RetrievalService:
     Singleton pattern: expensive resources loaded once at startup.
     """
 
-    def __init__(self, data_dir: str = "/app/server/scraper/data"):
-        self.data_dir = Path(data_dir)
+    def __init__(self, data_dir: Path | None = None):
+        self.data_dir = Path(data_dir or settings.DATA_DIR)
 
         index_path = self.data_dir / "faiss_index.bin"
         if not index_path.exists():
@@ -44,7 +45,9 @@ class RetrievalService:
             self.metadata = json.load(f)
 
         self.embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-        logger.info(f"RetrievalService initialized with {len(self.chunks)} chunks")
+        logger.info(
+            f"RetrievalService initialized with {len(self.chunks)} chunks from {self.data_dir}"
+        )
 
     async def search(self, query: str, top_k: int = 3) -> list[RetrievedChunk]:
         """
