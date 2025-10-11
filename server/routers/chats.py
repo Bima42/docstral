@@ -9,7 +9,7 @@ from repositories import ChatRepository
 from schemas import ChatDetail, ChatOut, MessageCreate, MessageOut, ChatCreate
 from repositories import MessageRepository
 from models import MessageRole
-from services.chat import get_chat_stream_service, ChatStreamService
+from services import get_stream_orchestrator, StreamOrchestrator
 
 router = APIRouter(tags=["chats"])
 
@@ -111,7 +111,7 @@ def stream_reply(
     payload: MessageCreate,
     chat_repo: ChatRepository = Depends(get_chat_repo),
     msg_repo: MessageRepository = Depends(get_message_repo),
-    chat_stream_service: ChatStreamService = Depends(get_chat_stream_service),
+    stream_orchestrator: StreamOrchestrator = Depends(get_stream_orchestrator),
     current_user: User = Depends(get_current_user),
 ):
     chat = chat_repo.get_chat(user_id=current_user.id, chat_id=chat_id)
@@ -130,8 +130,9 @@ def stream_reply(
     )
     chat.messages.append(user_msg)
 
-    openai_msgs = chat_stream_service.to_openai_messages(chat.messages)
-    return chat_stream_service.streaming_response(
+    openai_msgs = [{"role": m.role.value, "content": m.content} for m in chat.messages]
+
+    return stream_orchestrator.streaming_response(
         openai_msgs=openai_msgs,
         chat_id=chat.id,
         msg_repo=msg_repo,

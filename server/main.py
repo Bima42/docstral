@@ -4,13 +4,15 @@ from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_limiter import FastAPILimiter
 import redis.asyncio as redis
+import logging
 
 from core.logging import setup_logging
 from routers import chats_router, health_router, auth_router
 
 from llm import LLMClientFactory
-from services.chat import set_llm_client, set_rag_service
-from services.rag import RAGService
+from services import set_llm_client, RetrievalService, set_retrieval_service
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -28,15 +30,14 @@ async def lifespan(_: FastAPI):
     set_llm_client(llm_client)
 
     try:
-        rag_service = RAGService(llm_client=llm_client)
-        set_rag_service(rag_service)
+        retrieval_service = RetrievalService(data_dir="/app/server/scraper/data")
+        set_retrieval_service(retrieval_service)
     except FileNotFoundError as e:
-        import logging
-
-        logging.warning(f"RAG disabled: {e}")
-        set_rag_service(None)
+        logger.warning(f"RAG disabled: {e}")
+        set_retrieval_service(None)
 
     yield
+
     await FastAPILimiter.close()
     await llm_client.close()
 
