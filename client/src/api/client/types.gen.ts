@@ -80,10 +80,6 @@ export type MessageCreate = {
      * Content
      */
     content: string;
-    /**
-     * Use Rag
-     */
-    use_rag?: boolean;
 };
 
 /**
