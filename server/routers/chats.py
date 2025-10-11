@@ -6,7 +6,7 @@ from core.auth import get_current_user
 from models import User
 from repositories import get_chat_repo, get_message_repo
 from repositories import ChatRepository
-from schemas import ChatDetail, ChatOut, MessageCreate, MessageOut, ChatCreate
+from schemas import ChatDetail, ChatOut, MessageCreate, ChatCreate
 from repositories import MessageRepository
 from models import MessageRole
 from services import get_stream_orchestrator, StreamOrchestrator

@@ -10,12 +10,7 @@ from starlette.concurrency import run_in_threadpool
 from llm import LLMClient
 from models import MessageRole
 from repositories import MessageRepository
-from services.retrieval import (
-    RetrievalService,
-    get_retrieval_service,
-)
-from services.prompt import PromptBuilder
-from services.sse_events import (
+from .sse_events import (
     SSEStartEvent,
     SSETokenEvent,
     SSESourcesEvent,
@@ -23,6 +18,7 @@ from services.sse_events import (
     SSEErrorEvent,
     SourceReference,
 )
+from services import RetrievalService, PromptBuilder, get_retrieval_service
 
 logger = logging.getLogger(__name__)
 
