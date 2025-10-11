@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import time
 from typing import AsyncGenerator
@@ -18,15 +19,20 @@ from .sse_events import (
     SSEErrorEvent,
     SourceReference,
 )
-from services import RetrievalService, PromptBuilder, get_retrieval_service
+from services import (
+    RetrievalService,
+    SYSTEM_PROMPT,
+    get_retrieval_service,
+    get_mistral_tools,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class StreamOrchestrator:
     """
-    Orchestrates streaming responses with optional RAG.
-    Handles SSE formatting, persistence, and fallback logic.
+    Orchestrates streaming responses with optional tool calling (RAG).
+    Handles SSE formatting, persistence, and multi-turn tool execution.
     """
 
     def __init__(
@@ -44,9 +50,7 @@ class StreamOrchestrator:
         id: str | None = None,
         retry_ms: int | None = None,
     ) -> bytes:
-        """
-        Pack data into SSE format.
-        """
+        """Pack data into SSE format."""
         lines: list[str] = []
         if id is not None:
             lines.append(f"id: {id}")
@@ -58,16 +62,56 @@ class StreamOrchestrator:
             lines.append(f"retry: {retry_ms}")
         return ("\n".join(lines) + "\n\n").encode("utf-8")
 
+    async def execute_tool_call(self, tool_call: dict) -> str:
+        """
+        Execute a single tool call and return the result as a string.
+        Currently only supports search_documentation.
+        """
+        function_name = tool_call["function"]["name"]
+
+        if function_name != "search_documentation":
+            return f"Error: Unknown tool '{function_name}'"
+
+        if not self.retrieval:
+            return "Error: Documentation search not available"
+
+        try:
+            args = json.loads(tool_call["function"]["arguments"])
+            query = args.get("query", "")
+
+            if not query:
+                return "Error: No query provided"
+
+            chunks = await self.retrieval.search(query, top_k=3)
+
+            if not chunks:
+                return "No relevant documentation found for this query."
+
+            results = []
+            for i, chunk in enumerate(chunks, 1):
+                results.append(
+                    f"[{i}] {chunk.title}\n"
+                    f"URL: {chunk.url}\n"
+                    f"Content: {chunk.chunk}\n"
+                )
+
+            return "\n\n".join(results)
+
+        except json.JSONDecodeError:
+            return "Error: Invalid tool call arguments"
+        except Exception as e:
+            logger.error(f"Tool execution error: {e}", exc_info=True)
+            return f"Error executing tool: {str(e)}"
+
     async def token_generator(
         self,
         openai_msgs: list[dict],
         chat_id: UUID,
         msg_repo: MessageRepository,
-        use_rag: bool = True,
     ) -> AsyncGenerator[bytes, None]:
         """
-        Stream tokens as SSE events with optional RAG augmentation.
-        Persists final message and handles fallback gracefully.
+        Stream tokens as SSE events with automatic tool calling when needed.
+        Persists final message and handles tool execution loop.
         """
         final_tokens: list[str] = []
         last_ping = time.monotonic()
@@ -78,42 +122,85 @@ class StreamOrchestrator:
         )
 
         try:
-            last_user_msg = next(
-                (m["content"] for m in reversed(openai_msgs) if m["role"] == "user"),
-                None,
-            )
-            logger.debug(f"LASTUSERMESSAGE : {last_user_msg}")
+            # Inject system prompt at position 0
+            messages = openai_msgs.copy()
+            if not messages or messages[0].get("role") != "system":
+                messages.insert(0, {"role": "system", "content": SYSTEM_PROMPT})
 
-            if use_rag and self.retrieval and last_user_msg:
-                try:
-                    chunks = await self.retrieval.search(last_user_msg, top_k=3)
-                    if chunks:
-                        sources = [
-                            SourceReference(title=c.title, url=c.url) for c in chunks
-                        ]
-                        rag_prompt = PromptBuilder.build_rag_prompt(
-                            last_user_msg, chunks
+            logger.info(f"Sending {len(messages)} messages to LLM")
+
+            tools = get_mistral_tools() if self.retrieval else None
+
+            max_iterations = 3
+            iteration = 0
+
+            while iteration < max_iterations:
+                iteration += 1
+                tool_calls_made = False
+
+                async for chunk in self.llm.stream_chat(messages, tools=tools):
+                    # Handle tool calls
+                    if isinstance(chunk, dict) and "tool_calls" in chunk:
+                        logger.debug(f"Tool call requested: {chunk['tool_calls']}")
+
+                        tool_calls_made = True
+                        tool_calls = chunk["tool_calls"]
+
+                        # Add assistant message with tool calls to history
+                        messages.append(
+                            {
+                                "role": "assistant",
+                                "content": None,
+                                "tool_calls": tool_calls,
+                            }
                         )
-                        messages = [{"role": "user", "content": rag_prompt}]
-                        logger.info(f"RAG enabled: found {len(chunks)} relevant chunks")
-                    else:
-                        logger.warning("No relevant chunks found, using direct query")
-                        messages = openai_msgs
-                except Exception as e:
-                    logger.warning(f"RAG retrieval failed: {e}, falling back")
-                    messages = openai_msgs
-            else:
-                messages = openai_msgs
 
-            async for token in self.llm.stream_chat(messages):
-                final_tokens.append(token)
-                event = SSETokenEvent(content=token)
-                yield self.sse_pack(event.model_dump_json(), event="message")
+                        for tc in tool_calls:
+                            function_name = tc["function"]["name"]
+                            logger.info(f"Executing tool: {function_name}")
 
-                now = time.monotonic()
-                if now - last_ping > 15:
-                    yield b": ping\n\n"
-                    last_ping = now
+                            result = await self.execute_tool_call(tc)
+
+                            # Add tool result to messages
+                            messages.append(
+                                {
+                                    "role": "tool",
+                                    "tool_call_id": tc["id"],
+                                    "name": function_name,
+                                    "content": result,
+                                }
+                            )
+
+                            if (
+                                function_name == "search_documentation"
+                                and "URL:" in result
+                            ):
+                                for line in result.split("\n"):
+                                    if line.startswith("[") and "]" in line:
+                                        title = line.split("]")[1].strip()
+                                    elif line.startswith("URL:"):
+                                        url = line.replace("URL:", "").strip()
+                                        if title and url:
+                                            sources.append(
+                                                SourceReference(title=title, url=url)
+                                            )
+
+                        # Break to re-call LLM with tool results
+                        break
+
+                    # Handle regular content tokens
+                    elif isinstance(chunk, str):
+                        final_tokens.append(chunk)
+                        event = SSETokenEvent(content=chunk)
+                        yield self.sse_pack(event.model_dump_json(), event="message")
+
+                        now = time.monotonic()
+                        if now - last_ping > 15:
+                            yield b": ping\n\n"
+                            last_ping = now
+
+                if not tool_calls_made:
+                    break
 
         except asyncio.CancelledError:
             text = "".join(final_tokens).strip()
@@ -135,7 +222,14 @@ class StreamOrchestrator:
 
         else:
             if sources:
-                sources_event = SSESourcesEvent(data=sources)
+                unique_sources = []
+                seen_urls = set()
+                for src in sources:
+                    if src.url not in seen_urls:
+                        unique_sources.append(src)
+                        seen_urls.add(src.url)
+
+                sources_event = SSESourcesEvent(data=unique_sources)
                 yield self.sse_pack(sources_event.model_dump_json(), event="message")
 
             text = "".join(final_tokens).strip()
@@ -158,7 +252,6 @@ class StreamOrchestrator:
         openai_msgs: list[dict],
         chat_id: UUID,
         msg_repo: MessageRepository,
-        use_rag: bool = True,
     ) -> StreamingResponse:
         """
         Return a FastAPI StreamingResponse with SSE headers.
@@ -174,7 +267,6 @@ class StreamOrchestrator:
                 openai_msgs=openai_msgs,
                 chat_id=chat_id,
                 msg_repo=msg_repo,
-                use_rag=use_rag,
             ),
             headers=headers,
             status_code=200,

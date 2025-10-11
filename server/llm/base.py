@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 from pydantic import BaseModel
 
 
@@ -17,10 +17,15 @@ class LLMClient(ABC):
     """Abstract LLM client. All implementations must stream OpenAI-format chunks."""
 
     @abstractmethod
-    async def stream_chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
+    async def stream_chat(
+        self,
+        messages: list[dict],
+        tools: Optional[list[dict]] = None,
+    ) -> AsyncGenerator[str, None]:
         """
         Yield content tokens from the assistant reply.
         `messages` must be OpenAI format: [{"role": "user", "content": "..."}]
+        `tools` optional list of tool definitions (OpenAI function calling format)
         """
         ...
 
