@@ -3,19 +3,42 @@ import { MessageList } from './MessageList';
 import { ChatInput } from './ChatInput';
 import { useStreamReply } from '@/api/chat/queries';
 import { useLanguage } from '@/hooks/useLanguage';
-import { getRouteApi } from '@tanstack/react-router';
-
-const routeApi = getRouteApi('/chats/$chatId');
+import { useParams } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { getChat } from '@/api/chat/chat';
 
 export const ChatInterface = () => {
 	const { t } = useLanguage();
-	const { chat } = routeApi.useLoaderData();
+	const { chatId } = useParams({ from: '/chats/$chatId' });
+
+	const { data: chat, isLoading } = useQuery({
+		queryKey: ['chat', chatId],
+		queryFn: () => getChat(chatId),
+		staleTime: 0,
+	});
 
 	const streamMutation = useStreamReply();
 
 	const handleSubmit = async (content: string) => {
+		if (!chat) return;
 		await streamMutation.mutateAsync({ chatId: chat.id, payload: { content } });
 	};
+
+	if (isLoading) {
+		return (
+			<div className="flex h-screen items-center justify-center bg-surface-warm">
+				<div className="text-sm text-neutral-500">{t('common.loading')}</div>
+			</div>
+		);
+	}
+
+	if (!chat) {
+		return (
+			<div className="flex h-screen items-center justify-center bg-surface-warm">
+				<div className="text-sm text-neutral-500">{t('chat.notFound')}</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex h-screen flex-col bg-surface-warm dark:bg-surface-warm">
