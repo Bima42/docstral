@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
@@ -9,12 +11,18 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 
+from core import settings
+
 logger = logging.getLogger(__name__)
 
 
 class DocumentEmbedder:
     def __init__(
-        self, model_name="BAAI/bge-small-en-v1.5", chunk_size=2000, small_chunk_size=200
+        self,
+        model_name: str = "BAAI/bge-small-en-v1.5",
+        chunk_size: int = 2000,
+        small_chunk_size: int = 200,
+        data_dir: Path | None = None,
     ):
         logger.info(f"Loading embedding model: {model_name}")
         self.model = SentenceTransformer(model_name)
@@ -23,8 +31,9 @@ class DocumentEmbedder:
         self.metadata = []
         self.small_chunk_size = small_chunk_size
         self.chunk_size = chunk_size
+        self.data_dir = Path(data_dir or settings.DATA_DIR)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
 
-        # Split on H1/H2 for better structure
         self.md_splitter = MarkdownHeaderTextSplitter(
             headers_to_split_on=[
                 ("#", "h1"),
@@ -40,6 +49,22 @@ class DocumentEmbedder:
             length_function=len,
             is_separator_regex=False,
         )
+
+    @property
+    def docs_path(self) -> Path:
+        return self.data_dir / "mistral_docs.json"
+
+    @property
+    def index_path(self) -> Path:
+        return self.data_dir / "faiss_index.bin"
+
+    @property
+    def chunks_path(self) -> Path:
+        return self.data_dir / "chunks.json"
+
+    @property
+    def metadata_path(self) -> Path:
+        return self.data_dir / "metadata.json"
 
     def _log_statistics(self):
         logger.info(f"Index created with {len(self.chunks)} chunks")
@@ -125,10 +150,17 @@ class DocumentEmbedder:
 
         return chunks
 
-    def create_embeddings(self, docs_file="./data/mistral_docs.json"):
+    def create_embeddings(self):
         """Create embeddings from documents"""
-        logger.info(f"Loading documents from {docs_file}")
-        with open(docs_file, "r", encoding="utf-8") as f:
+        logger.info(f"Loading documents from {self.docs_path}")
+
+        if not self.docs_path.exists():
+            raise FileNotFoundError(
+                f"Documents file not found: {self.docs_path}. "
+                "Run scraper.py first to generate docs."
+            )
+
+        with open(self.docs_path, "r", encoding="utf-8") as f:
             docs = json.load(f)
 
         logger.info(f"Processing {len(docs)} documents")
@@ -172,22 +204,22 @@ class DocumentEmbedder:
         self.index.add(embeddings_array)
         self._log_statistics()
 
-    def save_index(
-        self,
-        index_path="./data/faiss_index.bin",
-        chunks_path="./data/chunks.json",
-        metadata_path="./data/metadata.json",
-    ):
+    def save_index(self):
         """Save index and metadata"""
-        logger.info(f"Saving FAISS index to {index_path}")
-        faiss.write_index(self.index, index_path)
+        if self.index is None:
+            raise ValueError("No index to save. Run create_embeddings() first.")
 
-        logger.info(f"Saving chunks to {chunks_path}")
-        with open(chunks_path, "w", encoding="utf-8") as f:
+        logger.info(f"Saving FAISS index to {self.index_path}")
+        faiss.write_index(self.index, str(self.index_path))
+
+        logger.info(f"Saving {len(self.chunks)} chunks to {self.chunks_path}")
+        with open(self.chunks_path, "w", encoding="utf-8") as f:
             json.dump(self.chunks, f, ensure_ascii=False, indent=2)
 
-        logger.info(f"Saving metadata to {metadata_path}")
-        with open(metadata_path, "w", encoding="utf-8") as f:
+        logger.info(
+            f"Saving {len(self.metadata)} metadata entries to {self.metadata_path}"
+        )
+        with open(self.metadata_path, "w", encoding="utf-8") as f:
             json.dump(self.metadata, f, ensure_ascii=False, indent=2)
 
         logger.info("All files saved successfully")

@@ -40,6 +40,8 @@
     "inputPlaceholder": "Demandez-moi des informations sur les modèles Mistral AI, les SDK ou la mise en place...",
     "startConversationPrompt": "Demandez-moi des informations sur les modèles Mistral, les SDK ou des détails de mise en place.",
     "noMessages": "Pas encore de messages.",
+    "notFound": "Conversation introuvable.",
+
     "deleteDialog": {
       "title": "Supprimer la conversation ?",
       "description": "Cette action va définitivement supprimer la conversation. Elle n'est pas réversible."

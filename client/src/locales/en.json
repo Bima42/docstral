@@ -42,6 +42,7 @@
     "inputPlaceholder": "Ask me about Mistral AI models, SDKs, or implementation...",
     "startConversationPrompt": "Ask me about Mistral models, SDKs, or implementation details.",
     "noMessages": "No messages yet.",
+    "notFound": "Chat not found.",
 
     "deleteDialog": {
       "title": "Delete chat?",

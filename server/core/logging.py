@@ -20,8 +20,6 @@ def setup_logging():
 
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
-    logging.getLogger("sqlalchemy.engine").setLevel(
-        logging.INFO if settings.debug else logging.WARNING
-    )
+    logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
     logging.info(f"Logging configured (level={logging.getLevelName(log_level)})")

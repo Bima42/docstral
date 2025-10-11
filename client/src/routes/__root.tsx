@@ -9,7 +9,7 @@ interface RouterContext {
 }
 export const Route = createRootRouteWithContext<RouterContext>()({
 	component: () => (
-		<main className="overflow-hidden">
+		<main className="bg-surface-warm overflow-hidden">
 			<AuthProvider>
 				<SidebarProvider>
 					<Outlet />

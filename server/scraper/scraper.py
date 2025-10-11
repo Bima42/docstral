@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import requests
 import logging
 from bs4 import BeautifulSoup
@@ -7,13 +9,18 @@ import time
 import json
 from markdownify import markdownify as md
 
+from core.settings import settings
+
 logger = logging.getLogger(__name__)
 
 
 class MistralDocsScraper:
-    def __init__(self, base_url="https://docs.mistral.ai"):
+    def __init__(
+        self, base_url: str = "https://docs.mistral.ai", data_dir: Path | None = None
+    ):
         self.base_url = base_url
         self.docs_content = []
+        self.data_dir = Path(data_dir or settings.DATA_DIR)
 
     def _parse_sitemap(self, xml_content: bytes) -> List[str]:
         """Parse sitemap XML"""
@@ -209,7 +216,10 @@ class MistralDocsScraper:
             logger.error(f"Failed to scrape {url}: {e}")
             return None
 
-    def save_docs(self, filename="./data/mistral_docs.json"):
+    def save_docs(self, filename: str = "mistral_docs.json"):
+        output_path = self.data_dir / filename
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(self.docs_content, f, ensure_ascii=False, indent=2)
 

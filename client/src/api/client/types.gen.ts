@@ -108,7 +108,7 @@ export type MessageOut = {
 /**
  * MessageRole
  */
-export type MessageRole = 'USER' | 'ASSISTANT' | 'SYSTEM';
+export type MessageRole = 'user' | 'assistant' | 'system';
 
 /**
  * UserOut
