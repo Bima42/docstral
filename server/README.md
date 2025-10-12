@@ -259,6 +259,10 @@ if message.content:
 
 It's a bit fiddly, but it works reliably, and it means the rest of the system doesn't have to care about how tool calls are chunked across the wire.
 
+## Overview of the flow
+
+![docstral_flow.png](../docs/docstral_flow.png)
+
 ---
 
 ## Closing Thoughts
