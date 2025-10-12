@@ -1,8 +1,8 @@
 # Server
 
-The server is the backbone of this project—a lightweight Python service built to handle conversations with an LLM that actually knows something about Mistral's documentation. The goal wasn't to build production-grade infrastructure with all the bells and whistles, but rather to create something functional, maintainable, and honest about what it is: a sandbox project for exploring RAG-based chat.
+The server is the backbone of this project, a lightweight Python service built to handle conversations with an LLM that actually knows something about Mistral's documentation. The goal wasn't to build production-grade infrastructure with all the bells and whistles, but rather to create something functional, maintainable, and honest about what it is: a sandbox project for exploring RAG-based chat.
 
-The architecture is deliberately simple. We have a FastAPI server handling HTTP requests, SQLModel for persistence, and a small constellation of modules dealing with the LLM interaction, retrieval, and data processing. Everything lives in Python because, frankly, I didn't want to juggle a Node.js proxy just to keep the LLM tooling where it belongs. In my experience, Python is where you want to be when working with language models—the ecosystem is richer, the libraries are more mature, and you're not constantly translating between paradigms.
+The architecture is deliberately simple. We have a FastAPI server handling HTTP requests, SQLModel for persistence, and a small constellation of modules dealing with the LLM interaction, retrieval, and data processing. Everything lives in Python because, frankly, I didn't want to juggle a Node.js proxy just to keep the LLM tooling where it belongs. In my experience, Python is where you want to be when working with language models. The ecosystem is richer, the libraries are more mature, and you're not constantly translating between paradigms.
 
 I've worked with FastAPI enough times to trust it for something like this. It's fast to develop with, the automatic API documentation is genuinely useful, and the async support is first-class. SQLModel felt like a natural companion since it's maintained by the same people and sits cleanly on top of SQLAlchemy. For a project of this scale, it hits the sweet spot between simplicity and capability.
 
@@ -50,13 +50,94 @@ The tricky part was that the raw HTML structure wasn't ideal. I didn't have clea
 
 I did take care to filter out noise—headers, sidebars, navigation elements—anything that would pollute the actual content. The goal was to extract the *documentation*, not the website chrome around it.
 
+You can find the scraper in the `scraper` module. Here is a really simplified version of the core logic:
+
+```python
+class MistralDocsScraper:
+    def __init__(
+            self, base_url: str = "https://docs.mistral.ai", data_dir: Path | None = None
+    ):
+        self.base_url = base_url
+        self.docs_content = []
+        self.data_dir = Path(data_dir or settings.DATA_DIR)
+
+    def scrape_page(self, url: str) -> Dict | None:
+        """Scrape HTML page and convert to structured Markdown."""
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, "html.parser")
+
+            elements_to_remove = [
+                "script",
+                "style",
+                "nav",
+                "footer",
+                "header",
+                ...
+            ]
+
+            for element in soup(elements_to_remove):
+                element.decompose()
+
+            content = (
+                    soup.find("main")
+                    or soup.find("article")
+                    or soup.find("div", class_="content")
+                    or soup.find("div", {"role": "main"})
+                    or soup.find("div", class_="markdown")
+                    or soup.body
+            )
+            section_path = self._extract_section_path(soup)
+
+            markdown_content = md(
+                str(content),
+                heading_style="ATX",
+                bullets="-",
+                code_language="python",
+                strip=["script", "style"],
+            )
+
+            lines = [line.rstrip() for line in markdown_content.split("\n")]
+            markdown_content = "\n".join(lines).strip()
+            ...
+            return {
+                "url": url,
+                "title": title,
+                "content": markdown_content,
+                "metadata": {
+                    "section_path": section_path,
+                    "content_type": content_type,
+                    "has_code": has_code,
+                    "heading_count": heading_count,
+                },
+                "length": len(markdown_content),
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to scrape {url}: {e}")
+            return None
+
+    def scrape_all(self):
+        sitemap_url = f"{self.base_url}/sitemap.xml"
+        urls = self.get_urls_from_sitemap(sitemap_url)
+
+        for i, url in enumerate(urls, 1):
+            page_data = self.scrape_page(url)
+            if page_data and page_data["content"]:
+                self.docs_content.append(page_data)
+            time.sleep(0.2)
+
+        self.save_docs()
+```
+
 ### Embedding and Chunking
 
 Once I had the documentation scraped, I needed to turn it into something a vector database could work with. This meant choosing an embedding model and figuring out how to chunk the content.
 
 For the embedding model, I went to the [MTEB leaderboard](https://huggingface.co/spaces/mteb/leaderboard) on HuggingFace. After some analysis (with a little help from an LLM to parse through the options), I settled on `BAAI/bge-small-en-v1.5`. It's free, reasonably performant for its size (384 dimensions), and it is ranked 87th. I'll let you go and see if you want more details. The top-ranked models are often proprietary and optimized for massive datasets. For a first pass on a relatively small corpus like Mistral's docs, it felt like overkill.
 
-My first attempt at chunking was... not great. I tried to split cleanly on heading boundaries (h1, h2, h3) and group small fragments together. The problem was that Mistral's documentation has a lot of tiny h3 sections, and my logic wasn't sophisticated enough to handle them gracefully. I ended up with too many fragments, some of them split in unfortunate places—mid-code-block, mid-sentence, that sort of thing.
+My first attempt at chunking was... not great. I tried to split cleanly on heading boundaries (h1, h2, h3) and group small fragments together. The problem was that Mistral's documentation has a lot of tiny h3 sections, and my logic wasn't sophisticated enough to handle them gracefully. I ended up with too many fragments, some of them split in unfortunate places.
 
 So I simplified. I switched to `langchain_text_splitters` and split primarily on h1 and h2 boundaries, letting the tool handle the size-based splitting with more intelligence. I also added metadata to each chunk—title, section hierarchy, source URL. And so I could cite sources properly and give the LLM better context about where information came from.
 
