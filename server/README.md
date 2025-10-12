@@ -1,6 +1,6 @@
 # Server
 
-The server is the backbone of this project, a lightweight Python service built to handle conversations with an LLM that actually knows something about Mistral's documentation. The goal wasn't to build production-grade infrastructure with all the bells and whistles, but rather to create something functional, maintainable, and honest about what it is: a sandbox project for exploring RAG-based chat.
+The server is the backbone of this project, a lightweight Python service built to handle conversations with a LLM that actually knows something about Mistral's documentation. The goal wasn't to build production-grade infrastructure with all the bells and whistles, but rather to create something functional, maintainable, and honest about what it is: a sandbox project for exploring RAG-based chat.
 
 The architecture is deliberately simple. We have a FastAPI server handling HTTP requests, SQLModel for persistence, and a small constellation of modules dealing with the LLM interaction, retrieval, and data processing. Everything lives in Python because, frankly, I didn't want to juggle a Node.js proxy just to keep the LLM tooling where it belongs. In my experience, Python is where you want to be when working with language models. The ecosystem is richer, the libraries are more mature, and you're not constantly translating between paradigms.
 
@@ -135,7 +135,7 @@ class MistralDocsScraper:
 
 Once I had the documentation scraped, I needed to turn it into something a vector database could work with. This meant choosing an embedding model and figuring out how to chunk the content.
 
-For the embedding model, I went to the [MTEB leaderboard](https://huggingface.co/spaces/mteb/leaderboard) on HuggingFace. After some analysis (with a little help from an LLM to parse through the options), I settled on `BAAI/bge-small-en-v1.5`. It's free, reasonably performant for its size (384 dimensions), and it is ranked 87th. I'll let you go and see if you want more details. The top-ranked models are often proprietary and optimized for massive datasets. For a first pass on a relatively small corpus like Mistral's docs, it felt like overkill.
+For the embedding model, I went to the [MTEB leaderboard](https://huggingface.co/spaces/mteb/leaderboard) on HuggingFace. After some analysis (with a little help from a LLM to parse through the options), I settled on `BAAI/bge-small-en-v1.5`. It's free, reasonably performant for its size (384 dimensions), and it is ranked 87th. I'll let you go and see if you want more details. The top-ranked models are often proprietary and optimized for massive datasets. For a first pass on a relatively small corpus like Mistral's docs, it felt like overkill.
 
 My first attempt at chunking was... not great. I tried to split cleanly on heading boundaries (h1, h2, h3) and group small fragments together. The problem was that Mistral's documentation has a lot of tiny h3 sections, and my logic wasn't sophisticated enough to handle them gracefully. I ended up with too many fragments, some of them split in unfortunate places.
 
@@ -207,7 +207,7 @@ The tool-based approach is cleaner conceptually and more token-efficient in prac
 
 ## Deployment and LLM Client Architecture
 
-The final piece of the puzzle is actually talking to an LLM. I wanted flexibility here because I knew I'd be bouncing between self-hosted models and Mistral's API depending on cost and convenience.
+The final piece of the puzzle is actually talking to a LLM. I wanted flexibility here because I knew I'd be bouncing between self-hosted models and Mistral's API depending on cost and convenience.
 
 Self-hosting with vLLM on Runpod has been great for testing, but it's expensive to leave running 24/7. Eventually I want to move to something like Infomaniak, but that's a future problem. For now, I needed an architecture that could swap between providers without rewriting half the codebase.
 
