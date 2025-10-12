@@ -19,7 +19,7 @@ from .sse_events import (
     SSEErrorEvent,
     SourceReference,
 )
-from services import (
+from scraper.retrieval import (
     RetrievalService,
     get_retrieval_service,
 )
