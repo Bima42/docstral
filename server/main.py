@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Path
+from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_limiter import FastAPILimiter
@@ -31,7 +31,7 @@ async def lifespan(_: FastAPI):
     set_llm_client(llm_client)
 
     try:
-        retrieval_service = RetrievalService(data_dir=Path("/app/server/scraper/data"))
+        retrieval_service = RetrievalService()
         set_retrieval_service(retrieval_service)
     except FileNotFoundError as e:
         logger.warning(f"RAG disabled: {e}")
