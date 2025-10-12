@@ -14,7 +14,7 @@ This project serves two main purposes:
 
 This is not a SaaS or commercial product. It's a portfolio project and learning playground to showcase for collaborators, friends or even recruiters.
 
-Want to **know more about my thoughts, technical choices, or architectural decisions?** Check out [the server README](server/README.md)
+Want to **know more about my thoughts, technical choices, or architectural decisions?** Check out [the server WORK_CONTEXT](server/WORK_CONTEXT.md)
 
 ## Demo
 
