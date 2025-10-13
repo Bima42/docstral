@@ -4,7 +4,7 @@ A FastAPI-based chat server with RAG over Mistral AI's documentation. The server
 
 ## Architecture
 
-The server is built around a few core ideas: **streaming-first responses** using Server-Sent Events, **pluggable LLM providers** (Mistral API or self-hosted vLLM), and **optional RAG** powered by FAISS vector search over scraped documentation. The system prompt constrains the assistant to only answer Mistral AI documentation queries—anything else gets politely redirected.
+The server is built around a few core ideas: **streaming-first responses** using Server-Sent Events, **pluggable LLM providers** (Mistral API or self-hosted vLLM), and **optional RAG** powered by FAISS vector search over scraped documentation. The system prompt constrains the assistant to only answer Mistral AI documentation queries.
 
 At startup, the server probes for a self-hosted LLM instance and falls back to Mistral's API if unavailable. If the scraped documentation data exists, RAG is enabled and the LLM can call a `search_documentation` tool to retrieve relevant context. Otherwise, the assistant works without retrieval.
 
@@ -20,8 +20,6 @@ This handles database migrations, seeds initial data, and starts the server on `
 
 The entrypoint script waits for Postgres to be ready, runs Alembic migrations if needed, and executes the idempotent seed script before handing off to Uvicorn.
 
-Once running, you can login the demo user with token `test`.
-
 **Environment variables** are loaded from `.env` in the project root. Please, note the following:
 
 - `DOCSTRAL_MISTRAL_API_KEY`: your Mistral API key
@@ -30,7 +28,7 @@ Once running, you can login the demo user with token `test`.
 - `SELF_HOSTED_API_KEY`: auth token for self-hosted LLM
 
 
-## Setting Up RAG (Optional)
+## Setting Up RAG
 
 RAG requires three files in `server/scraper/data/`:
 - `mistral_docs.json` – scraped documentation
@@ -50,7 +48,9 @@ If these files are missing, the server starts without RAG. The assistant works b
 
 ## Authentication
 
-The server uses **bearer token auth**. The seed script creates a demo user with token `test`. To make requests:
+The server uses **bearer token auth**. The seed script creates a demo user with token `test`. 
+
+To make requests:
 
 ```bash
 curl -H "Authorization: Bearer test" http://localhost:8000/chats
