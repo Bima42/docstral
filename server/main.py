@@ -10,7 +10,8 @@ from core.logging import setup_logging
 from routers import chats_router, health_router, auth_router
 
 from llm import LLMClientFactory
-from services import set_llm_client, RetrievalService, set_retrieval_service
+from scraper.retrieval import RetrievalService, set_retrieval_service
+from services import set_llm_client
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ async def lifespan(_: FastAPI):
     set_llm_client(llm_client)
 
     try:
-        retrieval_service = RetrievalService(data_dir="/app/server/scraper/data")
+        retrieval_service = RetrievalService()
         set_retrieval_service(retrieval_service)
     except FileNotFoundError as e:
         logger.warning(f"RAG disabled: {e}")
