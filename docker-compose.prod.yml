@@ -1,0 +1,67 @@
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+  db:
+    container_name: docstral_db
+    image: postgres:17-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-docstral}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - docstral_network
+    restart: unless-stopped
+
+  redis:
+    container_name: docstral_redis
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - docstral_network
+    restart: unless-stopped
+
+  server:
+    container_name: docstral_server
+    build:
+      context: .
+      dockerfile: docker/prod/server/Dockerfile
+    networks:
+      - docstral_network
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  client:
+    container_name: docstral_client
+    build:
+      context: .
+      dockerfile: docker/prod/client/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+        VITE_VERSION: ${VITE_VERSION:-prod}
+    networks:
+      - docstral_network
+    restart: unless-stopped
+
+networks:
+  docstral_network:
