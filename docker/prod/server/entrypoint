@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+
+set -euo pipefail
+
+DB_HOST="${DB_HOST:-db}"
+DB_PORT="${DB_PORT:-5432}"
+RUN_MIGRATIONS="${RUN_MIGRATIONS:-true}"
+RUN_SEED="${RUN_SEED:-false}"
+
+log() { echo "[entrypoint] $*"; }
+export DB_HOST DB_PORT
+
+wait_for_db() {
+  log "Waiting for DB at ${DB_HOST}:${DB_PORT} (timeout 60s)..."
+  python - <<'PY'
+import os, socket, time, sys
+host=os.environ["DB_HOST"]; port=int(os.environ["DB_PORT"])
+deadline=time.time()+60
+while True:
+    try:
+        with socket.create_connection((host, port), timeout=2):
+            print("[entrypoint] DB reachable.")
+            sys.exit(0)
+    except Exception:
+        if time.time() > deadline:
+            print("[entrypoint] ERROR: DB wait timed out.", file=sys.stderr)
+            sys.exit(1)
+        time.sleep(1)
+PY
+}
+
+has_pending_migrations() {
+  head="$(alembic -c alembic.ini heads 2>/dev/null | awk 'NR==1{print $1}')"
+  curr="$(alembic -c alembic.ini current 2>/dev/null | awk '/Current revision/ {print $3}')"
+  [ -n "$curr" ] || curr="$(alembic -c alembic.ini current 2>/dev/null | grep -Eo '[0-9a-f]+' | head -n1)"
+  if [ -z "$curr" ] || [ "$curr" != "$head" ]; then
+    return 0
+  fi
+  return 1
+}
+
+apply_migrations() {
+  log "Applying migrations..."
+  alembic -c alembic.ini upgrade head
+}
+
+main() {
+  wait_for_db
+  if has_pending_migrations; then
+    log "Pending migrations detected."
+    apply_migrations
+  else
+    log "No migrations to apply."
+  fi
+  log "Starting app: $*"
+  exec "$@"
+}
+
+main "$@"
