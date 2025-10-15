@@ -5,7 +5,7 @@ set -euo pipefail
 DB_HOST="${DB_HOST:-db}"
 DB_PORT="${DB_PORT:-5432}"
 RUN_MIGRATIONS="${RUN_MIGRATIONS:-true}"
-RUN_SEED="${RUN_SEED:-false}"
+DATA_DIR="${DATA_DIR:-/app/server/scraper/data}"
 
 log() { echo "[entrypoint] $*"; }
 export DB_HOST DB_PORT
@@ -44,6 +44,16 @@ apply_migrations() {
   alembic -c alembic.ini upgrade head
 }
 
+setup_rag_data() {
+  if [ ! -d "$DATA_DIR" ] || [ -z "$(ls -A "$DATA_DIR" 2>/dev/null)" ]; then
+    log "Data directory missing or empty. Running scraper setup..."
+    python scraper/setup_data.py
+    log "RAG data setup complete."
+  else
+    log "Data directory exists and not empty. Skipping scraper setup."
+  fi
+}
+
 main() {
   wait_for_db
   if has_pending_migrations; then
@@ -52,6 +62,9 @@ main() {
   else
     log "No migrations to apply."
   fi
+
+  setup_rag_data
+
   log "Starting app: $*"
   exec "$@"
 }
