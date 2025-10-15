@@ -46,7 +46,8 @@ apply_migrations() {
 
 setup_rag_data() {
   if [ ! -d "$DATA_DIR" ] || [ -z "$(ls -A "$DATA_DIR" 2>/dev/null)" ]; then
-    log "Data directory missing or empty. Running scraper setup..."
+    log "Data directory missing or empty. Creating directory and running scraper setup..."
+    mkdir -p "$DATA_DIR"
     python scraper/setup_data.py
     log "RAG data setup complete."
   else
