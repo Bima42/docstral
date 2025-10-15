@@ -55,6 +55,8 @@ setup_rag_data() {
 }
 
 main() {
+  setup_rag_data
+
   wait_for_db
   if has_pending_migrations; then
     log "Pending migrations detected."
@@ -62,8 +64,6 @@ main() {
   else
     log "No migrations to apply."
   fi
-
-  setup_rag_data
 
   log "Starting app: $*"
   exec "$@"
