@@ -16,7 +16,7 @@ export const MessageList = ({ messages }: { messages: MessageOut[] }) => {
 		return (
 			<div className="flex-1 flex items-center justify-center px-4">
 				<div className="text-center text-neutral-500">
-					<div className="mx-auto mb-3 h-10 w-10 rounded-xl bg-neutral-100 dark:bg-neutral-800" />
+					<div className="mx-auto mb-3 h-10 w-10 rounded-md bg-neutral-100 dark:bg-neutral-800" />
 					<p className="text-sm">
 						{t('chat.startConversationPrompt')}
 					</p>

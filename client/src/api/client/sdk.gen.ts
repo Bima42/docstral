@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateChatChatsPostData, CreateChatChatsPostErrors, CreateChatChatsPostResponses, DeleteChatData, DeleteChatErrors, DeleteChatResponses, GetChatByIdData, GetChatByIdErrors, GetChatByIdResponses, HealthHealthGetData, HealthHealthGetResponses, ListChatsData, ListChatsErrors, ListChatsResponses, StreamReplyChatChatIdStreamPostData, StreamReplyChatChatIdStreamPostErrors, StreamReplyChatChatIdStreamPostResponses, UpdateChatData, UpdateChatErrors, UpdateChatResponses, VerifyTokenAuthVerifyPostData, VerifyTokenAuthVerifyPostResponses } from './types.gen';
+import type { CreateChatChatsPostData, CreateChatChatsPostErrors, CreateChatChatsPostResponses, DeleteChatData, DeleteChatErrors, DeleteChatResponses, GetChatByIdData, GetChatByIdErrors, GetChatByIdResponses, HealthGetData, HealthGetResponses, ListChatsData, ListChatsErrors, ListChatsResponses, StreamReplyChatChatIdStreamPostData, StreamReplyChatChatIdStreamPostErrors, StreamReplyChatChatIdStreamPostResponses, UpdateChatData, UpdateChatErrors, UpdateChatResponses, VerifyTokenAuthVerifyPostData, VerifyTokenAuthVerifyPostResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -19,10 +19,10 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 /**
- * Health check
+ * Get service health status
  */
-export const healthHealthGet = <ThrowOnError extends boolean = false>(options?: Options<HealthHealthGetData, ThrowOnError>) => {
-	return (options?.client ?? client).get<HealthHealthGetResponses, unknown, ThrowOnError>({
+export const healthGet = <ThrowOnError extends boolean = false>(options?: Options<HealthGetData, ThrowOnError>) => {
+	return (options?.client ?? client).get<HealthGetResponses, unknown, ThrowOnError>({
 		url: '/health',
 		...options
 	});

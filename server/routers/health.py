@@ -7,7 +7,12 @@ from schemas.health import HealthOut
 router = APIRouter(tags=["health"])
 
 
-@router.get("/health", summary="Health check")
+@router.get(
+    "/health",
+    summary="Get service health status",
+    operation_id="health_get",
+    response_model=HealthOut,
+)
 def health() -> HealthOut:
     now = datetime.now(timezone.utc).isoformat()
     mode = LLMClientFactory.get_mode()

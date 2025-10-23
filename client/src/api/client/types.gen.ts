@@ -166,21 +166,21 @@ export type ValidationError = {
     type: string;
 };
 
-export type HealthHealthGetData = {
+export type HealthGetData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/health';
 };
 
-export type HealthHealthGetResponses = {
+export type HealthGetResponses = {
     /**
      * Successful Response
      */
     200: HealthOut;
 };
 
-export type HealthHealthGetResponse = HealthHealthGetResponses[keyof HealthHealthGetResponses];
+export type HealthGetResponse = HealthGetResponses[keyof HealthGetResponses];
 
 export type ListChatsData = {
     body?: never;

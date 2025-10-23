@@ -31,7 +31,7 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 		return (
 			<div className="flex items-start justify-end gap-3">
 				<div className="flex flex-col items-end max-w-2xl">
-					<div className="rounded-2xl rounded-tr-sm bg-primary-500 px-4 py-3 text-white shadow-sm">
+					<div className="rounded-2xl rounded-tr-sm bg-surface-light px-4 py-3 text-neutral-700 dark:text-white shadow-sm">
 						<div className="text-sm leading-relaxed whitespace-pre-wrap">
 							{message.content}
 						</div>
@@ -41,9 +41,6 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 							{formatTime(message.createdAt)}
 						</span>
 					</div>
-				</div>
-				<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
-                    U
 				</div>
 			</div>
 		);
