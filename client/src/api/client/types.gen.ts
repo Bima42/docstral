@@ -73,6 +73,26 @@ export type HttpValidationError = {
 };
 
 /**
+ * HealthOut
+ */
+export type HealthOut = {
+    /**
+     * Status
+     */
+    status?: string;
+    /**
+     * Time
+     */
+    time: string;
+    mode: LlmMode;
+};
+
+/**
+ * LLMMode
+ */
+export type LlmMode = 'API' | 'Self-hosted';
+
+/**
  * MessageCreate
  */
 export type MessageCreate = {
@@ -155,12 +175,9 @@ export type HealthHealthGetData = {
 
 export type HealthHealthGetResponses = {
     /**
-     * Response Health Health Get
      * Successful Response
      */
-    200: {
-        [key: string]: unknown;
-    };
+    200: HealthOut;
 };
 
 export type HealthHealthGetResponse = HealthHealthGetResponses[keyof HealthHealthGetResponses];

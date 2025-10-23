@@ -21,11 +21,11 @@ export const ChatHeader = ({ messageCount = 0 }: { messageCount?: number }) => {
 
 	return (
 		<header className="sticky top-0 z-20 bg-surface-warm backdrop-blur-md">
-			<div className="mx-auto flex max-w-4xl items-center px-4 py-3 sm:px-6">
+			<div className="mx-auto flex max-w-4xl items-center py-3 sm:px-6">
 				{!isSidebarOpen && isMobile && (
 					<SidebarToggle collapsed={isCollapsed} onToggle={toggleCollapse} />
 				)}
-				<div className="flex flex-1 max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
+				<div className="flex flex-1 max-w-4xl items-center justify-between py-3">
 					<div className="flex items-center gap-4 text-sm">
 						{!isOnChatsPage && (
 							<Button
