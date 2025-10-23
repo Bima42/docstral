@@ -21,7 +21,7 @@ export const SidebarDesktop = ({
 				'bg-surface-warm text-sidebar-foreground',
 				'flex flex-col overflow-hidden',
 				'transition-all duration-300 ease-in-out',
-				isCollapsed ? '' : 'border-r-1 border-sidebar-border',
+				isCollapsed ? 'border-r-1 border-surface-warm' : 'border-r-1 border-sidebar-border',
 				isCollapsed
 					? 'w-[64px] min-w-[64px] max-w-[64px]'
 					: 'w-[18%] min-w-[300px] max-w-[18%]',

@@ -52,7 +52,7 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 	if (isAssistant) {
 		return (
 			<div className="group/message flex items-start gap-3">
-				<div className="flex flex-col items-center m-0">
+				<div className="mt-3 flex flex-col items-center m-0">
 					<Logo width={30} height={15} />
 				</div>
 				<div className="min-w-0 flex-1">
