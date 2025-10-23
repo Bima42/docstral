@@ -64,10 +64,6 @@ def create_app() -> FastAPI:
     app.include_router(chats_router)
     app.include_router(auth_router)
 
-    @app.get("/", include_in_schema=False)
-    def root():
-        return {"ok": True}
-
     return app
 
 
