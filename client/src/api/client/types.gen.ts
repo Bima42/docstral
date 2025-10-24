@@ -344,7 +344,7 @@ export type UpdateChatResponses = {
 
 export type UpdateChatResponse = UpdateChatResponses[keyof UpdateChatResponses];
 
-export type StreamReplyChatChatIdStreamPostData = {
+export type StreamMessageData = {
     body: MessageCreate;
     path: {
         /**
@@ -356,16 +356,16 @@ export type StreamReplyChatChatIdStreamPostData = {
     url: '/chat/{chat_id}/stream';
 };
 
-export type StreamReplyChatChatIdStreamPostErrors = {
+export type StreamMessageErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type StreamReplyChatChatIdStreamPostError = StreamReplyChatChatIdStreamPostErrors[keyof StreamReplyChatChatIdStreamPostErrors];
+export type StreamMessageError = StreamMessageErrors[keyof StreamMessageErrors];
 
-export type StreamReplyChatChatIdStreamPostResponses = {
+export type StreamMessageResponses = {
     /**
      * Successful Response
      */

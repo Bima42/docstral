@@ -23,15 +23,16 @@ export const ChatPage = () => {
 
 			await streamMutation.mutateAsync({
 				chatId: newChat.id,
-				payload: { content }
+				content
 			});
 
 			await navigate({
 				to: '/chats/$chatId',
 				params: { chatId: newChat.id },
 			});
-		} catch {
-			toast.error('Failed to create chat');
+		} catch (error) {
+
+			toast.error(`Failed to create chat ${error}`);
 		}
 	};
 

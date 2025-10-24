@@ -21,7 +21,7 @@ export const ChatInterface = () => {
 
 	const handleSubmit = async (content: string) => {
 		if (!chat) return;
-		await streamMutation.mutateAsync({ chatId: chat.id, payload: { content } });
+		await streamMutation.mutateAsync({ chatId: chat.id, content });
 	};
 
 	if (isLoading) {

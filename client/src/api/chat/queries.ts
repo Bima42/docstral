@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { deleteChatById, getChats, streamReply, updateChatTitle } from '@/api/chat/chat';
 import { type ChatDetail, type MessageOut } from '@/api/client';
@@ -12,69 +12,80 @@ export function useChats(params?: { limit?: number; offset?: number }) {
 }
 
 export function useStreamReply() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
-		mutationFn: async ({ chatId, payload }: { chatId: string; payload: { content: string } }) => {
+		mutationFn: async ({
+			chatId,
+			content,
+		}: {
+            chatId: string;
+            content: string;
+        }) => {
 			const userMsg: MessageOut = {
 				id: `temp-user-${Date.now()}`,
 				chatId,
 				role: 'user',
-				content: payload.content,
+				content,
 				createdAt: new Date().toISOString(),
 			};
-			queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
-				prev ? { ...prev, messages: [...prev.messages || [], userMsg] } : prev,
+
+			queryClient.setQueryData<ChatDetail | undefined>(
+				['chat', chatId],
+				(prev) =>
+					prev
+						? { ...prev, messages: [...(prev.messages || []), userMsg] }
+						: prev
 			);
 
 			const assistantId = `temp-assistant-${Date.now()}`;
-			queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
-				prev
-					? {
-						...prev,
-						messages: [
-							...prev.messages || [],
-							{
-								id: assistantId,
-								chatId,
-								role: 'assistant',
-								content: '',
-								createdAt: new Date().toISOString(),
-							},
-						],
-					}
-					: prev,
+			queryClient.setQueryData<ChatDetail | undefined>(
+				['chat', chatId],
+				(prev) =>
+					prev
+						? {
+							...prev,
+							messages: [
+								...(prev.messages || []),
+								{
+									id: assistantId,
+									chatId,
+									role: 'assistant',
+									content: '',
+									createdAt: new Date().toISOString(),
+								},
+							],
+						}
+						: prev
 			);
 
 			let aggregated = '';
 
-			await streamReply(chatId, payload, {
-				onEvent: (e) => {
-					switch (e.type) {
-						case 'token': {
-							aggregated += e.content ?? '';
-							queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
-								prev
-									? {
-										...prev,
-										messages: prev.messages?.map((m) =>
-											m.id === assistantId ? { ...m, content: aggregated } : m,
-										),
-									}
-									: prev,
-							);
-							break;
+			await streamReply({
+				chatId,
+				content,
+				onChunk: (chunk) => {
+					aggregated += chunk;
+					queryClient.setQueryData<ChatDetail | undefined>(
+						['chat', chatId],
+						(prev) => {
+							if (!prev) return prev;
+							const messages = prev.messages || [];
+							const lastIdx = messages.length - 1;
+							if (lastIdx >= 0 && messages[lastIdx].id === assistantId) {
+								const updated = [...messages];
+								updated[lastIdx] = { ...updated[lastIdx], content: aggregated };
+								return { ...prev, messages: updated };
+							}
+							return prev;
 						}
-						case 'error':
-							// TODO: mark error in UI
-							break;
-						case 'done':
-						case 'start':
-						default:
-							break;
-					}
+					);
 				},
 			});
 
+			queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
 			queryClient.invalidateQueries({ queryKey: ['chats'] });
+
 			return { ok: true };
 		},
 	});
