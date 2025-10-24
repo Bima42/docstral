@@ -114,8 +114,6 @@ class LLMClient:
         """
         start = time.perf_counter()
 
-        print(self.config.model)
-        print(messages)
         try:
             stream = await self.client.chat.stream_async(
                 model=self.config.model,
