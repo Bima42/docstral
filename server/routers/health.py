@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter
 
-from llm import LLMClientFactory
+from llm import LLMClientFactory, get_llm_client
 from schemas.health import HealthOut
 
 router = APIRouter(tags=["health"])
@@ -15,7 +15,7 @@ router = APIRouter(tags=["health"])
 )
 def health() -> HealthOut:
     now = datetime.now(timezone.utc).isoformat()
-    mode = LLMClientFactory.get_mode()
+    mode = get_llm_client().mode
 
     return HealthOut.model_validate(
         {

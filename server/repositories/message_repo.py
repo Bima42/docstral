@@ -14,32 +14,26 @@ class SQLMessageRepository(MessageRepository):
         self.session = session
 
     def insert_message(
-        self, *, chat_id: UUID, content: str, role: MessageRole = "user"
+        self,
+        chat_id: UUID,
+        content: str,
+        role: MessageRole = "user",
+        latency_ms: int | None = None,
+        prompt_tokens: int | None = None,
+        completion_tokens: int | None = None,
     ) -> MessageOut:
-        message = Message(chat_id=chat_id, role=role, content=content)
+        message = Message(
+            chat_id=chat_id,
+            role=role,
+            content=content,
+            latency_ms=latency_ms,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+        )
         self.session.add(message)
         self.session.commit()
         self.session.refresh(message)
         return MessageOut.model_validate(message)
-
-    def update_message_metrics(
-        self,
-        message_id: UUID,
-        latency_ms: int | None = None,
-        prompt_tokens: int | None = None,
-        completion_tokens: int | None = None,
-    ) -> None:
-        """Update metrics for an assistant message."""
-        msg = self.session.get(Message, message_id)
-        if msg:
-            if latency_ms is not None:
-                msg.latency_ms = latency_ms
-            if prompt_tokens is not None:
-                msg.prompt_tokens = prompt_tokens
-            if completion_tokens is not None:
-                msg.completion_tokens = completion_tokens
-            self.session.add(msg)
-            self.session.commit()
 
 
 def get_message_repo(session: Session = Depends(get_session)) -> MessageRepository:

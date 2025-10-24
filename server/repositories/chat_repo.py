@@ -15,7 +15,7 @@ class SQLChatRepository(ChatRepository):
         self.session = session
 
     def list_chats(
-        self, *, user_id: UUID, limit: int = 50, offset: int = 0
+        self, user_id: UUID, limit: int = 50, offset: int = 0
     ) -> List[ChatOut]:
         statement = (
             select(Chat)
@@ -27,21 +27,21 @@ class SQLChatRepository(ChatRepository):
         chats = self.session.exec(statement).all()
         return [ChatOut.model_validate(c) for c in chats]
 
-    def get_chat(self, *, user_id: UUID, chat_id: UUID) -> ChatDetail | None:
+    def get_chat(self, user_id: UUID, chat_id: UUID) -> ChatDetail | None:
         statement = select(Chat).where(Chat.id == chat_id, Chat.user_id == user_id)
         chat = self.session.exec(statement).first()
         if not chat:
             return None
         return ChatDetail.model_validate(chat)
 
-    def create_chat(self, *, user_id: UUID, title: str | None = None) -> Chat:
+    def create_chat(self, user_id: UUID, title: str | None = None) -> ChatOut:
         chat = Chat(user_id=user_id, title=title or "New Chat")
         self.session.add(chat)
         self.session.commit()
         self.session.refresh(chat)
-        return chat
+        return ChatOut.model_validate(chat)
 
-    def update_chat(self, *, chat_id: UUID, title: str) -> ChatOut:
+    def update_chat(self, chat_id: UUID, title: str) -> ChatOut:
         chat = self.session.get(Chat, chat_id)
         if not chat:
             raise ValueError("Chat not found")
@@ -51,7 +51,7 @@ class SQLChatRepository(ChatRepository):
         self.session.refresh(chat)
         return ChatOut.model_validate(chat)
 
-    def delete_chat(self, *, chat_id: UUID) -> None:
+    def delete_chat(self, chat_id: UUID) -> None:
         chat = self.session.get(Chat, chat_id)
         if not chat:
             raise ValueError("Chat not found")

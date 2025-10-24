@@ -7,11 +7,10 @@ import redis.asyncio as redis
 import logging
 
 from core.logging import setup_logging
+from llm import set_llm_client, LLMClientFactory
 from routers import chats_router, health_router, auth_router
 
-from llm import LLMClientFactory
 from scraper.retrieval import RetrievalService, set_retrieval_service
-from services import set_llm_client
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +39,6 @@ async def lifespan(_: FastAPI):
     yield
 
     await FastAPILimiter.close()
-    await llm_client.close()
 
 
 def create_app() -> FastAPI:

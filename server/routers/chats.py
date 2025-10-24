@@ -1,15 +1,19 @@
+import logging
+import json
 from uuid import UUID
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-
 from core.auth import get_current_user
+from llm import SYSTEM_PROMPT, get_llm_client, get_mistral_tools
 from models import User
 from repositories import get_chat_repo, get_message_repo
 from repositories import ChatRepository
 from schemas import ChatDetail, ChatOut, MessageCreate, ChatCreate
 from repositories import MessageRepository
 from models import MessageRole
-from services import get_stream_orchestrator, StreamOrchestrator
+from scraper.retrieval import get_retrieval_service
+from fastapi.responses import StreamingResponse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["chats"])
 
@@ -104,18 +108,28 @@ def create_chat(
 
 @router.post(
     "/chat/{chat_id}/stream",
-    summary="Stream an assistant reply to a user message (SSE)",
+    summary="Stream an assistant reply to a user message",
+    operation_id="stream_message",
 )
-def stream_reply(
+async def stream_message(
     chat_id: UUID,
     payload: MessageCreate,
     chat_repo: ChatRepository = Depends(get_chat_repo),
-    msg_repo: MessageRepository = Depends(get_message_repo),
-    stream_orchestrator: StreamOrchestrator = Depends(get_stream_orchestrator),
+    message_repo: MessageRepository = Depends(get_message_repo),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    Stream assistant response with automatic tool call handling.
+
+    Flow:
+    1. Save user message
+    2. Check for tool calls (non-streaming invoke)
+    3. If tool call: execute retrieval, add context, stream final response
+    4. If no tool call: stream response directly
+    5. Save assistant message with usage metrics
+    """
     chat = chat_repo.get_chat(user_id=current_user.id, chat_id=chat_id)
-    if not chat or chat.user_id != current_user.id:
+    if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
 
     last_msg = chat.messages[-1] if chat.messages else None
@@ -125,15 +139,129 @@ def stream_reply(
             detail="Cannot send multiple user messages in a row",
         )
 
-    user_msg = msg_repo.insert_message(
-        chat_id=chat.id, content=payload.content, role=MessageRole.USER
+    user_message = message_repo.insert_message(
+        chat_id=chat_id,
+        role=MessageRole.USER,
+        content=payload.content,
     )
-    chat.messages.append(user_msg)
 
-    openai_msgs = [{"role": m.role.value, "content": m.content} for m in chat.messages]
+    # Build conversation history
+    chat.messages.append(user_message)
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    messages.extend(
+        [{"role": msg.role.value, "content": msg.content} for msg in chat.messages]
+    )
 
-    return stream_orchestrator.streaming_response(
-        openai_msgs=openai_msgs,
-        chat_id=chat.id,
-        msg_repo=msg_repo,
+    llm_client = get_llm_client()
+    retrieval_service = get_retrieval_service()
+    tools = get_mistral_tools() if retrieval_service else None
+
+    async def generate():
+        full_response = []
+        usage_data = None
+
+        try:
+            # Check for tool calls first (non-streaming)
+            content, usage, tool_calls = await llm_client.invoke(messages, tools=tools)
+
+            if tool_calls and retrieval_service:
+                logger.info(f"Tool calls detected: {len(tool_calls)}")
+
+                # Execute all tool calls
+                for tool_call in tool_calls:
+                    if tool_call["function"]["name"] == "search_documentation":
+                        args = json.loads(tool_call["function"]["arguments"])
+                        query = args.get("query", "")
+
+                        logger.debug(f"Searching docs: {query}")
+                        docs = retrieval_service.search(query, top_k=3)
+
+                        context = "\n\n".join(
+                            [
+                                f"**{doc['title']}**\n{doc['content']}\nSource: {doc['url']}"
+                                for doc in docs
+                            ]
+                        )
+
+                        # Append assistant message with tool call
+                        messages.append(
+                            {
+                                "role": "assistant",
+                                "content": "",
+                                "tool_calls": [
+                                    {
+                                        "id": tool_call["id"],
+                                        "type": "function",
+                                        "function": {
+                                            "name": tool_call["function"]["name"],
+                                            "arguments": tool_call["function"][
+                                                "arguments"
+                                            ],
+                                        },
+                                    }
+                                ],
+                            }
+                        )
+                        # Append tool result
+                        messages.append(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tool_call["id"],
+                                "content": context,
+                            }
+                        )
+
+                # Stream final response with context
+                async for chunk, usage in llm_client.stream(messages, tools=None):
+                    if chunk:
+                        full_response.append(chunk)
+                        yield chunk
+                    if usage:
+                        usage_data = usage
+
+            else:
+                # No tool calls - stream directly
+                # content from invoke() is already complete, but we stream for UX
+                async for chunk, usage in llm_client.stream(messages, tools=tools):
+                    if chunk:
+                        full_response.append(chunk)
+                        yield chunk
+                    if usage:
+                        usage_data = usage
+
+            final_content = "".join(full_response)
+            if not final_content:
+                final_content = "No response generated"
+
+            message_repo.insert_message(
+                chat_id=chat_id,
+                role=MessageRole.ASSISTANT,
+                content=final_content,
+                latency_ms=usage_data["latency_ms"] if usage_data else None,
+                prompt_tokens=usage_data["prompt_tokens"] if usage_data else None,
+                completion_tokens=(
+                    usage_data["completion_tokens"] if usage_data else None
+                ),
+            )
+
+        except Exception as e:
+            logger.error(f"Stream failed: {e}", exc_info=True)
+            error_message = f"Error: {str(e)}"
+            yield error_message
+
+            # Save error message
+            message_repo.insert_message(
+                chat_id=chat_id,
+                role=MessageRole.ASSISTANT,
+                content=error_message,
+            )
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
