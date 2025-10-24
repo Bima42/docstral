@@ -29,5 +29,10 @@ class Message(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
+    # Metrics (assistant messages only)
+    latency_ms: int | None = Field(default=None, nullable=True)
+    prompt_tokens: int | None = Field(default=None, nullable=True)
+    completion_tokens: int | None = Field(default=None, nullable=True)
+
     # Relationships
     chat: "Chat" = Relationship(back_populates="messages")

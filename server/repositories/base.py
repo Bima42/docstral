@@ -20,3 +20,10 @@ class MessageRepository(Protocol):
     def insert_message(
         self, *, chat_id: UUID, content: str, role: MessageRole = "user"
     ) -> MessageOut: ...
+    def update_message_metrics(
+        self,
+        message_id: UUID,
+        latency_ms: int | None = None,
+        prompt_tokens: int | None = None,
+        completion_tokens: int | None = None,
+    ) -> None: ...

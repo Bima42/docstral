@@ -47,6 +47,8 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 	}
 
 	if (isAssistant) {
+		const hasMetrics = message.latencyMs != null || message.promptTokens != null || message.completionTokens != null;
+
 		return (
 			<div className="group/message flex items-start gap-3">
 				<div className="mt-3 flex flex-col items-center m-0">
@@ -59,6 +61,21 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 					<div className="mt-2 flex items-center justify-between px-1">
 						<div className="flex items-center gap-3 text-xs text-neutral-500">
 							<span>{formatTime(message.createdAt)}</span>
+							{hasMetrics && (
+								<>
+									{message.latencyMs != null && (
+										<span className="text-neutral-400">
+											{message.latencyMs}ms
+										</span>
+									)}
+									{message.promptTokens != null &&
+                                        message.completionTokens != null && (
+										<span className="text-neutral-400">
+											{message.promptTokens}→{message.completionTokens} tokens
+										</span>
+									)}
+								</>
+							)}
 						</div>
 						<button
 							onClick={() => copyToClipboard(message.content)}

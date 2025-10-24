@@ -123,6 +123,18 @@ export type MessageOut = {
      * Createdat
      */
     createdAt: string;
+    /**
+     * Latencyms
+     */
+    latencyMs?: number | null;
+    /**
+     * Prompttokens
+     */
+    promptTokens?: number | null;
+    /**
+     * Completiontokens
+     */
+    completionTokens?: number | null;
 };
 
 /**
