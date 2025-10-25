@@ -6,12 +6,41 @@ import { common } from 'lowlight';
 import bash from 'highlight.js/lib/languages/bash';
 import yaml from 'highlight.js/lib/languages/yaml';
 import dockerfile from 'highlight.js/lib/languages/dockerfile';
+import { ExternalLink } from 'lucide-react';
+import { useMemo } from 'react';
+import { Badge } from '@/components/ui/badge.tsx';
+import { CopyButton } from '@/components/chat/CopyButton.tsx';
 
 type MarkdownRendererProps = { content: string; className?: string };
 
 export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
+	// Split content into main body and sources section
+	const { mainContent, sources } = useMemo(() => {
+		const sourcesRegex = /^## Sources\s*\n((?:\d+\.\s*\[.+?\]\(.+?\)\s*\n?)+)/mi;
+		const match = content.match(sourcesRegex);
+
+		if (!match) {
+			return { mainContent: content, sources: null };
+		}
+
+		const mainContent = content.slice(0, match.index).trim();
+		const sourcesText = match[1].trim();
+
+		const sourceLines = sourcesText.split('\n').filter(Boolean);
+		const parsedSources = sourceLines.map(line => {
+			const linkMatch = line.match(/\d+\.\s*\[(.+?)\]\((.+?)\)/);
+			if (linkMatch) {
+				return { title: linkMatch[1], url: linkMatch[2] };
+			}
+			return null;
+		}).filter(Boolean);
+
+		return { mainContent, sources: parsedSources };
+	}, [content]);
+
 	return (
 		<div className={`max-w-none text-sm leading-6 ${className}`}>
+			{/* Main content */}
 			<ReactMarkdown
 				remarkPlugins={[remarkGfm, remarkBreaks]}
 				rehypePlugins={[
@@ -56,16 +85,70 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
 							</code>
 						);
 					},
-					pre: ({ children }) => (
-						<pre className="my-4 overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
-							{children}
-						</pre>
-					)
+					pre: ({ children }) => {
+						// eslint-disable-next-line
+                        const extractTextContent = (node: any): string => {
+							if (node == null) return '';
+							if (typeof node === 'string') return node;
+							if (typeof node === 'number') return String(node);
+							if (Array.isArray(node)) {
+								return node.map(extractTextContent).join('');
+							}
+							if (typeof node === 'object' && node.props) {
+								if (node.props.children) {
+									return extractTextContent(node.props.children);
+								}
+							}
+							return '';
+						};
+
+						const codeContent = extractTextContent(children).trim();
+
+						return (
+							<div className="relative group/code">
+								<pre className="my-4 overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+									{children}
+								</pre>
+								<div className="absolute top-2 right-2 opacity-0 group-hover/code:opacity-100 transition-opacity">
+									<CopyButton
+										text={codeContent}
+										variant="icon"
+										className="bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-600"
+									/>
+								</div>
+							</div>
+						);
+					}
 				}}
 			>
-				{content}
+				{mainContent}
 			</ReactMarkdown>
-		</div>
 
+			{sources && sources.length > 0 && (
+				<div className="mt-6">
+					<h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                        Sources
+					</h2>
+					<div className="flex flex-wrap gap-2">
+						{sources.map((source, idx) => (
+							<Badge className={
+								'rounded-sm font-medium px-3 py-1.5 transition-colors border border-primary-700 bg-surface-light text-primary-700 hover:bg-primary-100 hover:border-primary-300 dark:border-primary-700 dark:hover:bg-surface-light/80 dark:hover:border-primary-600 dark:hover:text-primary-600'
+							}>
+								<a
+									key={idx}
+									href={source?.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="inline-flex items-center gap-1.5"
+								>
+									<ExternalLink className="h-3 w-3" />
+									{source?.title}
+								</a>
+							</Badge>
+						))}
+					</div>
+				</div>
+			)}
+		</div>
 	);
 }

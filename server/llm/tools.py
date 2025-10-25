@@ -5,9 +5,14 @@ SEARCH_DOCUMENTATION_TOOL = {
     "function": {
         "name": "search_documentation",
         "description": (
-            "Search Mistral AI's official documentation for information about "
-            "API usage, models, features, parameters, and code examples. "
-            "Use this when the user asks questions about Mistral AI's services or technical implementation details."
+            "Search Mistral AI's official documentation for ANY question about Mistral AI, including: "
+            "API usage, models, features, parameters, pricing, rate limits, authentication, deployment, "
+            "code examples, migration guides, and troubleshooting. "
+            "\n\n"
+            "**When to use:** Call this for EVERY user question related to Mistral AI or its services. "
+            "Do not answer from memory without checking the docs first. "
+            "\n\n"
+            "**Returns:** Relevant excerpts with document titles and URLs. You must cite these sources in your response."
         ),
         "parameters": {
             "type": "object",
@@ -15,8 +20,9 @@ SEARCH_DOCUMENTATION_TOOL = {
                 "query": {
                     "type": "string",
                     "description": (
-                        "The search query to find relevant documentation. "
-                        "Be specific and include key terms from the user's question."
+                        "A precise search query extracted from the user's question. "
+                        "Include key terms like model names, API endpoints, or feature names. "
+                        "Examples: 'mistral-large-2 pricing', 'streaming chat completion', 'function calling parameters'."
                     ),
                 }
             },
