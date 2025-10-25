@@ -59,7 +59,7 @@ export const ChatInput = ({ onSubmit, disabled = false }: ChatInputProps) => {
 		<div className="sticky bottom-0 z-20 bg-surface-warm backdrop-blur-md">
 			<div className="mx-auto max-w-4xl px-4 py-3 pb-[env(safe-area-inset-bottom)] sm:px-6">
 				<form onSubmit={handleSubmit} className="relative">
-					<div className="relative rounded-2xl border border-sidebar-border bg-surface-light transition-all focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500 dark:bg-neutral-900">
+					<div className="relative rounded-md border border-sidebar-border bg-surface-light transition-all focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500 dark:bg-neutral-900">
 						<textarea
 							ref={textareaRef}
 							value={input}
@@ -73,7 +73,7 @@ export const ChatInput = ({ onSubmit, disabled = false }: ChatInputProps) => {
 						<button
 							type="submit"
 							disabled={!input.trim() || isLoading}
-							className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500 text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-neutral-300 dark:disabled:bg-neutral-700"
+							className="absolute cursor-pointer bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-md bg-primary-500 text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-neutral-300 dark:disabled:bg-neutral-700"
 							aria-label="Send"
 						>
 							{isLoading ? (

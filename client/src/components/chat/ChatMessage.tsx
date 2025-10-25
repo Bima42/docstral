@@ -2,10 +2,16 @@ import { MarkdownRenderer } from './MarkdownRenderer';
 import { Logo } from '@/components/Logo';
 import type { MessageOut } from '@/api/client';
 import { useState } from 'react';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
-export const ChatMessage = ({ message }: { message: MessageOut }) => {
+interface ChatMessageProps {
+    message: MessageOut;
+    isOrphaned?: boolean;
+    onRetry?: () => void;
+}
+
+export const ChatMessage = ({ message, isOrphaned, onRetry }: ChatMessageProps) => {
 	const { t } = useLanguage();
 	const isUser = message.role === 'user';
 	const isAssistant = message.role === 'assistant';
@@ -29,39 +35,73 @@ export const ChatMessage = ({ message }: { message: MessageOut }) => {
 
 	if (isUser) {
 		return (
-			<div className="flex items-start justify-end gap-3">
-				<div className="flex flex-col items-end max-w-2xl">
-					<div className="rounded-2xl rounded-tr-sm bg-primary-500 px-4 py-3 text-white shadow-sm">
-						<div className="text-sm leading-relaxed whitespace-pre-wrap">
-							{message.content}
+			<div className="flex flex-col items-end gap-2">
+				<div className="flex items-start justify-end gap-3">
+					<div className="flex flex-col items-end max-w-2xl">
+						<div className="rounded-md bg-surface-light px-4 py-3 text-neutral-700 dark:text-white shadow-sm">
+							<div className="text-sm leading-relaxed whitespace-pre-wrap">
+								{message.content}
+							</div>
+						</div>
+						<div className="mt-1 flex items-center gap-2 px-1">
+							<span className="text-xs text-neutral-500">
+								{formatTime(message.createdAt)}
+							</span>
 						</div>
 					</div>
-					<div className="mt-1 flex items-center gap-2 px-1">
-						<span className="text-xs text-neutral-500">
-							{formatTime(message.createdAt)}
-						</span>
+				</div>
+				{isOrphaned && onRetry && (
+					<div className="w-full">
+						<div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900 p-3">
+							<div className="flex items-center justify-between gap-3">
+								<p className="text-sm text-red-700 dark:text-red-400">
+									{t('chat.messageFailed') || 'Failed to get response'}
+								</p>
+								<button
+									onClick={onRetry}
+									className="flex items-center gap-1.5 rounded-md bg-red-100 dark:bg-red-900/30 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 transition-colors hover:bg-red-200 dark:hover:bg-red-900/50"
+								>
+									<RefreshCw className="h-3.5 w-3.5" />
+									{t('chat.retry')}
+								</button>
+							</div>
+						</div>
 					</div>
-				</div>
-				<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
-                    U
-				</div>
+				)}
 			</div>
 		);
 	}
 
 	if (isAssistant) {
+		const hasMetrics = message.latencyMs != null || message.promptTokens != null || message.completionTokens != null;
+
 		return (
 			<div className="group/message flex items-start gap-3">
-				<div className="flex flex-col items-center m-0">
+				<div className="mt-3 flex flex-col items-center m-0">
 					<Logo width={30} height={15} />
 				</div>
 				<div className="min-w-0 flex-1">
 					<div className="text-neutral-900 dark:text-neutral-100">
 						<MarkdownRenderer content={message.content} />
 					</div>
-					<div className="mt-2 flex items-center justify-between px-1">
+					<div className="mt-2 flex items-center justify-between">
 						<div className="flex items-center gap-3 text-xs text-neutral-500">
 							<span>{formatTime(message.createdAt)}</span>
+							{hasMetrics && (
+								<>
+									{message.latencyMs != null && (
+										<span className="text-neutral-400">
+											{message.latencyMs}ms
+										</span>
+									)}
+									{message.promptTokens != null &&
+                                        message.completionTokens != null && (
+										<span className="text-neutral-400">
+											Tokens: ⭡{message.promptTokens} ⭣{message.completionTokens}
+										</span>
+									)}
+								</>
+							)}
 						</div>
 						<button
 							onClick={() => copyToClipboard(message.content)}

@@ -3,6 +3,7 @@ import { queryClient } from '@/lib/queryClient';
 import { deleteChatById, getChats, streamReply, updateChatTitle } from '@/api/chat/chat';
 import { type ChatDetail, type MessageOut } from '@/api/client';
 
+
 export function useChats(params?: { limit?: number; offset?: number }) {
 	return useQuery({
 		queryKey: ['chats', params ?? {}],
@@ -11,70 +12,100 @@ export function useChats(params?: { limit?: number; offset?: number }) {
 	});
 }
 
+export interface StreamReplyParams {
+    chatId: string;
+    content: string;
+    retry?: boolean;
+}
+
 export function useStreamReply() {
 	return useMutation({
-		mutationFn: async ({ chatId, payload }: { chatId: string; payload: { content: string } }) => {
-			const userMsg: MessageOut = {
-				id: `temp-user-${Date.now()}`,
-				chatId,
-				role: 'user',
-				content: payload.content,
-				createdAt: new Date().toISOString(),
-			};
-			queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
-				prev ? { ...prev, messages: [...prev.messages || [], userMsg] } : prev,
-			);
+		mutationFn: async ({ chatId, content, retry = false }: StreamReplyParams) => {
+			// If not retry, add optimistic user message
+			if (!retry) {
+				const userMsg: MessageOut = {
+					id: `temp-user-${Date.now()}`,
+					chatId,
+					role: 'user',
+					content,
+					createdAt: new Date().toISOString(),
+				};
+
+				queryClient.setQueryData<ChatDetail | undefined>(
+					['chat', chatId],
+					(prev) =>
+						prev
+							? { ...prev, messages: [...(prev.messages || []), userMsg] }
+							: prev
+				);
+			}
 
 			const assistantId = `temp-assistant-${Date.now()}`;
-			queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
-				prev
-					? {
-						...prev,
-						messages: [
-							...prev.messages || [],
-							{
-								id: assistantId,
-								chatId,
-								role: 'assistant',
-								content: '',
-								createdAt: new Date().toISOString(),
-							},
-						],
-					}
-					: prev,
+			queryClient.setQueryData<ChatDetail | undefined>(
+				['chat', chatId],
+				(prev) =>
+					prev
+						? {
+							...prev,
+							messages: [
+								...(prev.messages || []),
+								{
+									id: assistantId,
+									chatId,
+									role: 'assistant',
+									content: '',
+									createdAt: new Date().toISOString(),
+								},
+							],
+						}
+						: prev
 			);
 
 			let aggregated = '';
 
-			await streamReply(chatId, payload, {
-				onEvent: (e) => {
-					switch (e.type) {
-						case 'token': {
-							aggregated += e.content ?? '';
-							queryClient.setQueryData<ChatDetail | undefined>(['chat', chatId], (prev) =>
-								prev
-									? {
-										...prev,
-										messages: prev.messages?.map((m) =>
-											m.id === assistantId ? { ...m, content: aggregated } : m,
-										),
-									}
-									: prev,
-							);
-							break;
-						}
-						case 'error':
-							// TODO: mark error in UI
-							break;
-						case 'done':
-						case 'start':
-						default:
-							break;
+			try {
+				await streamReply({
+					chatId,
+					content,
+					retry,
+					onChunk: (chunk) => {
+						aggregated += chunk;
+						queryClient.setQueryData<ChatDetail | undefined>(
+							['chat', chatId],
+							(prev) => {
+								if (!prev) return prev;
+								const messages = prev.messages || [];
+								const lastIdx = messages.length - 1;
+								if (lastIdx >= 0 && messages[lastIdx].id === assistantId) {
+									const updated = [...messages];
+									updated[lastIdx] = { ...updated[lastIdx], content: aggregated };
+									return { ...prev, messages: updated };
+								}
+								return prev;
+							}
+						);
+					},
+				});
+			} catch (error) {
+				// Remove failed assistant message on error
+				queryClient.setQueryData<ChatDetail | undefined>(
+					['chat', chatId],
+					(prev) => {
+						if (!prev) return prev;
+						const messages = prev.messages || [];
+						return {
+							...prev,
+							messages: messages.filter((m) => m.id !== assistantId),
+						};
 					}
-				},
-			});
+				);
+				throw error;
+			}
 
-			queryClient.invalidateQueries({ queryKey: ['chats'] });
+			// Refetch to get server state
+			await queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
+			await queryClient.invalidateQueries({ queryKey: ['chats'] });
+
 			return { ok: true };
 		},
 	});

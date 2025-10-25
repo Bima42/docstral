@@ -73,6 +73,26 @@ export type HttpValidationError = {
 };
 
 /**
+ * HealthOut
+ */
+export type HealthOut = {
+    /**
+     * Status
+     */
+    status?: string;
+    /**
+     * Time
+     */
+    time: string;
+    mode: LlmMode;
+};
+
+/**
+ * LLMMode
+ */
+export type LlmMode = 'API' | 'Self-hosted';
+
+/**
  * MessageCreate
  */
 export type MessageCreate = {
@@ -103,6 +123,18 @@ export type MessageOut = {
      * Createdat
      */
     createdAt: string;
+    /**
+     * Latencyms
+     */
+    latencyMs?: number | null;
+    /**
+     * Prompttokens
+     */
+    promptTokens?: number | null;
+    /**
+     * Completiontokens
+     */
+    completionTokens?: number | null;
 };
 
 /**
@@ -146,24 +178,21 @@ export type ValidationError = {
     type: string;
 };
 
-export type HealthHealthGetData = {
+export type HealthGetData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/health';
 };
 
-export type HealthHealthGetResponses = {
+export type HealthGetResponses = {
     /**
-     * Response Health Health Get
      * Successful Response
      */
-    200: {
-        [key: string]: unknown;
-    };
+    200: HealthOut;
 };
 
-export type HealthHealthGetResponse = HealthHealthGetResponses[keyof HealthHealthGetResponses];
+export type HealthGetResponse = HealthGetResponses[keyof HealthGetResponses];
 
 export type ListChatsData = {
     body?: never;
@@ -315,7 +344,7 @@ export type UpdateChatResponses = {
 
 export type UpdateChatResponse = UpdateChatResponses[keyof UpdateChatResponses];
 
-export type StreamReplyChatChatIdStreamPostData = {
+export type StreamMessageData = {
     body: MessageCreate;
     path: {
         /**
@@ -327,16 +356,16 @@ export type StreamReplyChatChatIdStreamPostData = {
     url: '/chat/{chat_id}/stream';
 };
 
-export type StreamReplyChatChatIdStreamPostErrors = {
+export type StreamMessageErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type StreamReplyChatChatIdStreamPostError = StreamReplyChatChatIdStreamPostErrors[keyof StreamReplyChatChatIdStreamPostErrors];
+export type StreamMessageError = StreamMessageErrors[keyof StreamMessageErrors];
 
-export type StreamReplyChatChatIdStreamPostResponses = {
+export type StreamMessageResponses = {
     /**
      * Successful Response
      */

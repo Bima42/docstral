@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY server/ .
 
-COPY docker/server/entrypoint /entrypoint
+COPY docker/local/server/entrypoint /entrypoint
 RUN chmod +x /entrypoint
 
 ENTRYPOINT ["/entrypoint"]

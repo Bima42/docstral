@@ -1,11 +1,11 @@
-import { fetchSse } from '@/api/http';
 import {
 	type ChatCreate,
 	createChatChatsPost, deleteChat, getChatById,
 	listChats,
-	type MessageCreate, updateChat
+	updateChat
 } from '@/api/client';
 import { getAuthHeaders } from '@/api/auth/auth';
+import { BASE_API_URL } from '@/config';
 
 export async function getChats(params?: { limit?: number; offset?: number }) {
 	const { data } = await listChats({
@@ -48,33 +48,67 @@ export async function deleteChatById(chatId: string) {
 	return response.status === 204;
 }
 
-export type StreamEvent =
-    | { type: 'start' }
-    | { type: 'token'; content: string }
-    | { type: 'done' }
-    | { type: 'error'; error: string };
 
-export async function streamReply(
-	chatId: string,
-	payload: MessageCreate,
-	opts: {
-        signal?: AbortSignal;
-        onEvent: (e: StreamEvent) => void;
-    },
-) {
-	return fetchSse(`/chat/${chatId}/stream`, {
+export interface StreamReplyOptions {
+    chatId: string;
+    content: string;
+    onChunk: (chunk: string) => void;
+    signal?: AbortSignal;
+    retry?: boolean;
+}
+
+/**
+ * Consume stream from /chat/{chat_id}/stream.
+ * Bypasses HeyAPI wrapper to access raw ReadableStream.
+ */
+export async function streamReply({
+	chatId,
+	content,
+	onChunk,
+	signal,
+	retry = false,
+}: StreamReplyOptions): Promise<void> {
+	const authHeaders = getAuthHeaders();
+	const url = `${BASE_API_URL}/chat/${chatId}/stream${retry ? '?retry=true' : ''}`;
+
+	const response = await fetch(url, {
 		method: 'POST',
-		body: JSON.stringify(payload),
-		signal: opts.signal,
-		onMessage: ({ event, data }) => {
-			if (event !== 'message') return;
-			try {
-				const parsed = JSON.parse(data) as StreamEvent;
-				if (!parsed || typeof parsed !== 'object' || !('type' in parsed)) return;
-				opts.onEvent(parsed);
-			} catch {
-				// ignore malformed data chunks
-			}
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': authHeaders.Authorization || '',
 		},
+		body: JSON.stringify({ content }),
+		signal,
 	});
+
+	if (!response.ok) {
+		throw new Error(`Stream failed: ${response.status}`);
+	}
+
+	const reader = response.body?.getReader();
+	if (!reader) {
+		throw new Error('No response body');
+	}
+
+	const decoder = new TextDecoder();
+	let buffer = '';
+
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			buffer += decoder.decode(value, { stream: true });
+			const lines = buffer.split('\n');
+			buffer = lines.pop() || '';
+
+			for (const line of lines) {
+				if (line.trim()) {
+					onChunk(line);
+				}
+			}
+		}
+	} finally {
+		reader.releaseLock();
+	}
 }

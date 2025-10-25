@@ -13,6 +13,10 @@ class MessageOut(BaseModel):
     content: str
     created_at: datetime = Field(alias="createdAt")
 
+    latency_ms: int | None = Field(default=None, alias="latencyMs")
+    prompt_tokens: int | None = Field(default=None, alias="promptTokens")
+    completion_tokens: int | None = Field(default=None, alias="completionTokens")
+
     model_config = ConfigDict(
         populate_by_name=True,
         serialize_by_alias=True,

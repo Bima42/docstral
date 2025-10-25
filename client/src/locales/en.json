@@ -43,6 +43,8 @@
     "startConversationPrompt": "Ask me about Mistral models, SDKs, or implementation details.",
     "noMessages": "No messages yet.",
     "notFound": "Chat not found.",
+    "messageFailed": "An error occurred while sending the message.",
+    "retry": "Retry",
 
     "deleteDialog": {
       "title": "Delete chat?",

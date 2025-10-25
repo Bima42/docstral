@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateChatChatsPostData, CreateChatChatsPostErrors, CreateChatChatsPostResponses, DeleteChatData, DeleteChatErrors, DeleteChatResponses, GetChatByIdData, GetChatByIdErrors, GetChatByIdResponses, HealthHealthGetData, HealthHealthGetResponses, ListChatsData, ListChatsErrors, ListChatsResponses, StreamReplyChatChatIdStreamPostData, StreamReplyChatChatIdStreamPostErrors, StreamReplyChatChatIdStreamPostResponses, UpdateChatData, UpdateChatErrors, UpdateChatResponses, VerifyTokenAuthVerifyPostData, VerifyTokenAuthVerifyPostResponses } from './types.gen';
+import type { CreateChatChatsPostData, CreateChatChatsPostErrors, CreateChatChatsPostResponses, DeleteChatData, DeleteChatErrors, DeleteChatResponses, GetChatByIdData, GetChatByIdErrors, GetChatByIdResponses, HealthGetData, HealthGetResponses, ListChatsData, ListChatsErrors, ListChatsResponses, StreamMessageData, StreamMessageErrors, StreamMessageResponses, UpdateChatData, UpdateChatErrors, UpdateChatResponses, VerifyTokenAuthVerifyPostData, VerifyTokenAuthVerifyPostResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -19,10 +19,10 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 /**
- * Health check
+ * Get service health status
  */
-export const healthHealthGet = <ThrowOnError extends boolean = false>(options?: Options<HealthHealthGetData, ThrowOnError>) => {
-	return (options?.client ?? client).get<HealthHealthGetResponses, unknown, ThrowOnError>({
+export const healthGet = <ThrowOnError extends boolean = false>(options?: Options<HealthGetData, ThrowOnError>) => {
+	return (options?.client ?? client).get<HealthGetResponses, unknown, ThrowOnError>({
 		url: '/health',
 		...options
 	});
@@ -117,10 +117,18 @@ export const updateChat = <ThrowOnError extends boolean = false>(options: Option
 };
 
 /**
- * Stream an assistant reply to a user message (SSE)
+ * Stream an assistant reply to a user message
+ * Stream assistant response with automatic tool call handling.
+ *
+ * Flow:
+ * 1. Save user message
+ * 2. Check for tool calls (non-streaming invoke)
+ * 3. If tool call: execute retrieval, add context, stream final response
+ * 4. If no tool call: stream response directly
+ * 5. Save assistant message with usage metrics
  */
-export const streamReplyChatChatIdStreamPost = <ThrowOnError extends boolean = false>(options: Options<StreamReplyChatChatIdStreamPostData, ThrowOnError>) => {
-	return (options.client ?? client).post<StreamReplyChatChatIdStreamPostResponses, StreamReplyChatChatIdStreamPostErrors, ThrowOnError>({
+export const streamMessage = <ThrowOnError extends boolean = false>(options: Options<StreamMessageData, ThrowOnError>) => {
+	return (options.client ?? client).post<StreamMessageResponses, StreamMessageErrors, ThrowOnError>({
 		security: [
 			{
 				scheme: 'bearer',

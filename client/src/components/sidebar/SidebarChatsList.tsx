@@ -136,7 +136,7 @@ const ChatItem = ({
 					'group/item flex w-full items-start gap-2 rounded-md px-2 py-2',
 					'text-sidebar-foreground hover:bg-sidebar-accent/80',
 					'transition-colors',
-					isActive ? 'bg-sidebar-accent' : '',
+					isActive ? 'bg-sidebar-accent/80' : '',
 				].join(' ')}
 			>
 				<button

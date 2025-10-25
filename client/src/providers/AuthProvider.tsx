@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { verifyTokenRequest } from '@/api/auth/auth';
-import { setTokenProvider } from '@/api/http';
 import { useNavigate } from '@tanstack/react-router';
 import { TOKEN_STORAGE_KEY } from '@/config';
 import type { UserOut } from '@/api/client';
@@ -25,10 +24,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(TOKEN_STORAGE_KEY));
 	const [status, setStatus] = useState<AuthState['status']>(token ? 'checking' : 'idle');
 	const [error, setError] = useState<string | undefined>(undefined);
-
-	useEffect(() => {
-		setTokenProvider(() => token);
-	}, [token]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -81,7 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	const logout = () => {
 		navigate({ to: '/' });
-		setTokenProvider(() => null);
 		setToken(null);
 		sessionStorage.removeItem(TOKEN_STORAGE_KEY);
 		setStatus('idle');

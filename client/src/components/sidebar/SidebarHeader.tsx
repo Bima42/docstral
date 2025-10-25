@@ -11,7 +11,7 @@ export const SidebarHeader = ({ collapsed, onToggleCollapse }: SidebarHeaderProp
 	return (
 		<div className="flex items-center gap-2 px-2 py-2">
 			{!collapsed && (<>
-				<div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg shrink-0">
+				<div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md shrink-0">
 					<User className="size-4" />
 				</div>
 
