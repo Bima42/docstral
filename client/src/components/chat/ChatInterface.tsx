@@ -6,6 +6,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useParams } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getChat } from '@/api/chat/chat';
+import { toast } from 'sonner';
 
 export const ChatInterface = () => {
 	const { t } = useLanguage();
@@ -23,6 +24,8 @@ export const ChatInterface = () => {
 		if (!chat) return;
 		await streamMutation.mutateAsync({ chatId: chat.id, content });
 	};
+
+	toast.error('This is an error message');
 
 	if (isLoading) {
 		return (

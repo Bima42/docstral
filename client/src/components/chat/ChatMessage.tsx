@@ -38,7 +38,7 @@ export const ChatMessage = ({ message, isOrphaned, onRetry }: ChatMessageProps) 
 			<div className="flex flex-col items-end gap-2">
 				<div className="flex items-start justify-end gap-3">
 					<div className="flex flex-col items-end max-w-2xl">
-						<div className="rounded-2xl rounded-tr-sm bg-surface-light px-4 py-3 text-neutral-700 dark:text-white shadow-sm">
+						<div className="rounded-md bg-surface-light px-4 py-3 text-neutral-700 dark:text-white shadow-sm">
 							<div className="text-sm leading-relaxed whitespace-pre-wrap">
 								{message.content}
 							</div>

@@ -1,11 +1,14 @@
 import { Toaster as Sonner } from 'sonner';
+import { useUIStore } from '@/stores/ui';
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
+	const theme = useUIStore((s) => s.theme);
+
 	return (
 		<Sonner
-			theme="system"
+			theme={theme}
 			className="toaster group"
 			toastOptions={{
 				classNames: {

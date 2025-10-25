@@ -12,9 +12,9 @@ const getElectronPlugin = () => {
 	if (!isLocal) {
 		return electron({
 			main: {
-				entry: 'electron/main.ts',
+				entry: 'electron/main',
 			},
-			preload: { input: { preload: 'electron/preload.ts' } },
+			preload: { input: { preload: 'electron/preload' } },
 		});
 	}
 	return null;
