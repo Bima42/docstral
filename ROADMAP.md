@@ -9,27 +9,18 @@ The first release is a minimal viable product—a "Le Chat"‑like chat applicat
 - Basic authentication and data schemas
 - Clean, working foundation
 
-![mvp_architecture.png](docs/mvp_architecture.png)
+![docstral_flow.png](docs/docstral_flow.png)
 
 ## What's Next
 
-### Phase 1: Enhancement and Private Deployment
+### Phase 1: Update Scraper & Ingestion
 
-Deploy the application (likely via [Dockploy](https://dockploy.com)) and keep it private for a limited time. If you'd like early access, reach out directly via [LinkedIn](https://www.linkedin.com/in/tanguy-pauvret) or [GitHub](https://github.com/Bima42).
+The Mistral documentation has changed recently. The first priority is to update the scraper and ingestion pipeline to reflect these changes.
 
-### Phase 2: Self‑Hosted Model
+### Phase 2: Implement Electron with some features
 
-Replace Mistral API calls with a self‑hosted Mistral model using [vLLM](https://github.com/vllm-project/vllm).
-Add more metrics and monitoring to the chat interface.
-
-### Phase 3: RAG System
-
-In parallel with Phase 2:
-
-- Scrape the entire Mistral documentation and model references
-- Build a lightweight RAG (Retrieval‑Augmented Generation) system
-- Enforce the model to respond **only** to questions related to Mistral and its documentation
-
+I would like to improve my knowledge of Electron by creating a desktop version of DocStral.
+I don't know yet which features will be included in this version, but I plan to explore the possibilities offered by Electron.
 
 ## Quality Improvements
 
