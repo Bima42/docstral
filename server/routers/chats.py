@@ -188,11 +188,11 @@ async def stream_message(
                         query = args.get("query", "")
 
                         logger.debug(f"Searching docs: {query}")
-                        docs = retrieval_service.search(query, top_k=3)
+                        docs = await retrieval_service.search(query, top_k=3)
 
                         context = "\n\n".join(
                             [
-                                f"**{doc['title']}**\n{doc['content']}\nSource: {doc['url']}"
+                                f"**{doc.title}**\n{doc.chunk}\nSource: {doc.url}"
                                 for doc in docs
                             ]
                         )
