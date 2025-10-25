@@ -43,6 +43,8 @@ services:
       APP_ENV: production
       DOCSTRAL_MISTRAL_API_KEY: ${DOCSTRAL_MISTRAL_API_KEY}
       DOCSTRAL_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - /home/ubuntu/docstral_data:/app/server/scraper/data
     networks:
       - docstral_network
     depends_on:
