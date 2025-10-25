@@ -2,7 +2,7 @@
 
 The server is the backbone of this project, a lightweight Python service built to handle conversations with a LLM that has access to Mistral's documentation. The goal wasn't to build production-grade infrastructure with all the bells and whistles, but rather to create something functional, maintainable, and honest about what it is: a sandbox project for exploring RAG-based chat.
 
-The architecture is deliberately simple. We have a FastAPI server handling HTTP requests, SQLModel for persistence, and a small constellation of modules dealing with the LLM interaction, retrieval, and data processing. Everything lives in Python because, frankly, I didn't want to juggle a Node.js proxy just to keep the LLM tooling where it belongs. Having already tried managing this with Typescript once, I had no desire to repeat the experience.
+The architecture is deliberately simple. We have a FastAPI server handling HTTP requests, SQLModel for persistence, and a small constellation of modules dealing with the LLM interaction, retrieval, and data processing. Everything lives in Python because, frankly, I didn't want to juggle a Node.js proxy just to keep the LLM tooling where it belongs. Having already tried managing this with Typescript once, I had no desire to repeat the experience. Even though lately, we can see that the TS universe is increasingly up to date on LLMs.
 
 I've worked with FastAPI enough times to trust it for something like this. It's fast to develop with, the automatic API documentation is genuinely useful, and the async support is first-class. SQLModel felt like a natural companion since it's maintained by the same people and sits cleanly on top of SQLAlchemy. For a project of this scale, it hits the sweet spot between simplicity and capability.
 
@@ -113,9 +113,14 @@ SEARCH_DOCUMENTATION_TOOL = {
     "function": {
         "name": "search_documentation",
         "description": (
-            "Search Mistral AI's official documentation for information about "
-            "API usage, models, features, parameters, and code examples. "
-            "Use this when the user asks questions about Mistral AI's services or technical implementation details."
+            "Search Mistral AI's official documentation for ANY question about Mistral AI, including: "
+            "API usage, models, features, parameters, pricing, rate limits, authentication, deployment, "
+            "code examples, migration guides, and troubleshooting. "
+            "\n\n"
+            "**When to use:** Call this for EVERY user question related to Mistral AI or its services. "
+            "Do not answer from memory without checking the docs first. "
+            "\n\n"
+            "**Returns:** Relevant excerpts with document titles and URLs. You must cite these sources in your response."
         ),
         "parameters": {
             "type": "object",
@@ -123,8 +128,9 @@ SEARCH_DOCUMENTATION_TOOL = {
                 "query": {
                     "type": "string",
                     "description": (
-                        "The search query to find relevant documentation. "
-                        "Be specific and include key terms from the user's question."
+                        "A precise search query extracted from the user's question. "
+                        "Include key terms like model names, API endpoints, or feature names. "
+                        "Examples: 'mistral-large-2 pricing', 'streaming chat completion', 'function calling parameters'."
                     ),
                 }
             },
@@ -142,138 +148,81 @@ The tool-based approach is cleaner conceptually and more token-efficient in prac
 
 ## Deployment and LLM Client Architecture
 
-The final piece of the puzzle is actually talking to a LLM. I wanted flexibility here because I knew I'd be bouncing between self-hosted models and Mistral's API depending on cost and convenience.
+The system supports two LLM modes: **Mistral API** (default) and **self-hosted** (with vLLM).
 
-Self-hosting with vLLM on Runpod has been great for testing, but it's expensive to leave running 24/7. Eventually I want to move to something like Infomaniak, but that's a future problem. For now, I needed an architecture that could swap between providers without rewriting half the codebase.
+The architecture wraps **Mistral's official SDK**. A factory reads environment variables and returns a configured `LLMClient`; the rest of the app just calls `invoke()` or `stream()`.
 
-The solution was to build a common `BaseLLMClient` interface that both the self-hosted and API clients inherit from. They share the same streaming logic, SSE parsing, and tool-call accumulation, but each subclass provides its own URL, headers, and payload formatting.
+**Why this approach:**
+- Mistral's SDK handles auth, chunk parsing, and reconnection logic—no need to reinvent it
+- Self-hosted endpoints (vLLM, LM Studio, etc.) work out-of-the-box via `base_url` override
+- Swapping providers = changing three env vars
 
-Here's the base class in action:
+---
+
+### Client Interface
 
 ```python
-class BaseLLMClient(ABC):
-    """Abstract LLM client. All implementations must stream OpenAI-format chunks."""
-
-    @abstractmethod
-    async def stream_chat(
-        self,
-        messages: list[dict],
-        tools: Optional[list[dict]] = None,
-    ) -> AsyncGenerator[str, None]:
-        """Yield content tokens from the assistant reply."""
+class LLMClient:
+    async def invoke(
+        self, messages: list[dict], tools: list[dict] | None = None
+    ) -> tuple[str, dict, list[dict] | None]:
+        """Returns (content, usage, tool_calls)."""
         ...
 
-    @abstractmethod
-    async def health_check(self) -> bool:
-        """Return True if the service is reachable."""
+    async def stream(
+        self, messages: list[dict], tools: list[dict] | None = None
+    ) -> AsyncGenerator[tuple[str, dict | None], None]:
+        """Yields (chunk, usage). Usage dict comes on final chunk."""
         ...
-
-    @abstractmethod
-    async def close(self) -> None:
-        """Clean up resources."""
-        ...
-        
-class LLMClient(BaseLLMClient):
-        """
-        Base class for any OpenAI-compatible streaming API (Mistral, vLLM, Groq, etc.).
-        Handles HTTP client lifecycle, SSE parsing, and tool-call delta accumulation.
-        Subclasses implement URL/headers/payload hooks.
-        """
-    
-        def __init__(
-            self, config: LLMConfig, http_client: Optional[httpx.AsyncClient] = None
-        ):
-            self.config = config
-            timeout = httpx.Timeout(
-                config.timeout,
-                read=config.read_timeout,
-                connect=config.connect_timeout,
-            )
-            self._http_client = http_client or httpx.AsyncClient(timeout=timeout)
-            self._owns_client = http_client is None
-    
-        @abstractmethod
-        def _build_url(self) -> str:
-            """Return the full URL for chat completions."""
-            ...
-    
-        @abstractmethod
-        def _build_headers(self) -> dict[str, str]:
-            """Return HTTP headers (auth + content-type)."""
-            ...
-    
-        def _build_payload(
-            self, messages: list[dict], tools: Optional[list[dict]] = None
-        ) -> dict:
-            """Build the JSON payload. Override if you need custom fields."""
-            ...
-    
-        async def stream_chat(
-            self,
-            messages: list[dict],
-            tools: Optional[list[dict]] = None,
-        ) -> AsyncGenerator[str | dict, None]:
-            """
-            Stream SSE from OpenAI-compatible API.
-            Yields content strings OR {"tool_calls": [...]} dict on finish.
-            """
-            ...
 ```
 
-The concrete `LLMClient` class handles all the HTTP plumbing, parsing, and delta accumulation for tool calls. Subclasses just implement a few hooks:
+Both methods accept standard OpenAI-format messages and tool definitions. `invoke()` blocks until complete; `stream()` yields text chunks incrementally. Usage tracking (tokens, latency) is baked into both.
+
+---
+
+### Configuration
+
+Two config classes, both Pydantic models:
 
 ```python
-class MistralAPIClient(LLMClient):
-    def _build_url(self) -> str:
-        return "https://api.mistral.ai/v1/chat/completions"
-    
-    def _build_headers(self) -> dict[str, str]:
-        return {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+class MistralConfig(LLMConfig):
+    api_key: str
+    base_url: str = "https://api.mistral.ai"
+    model: str = "ministral-3b-2410"
+
+class SelfHostedConfig(LLMConfig):
+    base_url: str  # e.g. "http://runpod.example/v1"
+    model: str = "mistralai/Mistral-7B-Instruct-v0.3"
+    api_key: str
+```
+
+Each has a `.from_env()` static method that reads env vars like `DOCSTRAL_MISTRAL_API_KEY`, `LLM_MODE`, `SELF_HOSTED_LLM_URL`, etc.
+
+The factory tries self-hosted first (if `LLM_MODE=self-hosted` and `SELF_HOSTED_LLM_URL` is set), falls back to API mode otherwise. This makes local dev and production deploy identical—just swap `.env` files.
+
+---
+
+### Tool Call Handling
+
+Tool calls come back fully formed from the SDK—no manual delta accumulation needed. In `invoke()`, we check `choice.message.tool_calls` and normalize to a simple dict:
+
+```python
+if choice.message.tool_calls:
+    tool_calls = [
+        {
+            "id": tc.id,
+            "function": {
+                "name": tc.function.name,
+                "arguments": tc.function.arguments,
+            },
         }
+        for tc in choice.message.tool_calls
+    ]
 ```
 
-The self-hosted vLLM client looks nearly identical. This separation made testing easier, allowed me to switch providers with a config change, and kept the core streaming logic DRY.
+Streaming doesn't currently expose partial tool calls; we'd need to track `finish_reason` and accumulate deltas if that becomes necessary. For now, RAG queries use `invoke()` and conversational turns use `stream()`.
 
-One subtlety worth mentioning: tool calls come back as deltas across multiple SSE events, so we accumulate them until the stream finishes with a `finish_reason` of `"tool_calls"`. Only then do we yield the complete tool call dict back to the caller. This matches how OpenAI's API works and makes the client more reusable if I want to plug in other providers later.
-
-```python
-# Accumulate tool call deltas
-if "tool_calls" in delta:
-    for tc_delta in delta["tool_calls"]:
-        idx = tc_delta.get("index", 0)
-        if idx not in accumulated_tool_calls:
-            accumulated_tool_calls[idx] = {
-                "id": tc_delta.get("id", ""),
-                "type": tc_delta.get("type", "function"),
-                "function": {
-                    "name": "",
-                    "arguments": "",
-                },
-            }
-
-        if "id" in tc_delta:
-            accumulated_tool_calls[idx]["id"] = tc_delta["id"]
-
-        if "function" in tc_delta:
-            func_delta = tc_delta["function"]
-            if "name" in func_delta:
-                accumulated_tool_calls[idx]["function"][
-                    "name"
-                ] += func_delta["name"]
-            if "arguments" in func_delta:
-                accumulated_tool_calls[idx]["function"][
-                    "arguments"
-                ] += func_delta["arguments"]
-
-# Yield content if present
-message = ChatCompletionMessage(**delta)
-if message.content:
-    yield message.content
-```
-
-It's a bit fiddly, but it works reliably, and it means the rest of the system doesn't have to care about how tool calls are chunked across the wire.
+---
 
 ## Overview of the flow
 
