@@ -11,6 +11,7 @@ import {
 	AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 import type { ChatOut } from '@/api/client';
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
@@ -54,7 +55,7 @@ const ChatActions = ({
 	onDelete,
 }: ChatActionsProps) => {
 	const { t } = useLanguage();
-    
+
 	const handleRename = () => {
 		onOpenChange(false);
 		onRename(chatId, currentTitle);
@@ -68,14 +69,15 @@ const ChatActions = ({
 	return (
 		<Popover open={isOpen} onOpenChange={onOpenChange}>
 			<PopoverTrigger asChild>
-				<button
-					type="button"
+				<Button
+					variant="ghost"
+					size="icon"
 					onClick={(e) => e.stopPropagation()}
-					className="p-1 rounded opacity-0 group-hover/item:opacity-100 transition-opacity hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/50 cursor-pointer"
+					className="h-6 w-6 p-1 rounded opacity-0 group-hover/item:opacity-100 transition-opacity hover:bg-sidebar-accent"
 					aria-label="Chat options"
 				>
 					<MoreVertical className="w-4 h-4 text-sidebar-foreground/60"/>
-				</button>
+				</Button>
 			</PopoverTrigger>
 			<PopoverContent
 				className="w-40 p-1 border-none"
@@ -83,20 +85,20 @@ const ChatActions = ({
 				side="right"
 				onClick={(e) => e.stopPropagation()}
 			>
-				<button
-					type="button"
+				<Button
+					variant="ghost"
 					onClick={handleRename}
-					className="w-full px-3 py-2 text-left text-sm rounded hover:bg-sidebar-accent/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/50 cursor-pointer"
+					className="w-full justify-start px-3 py-2 h-auto text-sm rounded hover:bg-sidebar-accent/80 font-normal"
 				>
 					{t('common.rename')}
-				</button>
-				<button
-					type="button"
+				</Button>
+				<Button
+					variant="ghost"
 					onClick={handleDelete}
-					className="w-full px-3 py-2 text-left text-sm rounded text-red hover:bg-red-100 dark:hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/50 cursor-pointer"
+					className="w-full justify-start px-3 py-2 h-auto text-sm rounded text-red hover:bg-red-100 dark:hover:bg-red-500/10 font-normal"
 				>
 					{t('common.delete')}
-				</button>
+				</Button>
 			</PopoverContent>
 		</Popover>
 	);
@@ -139,13 +141,13 @@ const ChatItem = ({
 					isActive ? 'bg-sidebar-accent/80' : '',
 				].join(' ')}
 			>
-				<button
-					type="button"
+				<Button
+					variant="ghost"
 					title={chat.title}
 					onClick={() => !isEditing && onSelect()}
-					className="flex-1 min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/50 rounded"
+					className="flex-1 min-w-0 h-auto justify-start p-0 hover:bg-transparent font-normal"
 				>
-					<div className="grid text-sm leading-tight px-1">
+					<div className="grid text-sm leading-tight px-1 w-full">
 						{isEditing ? (
 							<input
 								type="text"
@@ -160,13 +162,13 @@ const ChatItem = ({
 								className="w-full px-1 py-0.5 rounded bg-sidebar-accent border border-sidebar-border focus:outline-none focus:ring-2 focus:ring-sidebar-ring/50"
 							/>
 						) : (
-							<span className="truncate font-medium">{chat.title}</span>
+							<span className="truncate font-medium text-left">{chat.title}</span>
 						)}
-						<span className="truncate text-xs text-sidebar-foreground/60">
+						<span className="truncate text-xs text-sidebar-foreground/60 text-left">
 							{chat.subtitle}
 						</span>
 					</div>
-				</button>
+				</Button>
 
 				<ChatActions
 					chatId={chat.id}

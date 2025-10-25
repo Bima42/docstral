@@ -9,6 +9,7 @@ import dockerfile from 'highlight.js/lib/languages/dockerfile';
 import { ExternalLink } from 'lucide-react';
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge.tsx';
+import { CopyButton } from '@/components/chat/CopyButton.tsx';
 
 type MarkdownRendererProps = { content: string; className?: string };
 
@@ -84,11 +85,40 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
 							</code>
 						);
 					},
-					pre: ({ children }) => (
-						<pre className="my-4 overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
-							{children}
-						</pre>
-					)
+					pre: ({ children }) => {
+						// eslint-disable-next-line
+                        const extractTextContent = (node: any): string => {
+							if (node == null) return '';
+							if (typeof node === 'string') return node;
+							if (typeof node === 'number') return String(node);
+							if (Array.isArray(node)) {
+								return node.map(extractTextContent).join('');
+							}
+							if (typeof node === 'object' && node.props) {
+								if (node.props.children) {
+									return extractTextContent(node.props.children);
+								}
+							}
+							return '';
+						};
+
+						const codeContent = extractTextContent(children).trim();
+
+						return (
+							<div className="relative group/code">
+								<pre className="my-4 overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+									{children}
+								</pre>
+								<div className="absolute top-2 right-2 opacity-0 group-hover/code:opacity-100 transition-opacity">
+									<CopyButton
+										text={codeContent}
+										variant="icon"
+										className="bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-600"
+									/>
+								</div>
+							</div>
+						);
+					}
 				}}
 			>
 				{mainContent}

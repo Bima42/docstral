@@ -1,9 +1,10 @@
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { Logo } from '@/components/Logo';
+import { Button } from '@/components/ui/button';
 import type { MessageOut } from '@/api/client';
-import { useState } from 'react';
-import { Check, Copy, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
+import { CopyButton } from '@/components/chat/CopyButton.tsx';
 
 interface ChatMessageProps {
     message: MessageOut;
@@ -15,23 +16,12 @@ export const ChatMessage = ({ message, isOrphaned, onRetry }: ChatMessageProps) 
 	const { t } = useLanguage();
 	const isUser = message.role === 'user';
 	const isAssistant = message.role === 'assistant';
-	const [copied, setCopied] = useState(false);
 
 	const formatTime = (iso: string) =>
 		new Intl.DateTimeFormat('en-US', {
 			hour: '2-digit',
 			minute: '2-digit',
 		}).format(new Date(iso));
-
-	const copyToClipboard = async (text: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		} catch (err) {
-			console.error('Failed to copy:', err);
-		}
-	};
 
 	if (isUser) {
 		return (
@@ -57,13 +47,15 @@ export const ChatMessage = ({ message, isOrphaned, onRetry }: ChatMessageProps) 
 								<p className="text-sm text-red-700 dark:text-red-400">
 									{t('chat.messageFailed') || 'Failed to get response'}
 								</p>
-								<button
+								<Button
 									onClick={onRetry}
-									className="flex items-center gap-1.5 rounded-md bg-red-100 dark:bg-red-900/30 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 transition-colors hover:bg-red-200 dark:hover:bg-red-900/50"
+									variant="ghost"
+									size="sm"
+									className="h-auto gap-1.5 rounded-md bg-red-100 dark:bg-red-900/30 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 transition-colors hover:bg-red-200 dark:hover:bg-red-900/50"
 								>
 									<RefreshCw className="h-3.5 w-3.5" />
 									{t('chat.retry')}
-								</button>
+								</Button>
 							</div>
 						</div>
 					</div>
@@ -103,20 +95,7 @@ export const ChatMessage = ({ message, isOrphaned, onRetry }: ChatMessageProps) 
 								</>
 							)}
 						</div>
-						<button
-							onClick={() => copyToClipboard(message.content)}
-							className="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-neutral-400 transition-all hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800 dark:hover:text-neutral-300 cursor-pointer"
-							aria-label={copied ? t('common.copied') : t('common.copy')}
-						>
-							{copied ? (
-								<Check className="h-3.5 w-3.5 animate-in zoom-in-75 duration-200" />
-							) : (
-								<Copy className="h-3.5 w-3.5" />
-							)}
-							<span className="transition-opacity">
-								{copied ? t('common.copied') : t('common.copy')}
-							</span>
-						</button>
+						<CopyButton text={message.content} />
 					</div>
 				</div>
 			</div>
