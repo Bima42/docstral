@@ -35,6 +35,19 @@ class SQLMessageRepository(MessageRepository):
         self.session.refresh(message)
         return MessageOut.model_validate(message)
 
+    def update_message_content(
+        self,
+        message_id: UUID,
+        new_content: str,
+    ) -> MessageOut:
+        message = self.session.get(Message, message_id)
+        if not message:
+            raise ValueError("Message not found")
+        message.content = new_content
+        self.session.commit()
+        self.session.refresh(message)
+        return MessageOut.model_validate(message)
+
 
 def get_message_repo(session: Session = Depends(get_session)) -> MessageRepository:
     return SQLMessageRepository(session)

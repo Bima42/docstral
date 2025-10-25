@@ -54,10 +54,11 @@ export interface StreamReplyOptions {
     content: string;
     onChunk: (chunk: string) => void;
     signal?: AbortSignal;
+    retry?: boolean;
 }
 
 /**
- * Consume SSE stream from /chat/{chat_id}/stream.
+ * Consume stream from /chat/{chat_id}/stream.
  * Bypasses HeyAPI wrapper to access raw ReadableStream.
  */
 export async function streamReply({
@@ -65,27 +66,29 @@ export async function streamReply({
 	content,
 	onChunk,
 	signal,
+	retry = false,
 }: StreamReplyOptions): Promise<void> {
 	const authHeaders = getAuthHeaders();
-	const response = await fetch(
-		`${BASE_API_URL}/chat/${chatId}/stream`,
-		{
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': authHeaders.Authorization || '',
-			},
-			body: JSON.stringify({ content }),
-			signal,
-		}
-	);
+	const url = `${BASE_API_URL}/chat/${chatId}/stream${retry ? '?retry=true' : ''}`;
+
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': authHeaders.Authorization || '',
+		},
+		body: JSON.stringify({ content }),
+		signal,
+	});
 
 	if (!response.ok) {
 		throw new Error(`Stream failed: ${response.status}`);
 	}
 
 	const reader = response.body?.getReader();
-	if (!reader) throw new Error('No response body');
+	if (!reader) {
+		throw new Error('No response body');
+	}
 
 	const decoder = new TextDecoder();
 	let buffer = '';

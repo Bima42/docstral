@@ -114,6 +114,9 @@ def create_chat(
 async def stream_message(
     chat_id: UUID,
     payload: MessageCreate,
+    retry: bool = Query(
+        False, description="Allow retry without consecutive user message check"
+    ),
     chat_repo: ChatRepository = Depends(get_chat_repo),
     message_repo: MessageRepository = Depends(get_message_repo),
     current_user: User = Depends(get_current_user),
@@ -122,7 +125,7 @@ async def stream_message(
     Stream assistant response with automatic tool call handling.
 
     Flow:
-    1. Save user message
+    1. Save user message (or reuse last one if retry=true)
     2. Check for tool calls (non-streaming invoke)
     3. If tool call: execute retrieval, add context, stream final response
     4. If no tool call: stream response directly
@@ -132,21 +135,32 @@ async def stream_message(
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
 
-    last_msg = chat.messages[-1] if chat.messages else None
-    if last_msg and last_msg.role == MessageRole.USER:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Cannot send multiple user messages in a row",
-        )
+    # Skip consecutive-user check if retry
+    if not retry:
+        last_msg = chat.messages[-1] if chat.messages else None
+        if last_msg and last_msg.role == MessageRole.USER:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Cannot send multiple user messages in a row",
+            )
 
-    user_message = message_repo.insert_message(
-        chat_id=chat_id,
-        role=MessageRole.USER,
-        content=payload.content,
-    )
+    # Handle user message: reuse last if retry, or insert new
+    if retry and chat.messages and chat.messages[-1].role == MessageRole.USER:
+        user_message = chat.messages[-1]
+        if user_message.content != payload.content:
+            message_repo.update_message_content(
+                user_message.id, new_content=payload.content
+            )
+            user_message.content = payload.content
+    else:
+        user_message = message_repo.insert_message(
+            chat_id=chat_id,
+            role=MessageRole.USER,
+            content=payload.content,
+        )
+        chat.messages.append(user_message)
 
     # Build conversation history
-    chat.messages.append(user_message)
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     messages.extend(
         [{"role": msg.role.value, "content": msg.content} for msg in chat.messages]
@@ -221,7 +235,6 @@ async def stream_message(
 
             else:
                 # No tool calls - stream directly
-                # content from invoke() is already complete, but we stream for UX
                 async for chunk, usage in llm_client.stream(messages, tools=tools):
                     if chunk:
                         full_response.append(chunk)
@@ -246,15 +259,7 @@ async def stream_message(
 
         except Exception as e:
             logger.error(f"Stream failed: {e}", exc_info=True)
-            error_message = f"Error: {str(e)}"
-            yield error_message
-
-            # Save error message
-            message_repo.insert_message(
-                chat_id=chat_id,
-                role=MessageRole.ASSISTANT,
-                content=error_message,
-            )
+            raise
 
     return StreamingResponse(
         generate(),

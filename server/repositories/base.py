@@ -26,3 +26,8 @@ class MessageRepository(Protocol):
         prompt_tokens: int | None = None,
         completion_tokens: int | None = None,
     ) -> MessageOut: ...
+    def update_message_content(
+        self,
+        message_id: UUID,
+        new_content: str,
+    ) -> MessageOut: ...
