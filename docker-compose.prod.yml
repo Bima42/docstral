@@ -8,8 +8,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${DOCSTRAL_DB_USER}
+      POSTGRES_PASSWORD: ${DOCSTRAL_DB_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-docstral}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
@@ -17,6 +17,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    env_file:
+      - .env
     networks:
       - docstral_network
     restart: unless-stopped
@@ -42,7 +44,8 @@ services:
     environment:
       APP_ENV: production
       DOCSTRAL_MISTRAL_API_KEY: ${DOCSTRAL_MISTRAL_API_KEY}
-      DOCSTRAL_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DOCSTRAL_DB_USER: ${DOCSTRAL_DB_USER}
+      DOCSTRAL_DB_PASSWORD: ${DOCSTRAL_DB_PASSWORD}
     volumes:
       - /home/ubuntu/docstral_data:/app/server/scraper/data
     networks:
