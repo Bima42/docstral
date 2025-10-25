@@ -134,7 +134,7 @@ SEARCH_DOCUMENTATION_TOOL = {
 }
 ```
 
-This way, the system prompt gets injected only on the first message. It's not persisted in the database. Subsequent messages let the model decide whether it needs documentation context or can answer from its training data alone. In practice, I found the model was sometimes *too* conservative about using the tool unless the question was explicitly about Mistral features. So for testing purposes, I've been forcing tool use with `"tool_choice": "any"` just to stress-test the retrieval path. I might relax that later.
+This way, the system prompt gets injected only on the first message. It's not persisted in the database. Subsequent messages let the model decide whether it needs documentation context or can answer from its training data alone.
 
 The tool-based approach is cleaner conceptually and more token-efficient in practice. It also makes the system more extensible—adding more tools (e.g., searching code examples, fetching release notes) is just a matter of defining new functions.
 
