@@ -44,7 +44,7 @@ class RetrievalService:
         with open(metadata_path, "r", encoding="utf-8") as f:
             self.metadata = json.load(f)
 
-        self.embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        self.embedder = SentenceTransformer("BAAI/bge-small-en-v1.5")
         logger.info(
             f"RetrievalService initialized with {len(self.chunks)} chunks from {self.data_dir}"
         )

@@ -39,6 +39,10 @@ services:
     build:
       context: .
       dockerfile: docker/prod/server/Dockerfile
+    environment:
+      APP_ENV: production
+      DOCSTRAL_MISTRAL_API_KEY: ${DOCSTRAL_MISTRAL_API_KEY}
+      DOCSTRAL_DB_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - docstral_network
     depends_on:
@@ -53,8 +57,8 @@ services:
       context: .
       dockerfile: docker/prod/client/Dockerfile
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
-        VITE_VERSION: ${VITE_VERSION:-prod}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_VERSION: ${VITE_VERSION}
     networks:
       - docstral_network
     restart: unless-stopped

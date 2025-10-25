@@ -9,7 +9,7 @@ def setup_logging():
     Configure application-wide logging.
     Call once at startup (in lifespan or main.py).
     """
-    log_level = logging.DEBUG if settings.debug else logging.INFO
+    log_level = logging.DEBUG if settings.DEBUG else logging.INFO
 
     logging.basicConfig(
         level=log_level,
