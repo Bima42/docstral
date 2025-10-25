@@ -9,11 +9,9 @@ from models import User, Chat, Message, MessageRole, UserToken
 
 def seed() -> None:
     with Session(engine) as session:
-        user = session.exec(
-            select(User).where(User.first_name == "Demo" and User.last_name == "User")
-        ).first()
+        user = session.exec(select(User).where(User.email == "demo@user.com")).first()
         if not user:
-            user = User(first_name="Demo", last_name="User")
+            user = User(first_name="Demo", last_name="User", email="demo@user.com")
             session.add(user)
             session.commit()
             session.refresh(user)

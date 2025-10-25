@@ -17,8 +17,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    env_file:
-      - .env
     networks:
       - docstral_network
     restart: unless-stopped
@@ -46,6 +44,7 @@ services:
       DOCSTRAL_MISTRAL_API_KEY: ${DOCSTRAL_MISTRAL_API_KEY}
       DOCSTRAL_DB_USER: ${DOCSTRAL_DB_USER}
       DOCSTRAL_DB_PASSWORD: ${DOCSTRAL_DB_PASSWORD}
+      DOCSTRAL_ADMIN_TOKEN: ${DOCSTRAL_ADMIN_TOKEN}
     volumes:
       - /home/ubuntu/docstral_data:/app/server/scraper/data
     networks:

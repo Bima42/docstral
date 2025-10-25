@@ -1,10 +1,11 @@
 import hashlib
 from datetime import datetime, UTC
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel import Session, select
 
 from core.db import get_session
+from core.settings import settings
 from models import User
 from models.token import UserToken
 
@@ -43,3 +44,19 @@ def get_current_user(
     session.commit()
 
     return user
+
+
+def verify_admin_token(authorization: str = Header(...)) -> None:
+    """Verify the admin token from Authorization header."""
+
+    expected_token = settings.ADMIN_TOKEN.get_secret_value()
+
+    token = authorization
+    if authorization.startswith("Bearer "):
+        token = authorization[7:]
+
+    if token != expected_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid admin token",
+        )

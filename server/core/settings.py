@@ -21,6 +21,7 @@ class Settings(BaseSettings):
 
     MISTRAL_API_KEY: str
     DB_PASSWORD: SecretStr
+    ADMIN_TOKEN: SecretStr
 
     model_config = SettingsConfigDict(
         env_file=".env",
