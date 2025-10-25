@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { ChatContainer } from '@/components/chat/ChatContainer';
+import { ChatPage } from '@/pages/ChatPage.tsx';
 import { getChat } from '@/api/chat/chat';
 
 export const Route = createFileRoute('/chats/$chatId')({
@@ -19,5 +19,5 @@ export const Route = createFileRoute('/chats/$chatId')({
 			throw redirect({ to: '/chats' });
 		}
 	},
-	component: ChatContainer,
+	component: ChatPage,
 });
