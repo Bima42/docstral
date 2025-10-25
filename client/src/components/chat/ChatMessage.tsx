@@ -84,7 +84,7 @@ export const ChatMessage = ({ message, isOrphaned, onRetry }: ChatMessageProps) 
 					<div className="text-neutral-900 dark:text-neutral-100">
 						<MarkdownRenderer content={message.content} />
 					</div>
-					<div className="mt-2 flex items-center justify-between px-1">
+					<div className="mt-2 flex items-center justify-between">
 						<div className="flex items-center gap-3 text-xs text-neutral-500">
 							<span>{formatTime(message.createdAt)}</span>
 							{hasMetrics && (
@@ -97,7 +97,7 @@ export const ChatMessage = ({ message, isOrphaned, onRetry }: ChatMessageProps) 
 									{message.promptTokens != null &&
                                         message.completionTokens != null && (
 										<span className="text-neutral-400">
-											{message.promptTokens}→{message.completionTokens} tokens
+											Tokens: ⭡{message.promptTokens} ⭣{message.completionTokens}
 										</span>
 									)}
 								</>
