@@ -19,9 +19,7 @@ export const SidebarHeader = ({ collapsed, onToggleCollapse }: SidebarHeaderProp
 					{user && <span className="truncate font-medium">{user.firstName} {user.lastName}</span>}
 				</div>
 			</>)}
-			<div className="flex items-center justify-between">
-				<SidebarToggle collapsed={collapsed} onToggle={onToggleCollapse} />
-			</div>
+			<SidebarToggle collapsed={collapsed} onToggle={onToggleCollapse} />
 		</div>
 	);
 };

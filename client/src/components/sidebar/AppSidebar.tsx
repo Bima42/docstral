@@ -5,6 +5,7 @@ import { SidebarContainer } from '@/components/sidebar/SidebarContainer';
 import { SidebarFooter } from '@/components/sidebar/SidebarFooter';
 import { SidebarContent } from '@/components/sidebar/SidebarContent';
 import { useAuth } from '@/providers/AuthProvider';
+import { COLLAPSED_PX } from '@/config';
 
 interface SidebarDesktopProps {
     isCollapsed: boolean;
@@ -23,7 +24,7 @@ export const SidebarDesktop = ({
 				'transition-all duration-300 ease-in-out',
 				isCollapsed ? 'border-r-1 border-surface-warm' : 'border-r-1 border-sidebar-border',
 				isCollapsed
-					? 'w-[64px] min-w-[64px] max-w-[64px]'
+					? `w-[${COLLAPSED_PX}px] min-w-[${COLLAPSED_PX}px] max-w-[${COLLAPSED_PX}px]`
 					: 'w-[18%] min-w-[300px] max-w-[18%]',
 				isCollapsed ? 'hover:brightness-90' : '',
 				'group'
