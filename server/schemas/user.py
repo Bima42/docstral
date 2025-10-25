@@ -13,3 +13,7 @@ class UserOut(BaseModel):
         serialize_by_alias=True,
         from_attributes=True,
     )
+
+
+class UserCreatedOut(UserOut):
+    token: str

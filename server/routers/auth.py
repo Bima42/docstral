@@ -1,14 +1,17 @@
+import secrets
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_limiter.depends import RateLimiter
 from pydantic import EmailStr, BaseModel
 from sqlmodel import Session, select
 from starlette import status
 
-from core.auth import get_current_user, verify_admin_token
+from core.auth import get_current_user, verify_admin_token, hash_token
 from core.db import get_session
 from core.rate_limiter import AUTH_REQUESTS, AUTH_WINDOW
-from models import User
+from models import User, UserToken
 from schemas import UserOut
+from schemas.user import UserCreatedOut
 
 router = APIRouter(tags=["auth"])
 
@@ -32,15 +35,19 @@ class CreateUserRequest(BaseModel):
 @router.post(
     "/auth/admin/create-user",
     summary="Create a new user (Admin only)",
-    response_model=UserOut,
+    response_model=UserCreatedOut,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(verify_admin_token)],
+    dependencies=[
+        Depends(RateLimiter(times=AUTH_REQUESTS, seconds=AUTH_WINDOW)),
+        Depends(verify_admin_token),
+    ],
 )
 def create_user(
     user_data: CreateUserRequest,
     db: Session = Depends(get_session),
-) -> UserOut:
+) -> UserCreatedOut:
     """Create a new user. Requires admin token in Authorization header."""
+
     statement = select(User).where(User.email == user_data.email)
     existing_user = db.exec(statement).first()
     if existing_user:
@@ -59,4 +66,16 @@ def create_user(
     db.commit()
     db.refresh(new_user)
 
-    return UserOut.model_validate(new_user)
+    plain_token = secrets.token_urlsafe(32)
+    hashed = hash_token(plain_token)
+    token_row = UserToken(user_id=new_user.id, token=hashed)
+    db.add(token_row)
+    db.commit()
+
+    return UserCreatedOut(
+        id=new_user.id,
+        firstName=new_user.first_name,
+        lastName=new_user.last_name,
+        email=new_user.email,
+        token=plain_token,
+    )

@@ -47,6 +47,8 @@ services:
       DOCSTRAL_ADMIN_TOKEN: ${DOCSTRAL_ADMIN_TOKEN}
     volumes:
       - /home/ubuntu/docstral_data:/app/server/scraper/data
+    expose:
+      - "8000"
     networks:
       - docstral_network
     depends_on:
