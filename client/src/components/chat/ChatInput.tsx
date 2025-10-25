@@ -73,7 +73,7 @@ export const ChatInput = ({ onSubmit, disabled = false }: ChatInputProps) => {
 						<button
 							type="submit"
 							disabled={!input.trim() || isLoading}
-							className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-md bg-primary-500 text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-neutral-300 dark:disabled:bg-neutral-700"
+							className="absolute cursor-pointer bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-md bg-primary-500 text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-neutral-300 dark:disabled:bg-neutral-700"
 							aria-label="Send"
 						>
 							{isLoading ? (

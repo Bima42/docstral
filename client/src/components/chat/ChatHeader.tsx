@@ -53,7 +53,7 @@ export const ChatHeader = ({ messageCount = 0 }: { messageCount?: number }) => {
                                 + {t('common.new')}
 							</Button>
 						)}
-						<div className="hidden items-center gap-6 sm:flex">
+						<div className="hidden items-center gap-4 sm:flex">
 							<div className="flex items-center gap-2">
 								<div className="h-2 w-2 rounded-full bg-primary" />
 								<span className="text-neutral-600 dark:text-neutral-400">
