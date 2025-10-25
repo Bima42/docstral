@@ -6,6 +6,7 @@ class UserOut(BaseModel):
     id: UUID
     first_name: str = Field(alias="firstName")
     last_name: str = Field(alias="lastName")
+    email: str
 
     model_config = ConfigDict(
         populate_by_name=True,
