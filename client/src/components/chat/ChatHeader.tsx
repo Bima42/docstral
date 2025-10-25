@@ -61,7 +61,7 @@ export const ChatHeader = ({ messageCount = 0 }: { messageCount?: number }) => {
 								</span>
 							</div>
 							{mode && (
-								<Badge className="font-normal">
+								<Badge className="font-normal rounded-sm">
                                     Mode {mode}
 								</Badge>
 							)}
