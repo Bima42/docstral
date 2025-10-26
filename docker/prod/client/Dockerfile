@@ -9,6 +9,8 @@ COPY client/package.json client/package-lock.json ./
 RUN npm ci
 
 COPY client ./
+RUN echo "VITE_API_BASE_URL at build time: $VITE_API_BASE_URL"
+
 RUN npm run build
 
 
