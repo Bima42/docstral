@@ -19,7 +19,7 @@ The Mistral documentation has changed recently. The first priority is to update 
 
 ### Phase 2: Implement Electron with some features
 
-I would like to improve my knowledge of Electron by creating a desktop version of DocStral.
+I would like to improve my knowledge of Electron by creating a desktop version of Docstral.
 I don't know yet which features will be included in this version, but I plan to explore the possibilities offered by Electron.
 
 ## Quality Improvements

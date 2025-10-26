@@ -43,7 +43,7 @@ async def lifespan(_: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="DocStral API",
+        title="Docstral API",
         version="0.1.0",
         default_response_class=ORJSONResponse,
         lifespan=lifespan,

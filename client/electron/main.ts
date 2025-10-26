@@ -9,7 +9,7 @@ function createWindow() {
 	win = new BrowserWindow({
 		width: 1200,
 		height: 800,
-		title: 'DocStral',
+		title: 'Docstral',
 		webPreferences: {
 			contextIsolation: true,
 			sandbox: true,

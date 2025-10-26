@@ -1,6 +1,6 @@
-# DocStral
+# Docstral
 
-**DocStral** is a sandbox chat application designed to interact with Mistral models and documentation. This is obviously **not an official Mistral project**.
+**Docstral** is a sandbox chat application designed to interact with Mistral models and documentation. This is obviously **not an official Mistral project**.
 
 ## Motivation
 
@@ -22,7 +22,7 @@ Want to **know more about my thoughts, technical choices, or architectural decis
 
 ## Important notes
 
-⚠️ The Mistral AI Documentation have recently been updated, and DocStral's scraper and ingestion pipeline have not yet been adjusted to reflect these changes. 
+⚠️ The Mistral AI Documentation have recently been updated, and Docstral's scraper and ingestion pipeline have not yet been adjusted to reflect these changes. 
 
 ## Tech Stack
 

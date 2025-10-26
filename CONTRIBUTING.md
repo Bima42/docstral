@@ -1,4 +1,4 @@
-# Contributing to DocStral
+# Contributing to Docstral
 
 Contributions are welcome! Whether you want to report a bug, suggest a feature, or submit a pull request, feel free to open an issue or PR.
 
