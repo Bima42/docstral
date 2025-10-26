@@ -7,6 +7,9 @@ import './i18n';
 import { UIBootstrap } from '@/utils/UIBootstrap';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { queryClient } from '@/lib/queryClient';
+import { client } from '@/api/client/client.gen';
+import { BASE_API_URL } from '@/config.ts';
+
 
 export const router = createRouter({
 	routeTree,
@@ -20,6 +23,10 @@ declare module '@tanstack/react-router' {
         router: typeof router;
     }
 }
+
+client.setConfig({
+	baseUrl: BASE_API_URL,
+});
 
 const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {
