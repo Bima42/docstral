@@ -50,7 +50,7 @@ export const ChatInterface = () => {
 					<div className="text-neutral-500 text-sm">{t('chat.noMessages')}</div>
 				</div>
 			)}
-			<ChatInput onSubmit={handleSubmit} />
+			<ChatInput onSubmit={handleSubmit} disabled={streamMutation.isPending} />
 		</div>
 	);
 };
