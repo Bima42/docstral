@@ -5,17 +5,23 @@ from pydantic import SecretStr, DirectoryPath
 
 
 class Settings(BaseSettings):
-    app_env: str = "dev"
-    debug: bool = True
+    APP_ENV: str = "dev"
+    DEBUG: bool = True
     DATA_DIR: DirectoryPath = Path(__file__).parent.parent / "scraper" / "data"
 
-    db_enabled: bool = True
-    db_driver: str = "postgresql+psycopg"
-    db_host: str = "db"
-    db_port: int = 5432
-    db_user: str = "postgres"
-    db_password: SecretStr = SecretStr("postgres")
-    db_name: str = "docstral"
+    DB_ENABLED: bool = True
+    DB_DRIVER: str = "postgresql+psycopg"
+    DB_HOST: str = "db"
+    DB_PORT: int = 5432
+    DB_USER: str = "postgres"
+    DB_NAME: str = "docstral"
+    SENTENCE_TRANSFORMER_MODEL: str = "BAAI/bge-small-en-v1.5"
+    SELF_HOSTED_LLM_URL: str | None = None
+    SELF_HOSTED_API_KEY: str | None = None
+
+    MISTRAL_API_KEY: str
+    DB_PASSWORD: SecretStr
+    ADMIN_TOKEN: SecretStr
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -25,8 +31,8 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        pwd = self.db_password.get_secret_value()
-        return f"{self.db_driver}://{self.db_user}:{pwd}@{self.db_host}:{self.db_port}/{self.db_name}"
+        pwd = self.DB_PASSWORD.get_secret_value()
+        return f"{self.DB_DRIVER}://{self.DB_USER}:{pwd}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
 settings = Settings()

@@ -1,15 +1,16 @@
-FROM python:3.12-slim AS build
+FROM python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /build
 
 RUN python -m venv /venv
 
 COPY server/requirements.txt .
-RUN /venv/bin/pip install -r requirements.txt
+RUN /venv/bin/pip install --no-cache-dir -r requirements.txt
 
 
 FROM python:3.12-slim
@@ -19,16 +20,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/server \
     PATH="/venv/bin:$PATH"
 
+RUN useradd -m -u 1000 docstral
+
 WORKDIR /app/server
 
-COPY --from=build /venv /venv
+COPY --from=builder --chown=docstral:docstral /venv /venv
+COPY --chown=docstral:docstral server/ .
 
-COPY server/ .
-
-COPY docker/prod/server/entrypoint /entrypoint
+COPY --chown=docstral:docstral docker/prod/server/entrypoint /entrypoint
 RUN chmod +x /entrypoint
 
-RUN useradd -m -u 1000 docstral && chown -R docstral:docstral /app /venv
 USER docstral
 
 EXPOSE 8000

@@ -20,9 +20,13 @@ Want to **know more about my thoughts, technical choices, or architectural decis
 
 ![docstral-tiny-demo.gif](docs/docstral-tiny-demo.gif)
 
+## Important notes
+
+⚠️ The Mistral AI Documentation have recently been updated, and DocStral's scraper and ingestion pipeline have not yet been adjusted to reflect these changes. 
+
 ## Tech Stack
 
-I use the following tools to build the application:
+I use the following tools to build the application:⚠️
 
 ### Backend
 

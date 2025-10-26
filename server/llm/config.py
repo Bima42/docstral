@@ -1,6 +1,8 @@
 import os
 from pydantic import BaseModel
 
+from core.settings import settings
+
 
 class LLMConfig(BaseModel):
     model: str
@@ -17,10 +19,7 @@ class MistralConfig(LLMConfig):
 
     @staticmethod
     def from_env() -> "MistralConfig":
-        api_key = os.getenv("DOCSTRAL_MISTRAL_API_KEY", "").strip()
-        if not api_key:
-            raise ValueError("DOCSTRAL_MISTRAL_API_KEY is required for API mode")
-
+        api_key = settings.MISTRAL_API_KEY
         model = os.getenv("DOCSTRAL_MISTRAL_MODEL", "ministral-3b-2410").strip()
         base_url = os.getenv(
             "DOCSTRAL_MISTRAL_BASE_URL", "https://api.mistral.ai"
@@ -35,16 +34,15 @@ class MistralConfig(LLMConfig):
 
 class SelfHostedConfig(LLMConfig):
     base_url: str
-    model: str = "mistralai/Mistral-7B-Instruct-v0.3"
     api_key: str
+    model: str = "mistralai/Mistral-7B-Instruct-v0.3"
 
     @staticmethod
     def from_env() -> "SelfHostedConfig | None":
-        base_url = os.getenv("SELF_HOSTED_LLM_URL", "").strip()
-        if not base_url:
-            return None
-        api_key = os.getenv("SELF_HOSTED_API_KEY", "").strip() or None
-        if api_key is None:
+        base_url = settings.SELF_HOSTED_LLM_URL
+        api_key = settings.SELF_HOSTED_API_KEY
+
+        if not base_url or not api_key:
             return None
 
         model = os.getenv(
