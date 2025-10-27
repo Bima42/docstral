@@ -22,11 +22,11 @@ Want to **know more about my thoughts, technical choices, or architectural decis
 
 ## Important notes
 
-⚠️ The Mistral AI Documentation have recently been updated, and Docstral's scraper and ingestion pipeline have not yet been adjusted to reflect these changes. 
+⚠️ The Mistral AI Documentation have recently been updated, and Docstral's scraper and ingestion pipeline have not yet been adjusted to reflect these changes. ⚠️
 
 ## Tech Stack
 
-I use the following tools to build the application:⚠️
+I use the following tools to build the application:
 
 ### Backend
 
